@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\FirebaseAuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,3 +18,18 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth:sanctum'])->group(function () {
 
 });
+
+Route::middleware(['throttle:100,1'])->group(function () {
+
+    Route::post('/register', [FirebaseAuthController::class, 'register']);
+
+    Route::post(
+        '/verify-email',
+        [FirebaseAuthController::class, 'verify_email']
+    );
+
+    Route::post('/resend-otp', [FirebaseAuthController::class, 'resend_otp']);
+
+});
+
+
