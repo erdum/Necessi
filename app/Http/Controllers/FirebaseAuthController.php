@@ -61,6 +61,21 @@ class FirebaseAuthController extends Controller
         return response()->json($response);
     }
 
+    public function login(Request $request)
+    {
+        $request->validate([
+            'email' => 'required',
+            'password' => 'required',
+        ]);
+        $response = $this->auth_service->login(
+            $request->email,
+            $request->password,
+            null,
+        );
+
+        return response()->json($response);
+    }
+
     public function google_auth(Request $request)
     {
         $request->validate([

@@ -7,6 +7,7 @@ use Kreait\Firebase\Auth;
 use Illuminate\Support\Str;
 use Kreait\Firebase\Factory;
 use Illuminate\Support\Facades\Hash;
+use App\Exceptions\UserNotFoundException;
 use App\Exceptions\UserAlreadyRegisteredException;
 
 class FirebaseAuthService
@@ -17,10 +18,13 @@ class FirebaseAuthService
 
     protected $user_service;
 
+    protected $notification;
+
     public function __construct(
         Factory $factory,
         OtpService $otp_service,
         UserService $user_service,
+        FirebaseNotificationService $notification
     ) {
         $firebase = $factory->withServiceAccount(
             base_path()
@@ -30,12 +34,13 @@ class FirebaseAuthService
         $this->auth = $firebase->createAuth();
         $this->user_service = $user_service;
         $this->otp_service = $otp_service;
+        $this->notification = $notification;
     }
 
-    protected function is_user_already_registered(string $phone_number)
+    protected function is_user_already_registered(string $email)
     {
-        return User::where('phone_number', $phone_number)
-            ->whereNotNull('phone_number_verified_at')->first();
+        return User::where('email', $email)
+            ->whereNotNull('email_verified_at')->first();
     }
 
     public function register(
@@ -50,7 +55,7 @@ class FirebaseAuthService
         //     'password' => $password,
         // ]);
 
-        if ($this->is_user_already_registered($phone_number)) {
+        if ($this->is_user_already_registered($email)) {
             throw new UserAlreadyRegisteredException;
         }
 
@@ -71,7 +76,7 @@ class FirebaseAuthService
             'uid' => $user->uid,
         ]);
 
-        $this->user_service->update_firestore_profile($user);
+        // $this->user_service->update_firestore_profile($user);
 
         return $this->otp_service->send_otp($user, $email);
     }
@@ -112,11 +117,41 @@ class FirebaseAuthService
         return $this->otp_service->resend_otp($phone_number);
     }
 
+    public function login(string $email, string $password, ?string $fcm_token)
+    {
+        $user = $this->is_user_already_registered($email);
+
+        if (! $user) {
+            throw new UserNotFoundException;
+        }
+
+        if ($user->email_verified_at == null) {
+            throw new \Exception('Email is not verified', 400);
+        }
+
+        if (! \Hash::check($password, $user->password)) {
+            throw new \Exception('Invalid credentials', 401);
+        }
+
+        // if ($fcm_token != null) {
+        //     $this->notification->store_fcm_token($user, $fcm_token);
+        // }
+
+        $token = $this->generate_token($user);
+
+        return [
+            'message' => 'Login successful',
+            'uid' => $user->uid,
+            'token' => $token,
+        ];
+    }
+
     public function google_auth($token)
     {
         try {
             $verifiedIdToken = $this->auth->verifyIdToken($token);
             $firebaseUid = $verifiedIdToken->claims()->get('sub');
+            $email_verified_at = now(); 
     
             $user = User::firstOrCreate(
                 ['uid' => $firebaseUid],
@@ -124,7 +159,7 @@ class FirebaseAuthService
                     'first_name' => $verifiedIdToken->claims()->get('name'),
                     'last_name' => $verifiedIdToken->claims()->get('family_name'),
                     'email' => $verifiedIdToken->claims()->get('email'),
-                    'email_verified_at' => now(),
+                    'email_verified_at' => $email_verified_at,
                     'avatar' => $verifiedIdToken->claims()->get('picture'),
                     'uid' => $firebaseUid,
                 ]

@@ -21,16 +21,27 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 Route::middleware(['throttle:100,1'])->group(function () {
 
-    Route::post('/register', [FirebaseAuthController::class, 'register']);
+    Route::post(
+        '/register', 
+        [FirebaseAuthController::class, 'register']);
 
     Route::post(
         '/verify-email',
         [FirebaseAuthController::class, 'verify_email']
     );
 
-    Route::post('/resend-otp', [FirebaseAuthController::class, 'resend_otp']);
+    Route::post(
+        '/resend-otp', 
+        [FirebaseAuthController::class, 'resend_otp']);
+    
+    Route::post(
+        '/login',
+        [FirebaseAuthController::class, 'login']
+    );
 
-    Route::post('/google/auth', [FirebaseAuthController::class, 'google_auth']);
+    Route::post(
+        '/google/auth', 
+        [FirebaseAuthController::class, 'google_auth']);
 
 });
 
