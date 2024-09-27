@@ -42,6 +42,12 @@ Route::middleware(['throttle:100,1'])->group(function () {
     Route::post(
         '/google/auth', 
         [FirebaseAuthController::class, 'google_auth']);
+    
+
+    Route::post(
+        'password/reset', 
+        [FirebaseAuthController::class, 'reset_password']
+    );
 
 });
 

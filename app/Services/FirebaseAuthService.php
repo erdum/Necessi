@@ -117,6 +117,27 @@ class FirebaseAuthService
         return $this->otp_service->resend_otp($phone_number);
     }
 
+    public function reset_password(string $email, string $password)
+    {
+        $user = $this->is_user_already_registered($email);
+
+        if (!$user) {
+            throw new \Exception('User not found', 404);
+        }
+
+        if (!$user->user_otp || $user->user_otp->verified_at === null) {
+            throw new \Exception('OTP is not verified', 400);
+        }
+
+        $user->update([
+            'password' => Hash::make($password),
+        ]);
+
+        return [
+            'message' => 'Password updated successfully.'
+        ];
+    }
+
     public function login(string $email, string $password, ?string $fcm_token)
     {
         $user = $this->is_user_already_registered($email);
@@ -133,9 +154,9 @@ class FirebaseAuthService
             throw new \Exception('Invalid credentials', 401);
         }
 
-        // if ($fcm_token != null) {
-        //     $this->notification->store_fcm_token($user, $fcm_token);
-        // }
+        if ($fcm_token != null) {
+            $this->notification->store_fcm_token($user, $fcm_token);
+        }
 
         $token = $this->generate_token($user);
 
