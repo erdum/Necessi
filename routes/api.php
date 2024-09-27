@@ -30,6 +30,8 @@ Route::middleware(['throttle:100,1'])->group(function () {
 
     Route::post('/resend-otp', [FirebaseAuthController::class, 'resend_otp']);
 
+    Route::post('/google/auth', [FirebaseAuthController::class, 'google_auth']);
+
 });
 
 

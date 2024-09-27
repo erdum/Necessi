@@ -111,4 +111,37 @@ class FirebaseAuthService
     {
         return $this->otp_service->resend_otp($phone_number);
     }
+
+    public function google_auth($token)
+    {
+        try {
+            $verifiedIdToken = $this->auth->verifyIdToken($token);
+            $firebaseUid = $verifiedIdToken->claims()->get('sub');
+    
+            $user = User::firstOrCreate(
+                ['uid' => $firebaseUid],
+                [
+                    'first_name' => $verifiedIdToken->claims()->get('name'),
+                    'last_name' => $verifiedIdToken->claims()->get('family_name'),
+                    'email' => $verifiedIdToken->claims()->get('email'),
+                    'email_verified_at' => now(),
+                    'avatar' => $verifiedIdToken->claims()->get('picture'),
+                    'uid' => $firebaseUid,
+                ]
+            );
+    
+            $token = $this->generate_token($user);
+            // $this->user_service->update_firestore_profile($user);
+    
+            return [
+                'token' => $token,
+                'uid' => $user->uid,
+            ];
+    
+        } catch (\Kreait\Firebase\Exception\Auth\InvalidToken $e) {
+            return response()->json(['error' => 'Invalid ID token.'], 401);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    } 
 }
