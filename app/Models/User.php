@@ -23,9 +23,12 @@ class User extends Authenticatable
         'email',
         'email_verified_at',
         'phone_number',
+        'phone_number_verified_at',
         'uid',
         'avatar',
         'password',
+        'gender',
+        'age',
     ];
 
     /**
@@ -45,6 +48,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'phone_number_verified_at' => 'datetime',
     ];
 
     public function notification_device()

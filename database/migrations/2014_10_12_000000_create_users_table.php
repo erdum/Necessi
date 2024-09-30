@@ -19,8 +19,15 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('phone_number', 20)->unique()->nullable();
+            $table->timestamp('phone_number_verified_at')->nullable();
             $table->string('password')->nullable();
             $table->string('avatar')->nullable();
+            $table->enum('gender', ['male', 'female', 'non-binary']);
+            $table->integer('age')->nullable();
+            $table->text('about')->nullable();
+            $table->decimal('lat', 7, 4)->nullable();
+            $table->decimal('long', 7, 4)->nullable();
+            $table->string('location')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
