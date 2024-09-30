@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Services\FirebaseAuthService;
+use Illuminate\Http\Request;
 
 class FirebaseAuthController extends Controller
 {
@@ -24,13 +24,13 @@ class FirebaseAuthController extends Controller
             'password' => 'required|min:6',
         ]);
 
-            $response = $this->auth_service->register(
-                $request->first_name,
-                $request->last_name,
-                $request->phone_number,
-                $request->email,
-                $request->password,
-            );
+        $response = $this->auth_service->register(
+            $request->first_name,
+            $request->last_name,
+            $request->phone_number,
+            $request->email,
+            $request->password,
+        );
 
         return response()->json($response, 201);
     }
@@ -96,10 +96,9 @@ class FirebaseAuthController extends Controller
         $request->validate([
             'token' => 'required',
         ]);
-    
+
         $response = $this->auth_service->google_auth($request->token);
-    
+
         return response()->json($response);
     }
-    
 }

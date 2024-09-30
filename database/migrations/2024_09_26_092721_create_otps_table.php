@@ -12,13 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('otps', function (Blueprint $table) {
-                $table->id();
-                $table->foreignId('user_id')->constrained()->onDelete('cascade');
-                $table->string('identifier')->unique();
-                $table->integer('retries')->default(0);
-                $table->timestamp('sent_at');
-                $table->timestamp('verified_at')->nullable();
-                $table->timestamps();
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('identifier')->unique();
+            $table->integer('retries')->default(0);
+            $table->timestamp('sent_at');
+            $table->timestamp('verified_at')->nullable();
+            $table->timestamps();
         });
     }
 

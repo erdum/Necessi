@@ -2,9 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\Otp;
 use App\Models\User;
-use Carbon\Carbon;
 use Kreait\Firebase\Factory;
 
 class UserService
@@ -12,7 +10,6 @@ class UserService
     protected $db;
 
     protected $auth;
-
 
     public function __construct(
         Factory $factory,
@@ -29,7 +26,7 @@ class UserService
     public function update_firestore_profile(User $user)
     {
         $user_ref = $this->db->collection('users')->document($user->uid);
-        
+
         $user_ref->set([
             'first_name' => $user->first_name,
             'uid' => $user->uid,
@@ -40,5 +37,4 @@ class UserService
             'is_online' => true,
         ]);
     }
-
 }

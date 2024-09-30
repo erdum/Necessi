@@ -55,8 +55,8 @@ class User extends Authenticatable
     public function notifications()
     {
         return $this->hasMany(Notification::class);
-    }  
-    
+    }
+
     public function user_otp()
     {
         return $this->hasOne(Otp::class);

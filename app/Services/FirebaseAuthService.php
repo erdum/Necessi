@@ -2,13 +2,13 @@
 
 namespace App\Services;
 
-use App\Models\User;
-use Kreait\Firebase\Auth;
-use Illuminate\Support\Str;
-use Kreait\Firebase\Factory;
-use Illuminate\Support\Facades\Hash;
-use App\Exceptions\UserNotFoundException;
 use App\Exceptions\UserAlreadyRegisteredException;
+use App\Exceptions\UserNotFoundException;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Kreait\Firebase\Auth;
+use Kreait\Firebase\Factory;
 
 class FirebaseAuthService
 {
@@ -49,7 +49,7 @@ class FirebaseAuthService
         $phone_number,
         $email,
         $password
-    ){
+    ) {
         // $user = $this->auth->createUser([
         //     'email' => $email,
         //     'password' => $password,
@@ -121,11 +121,11 @@ class FirebaseAuthService
     {
         $user = $this->is_user_already_registered($email);
 
-        if (!$user) {
+        if (! $user) {
             throw new \Exception('User not found', 404);
         }
 
-        if (!$user->user_otp || $user->user_otp->verified_at === null) {
+        if (! $user->user_otp || $user->user_otp->verified_at === null) {
             throw new \Exception('OTP is not verified', 400);
         }
 
@@ -134,7 +134,7 @@ class FirebaseAuthService
         ]);
 
         return [
-            'message' => 'Password updated successfully.'
+            'message' => 'Password updated successfully.',
         ];
     }
 
@@ -172,8 +172,8 @@ class FirebaseAuthService
         try {
             $verifiedIdToken = $this->auth->verifyIdToken($token);
             $firebaseUid = $verifiedIdToken->claims()->get('sub');
-            $email_verified_at = now(); 
-    
+            $email_verified_at = now();
+
             $user = User::firstOrCreate(
                 ['uid' => $firebaseUid],
                 [
@@ -185,19 +185,19 @@ class FirebaseAuthService
                     'uid' => $firebaseUid,
                 ]
             );
-    
+
             $token = $this->generate_token($user);
             // $this->user_service->update_firestore_profile($user);
-    
+
             return [
                 'token' => $token,
                 'uid' => $user->uid,
             ];
-    
+
         } catch (\Kreait\Firebase\Exception\Auth\InvalidToken $e) {
             return response()->json(['error' => 'Invalid ID token.'], 401);
         } catch (\Throwable $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
-    } 
+    }
 }

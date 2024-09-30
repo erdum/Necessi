@@ -3,8 +3,8 @@
 namespace App\Services;
 
 use App\Jobs\SendEmails;
-use App\Models\User;
 use App\Models\Otp;
+use App\Models\User;
 use Carbon\Carbon;
 use Closure;
 use Illuminate\Support\Facades\Cache;
@@ -95,27 +95,27 @@ class OtpService
 
     public function send_otp(User $user, string $identifier)
     {
-    //   $receivers = config('otp.dev_emails');
-      $receivers = [
-        $user->email,
-        // 'fahad.didx@gmail.com',
-      ];
+        //   $receivers = config('otp.dev_emails');
+        $receivers = [
+            $user->email,
+            // 'fahad.didx@gmail.com',
+        ];
 
-      if (! app()->hasDebugModeEnabled()) {
-          $receivers = [$identifier];
-      }
+        if (! app()->hasDebugModeEnabled()) {
+            $receivers = [$identifier];
+        }
 
-      return $this->check_abuse(
-          $user,
-          $identifier,
-          function () use ($user, $identifier, $receivers) {
-              return $this->send_through_mail(
-                  $user,
-                  $identifier,
-                  $receivers
-              );
-          }
-      );
+        return $this->check_abuse(
+            $user,
+            $identifier,
+            function () use ($user, $identifier, $receivers) {
+                return $this->send_through_mail(
+                    $user,
+                    $identifier,
+                    $receivers
+                );
+            }
+        );
     }
 
     private function send_through_mail(

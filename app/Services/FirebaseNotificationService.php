@@ -2,12 +2,8 @@
 
 namespace App\Services;
 
-use App\Models\Notification as NotificationModel;
 use App\Models\User;
-use Illuminate\Support\Facades\Log;
 use Kreait\Firebase\Factory;
-use Kreait\Firebase\Messaging\CloudMessage;
-use Kreait\Firebase\Messaging\Notification;
 
 class FirebaseNotificationService
 {

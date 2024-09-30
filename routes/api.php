@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FirebaseAuthController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,15 +14,14 @@ use App\Http\Controllers\FirebaseAuthController;
 |
 */
 
-Route::middleware(['auth:sanctum'])->group(function () {
-
-});
+Route::middleware(['auth:sanctum'])->group(function () {});
 
 Route::middleware(['throttle:100,1'])->group(function () {
 
     Route::post(
-        '/register', 
-        [FirebaseAuthController::class, 'register']);
+        '/register',
+        [FirebaseAuthController::class, 'register']
+    );
 
     Route::post(
         '/verify-email',
@@ -31,24 +29,23 @@ Route::middleware(['throttle:100,1'])->group(function () {
     );
 
     Route::post(
-        '/resend-otp', 
-        [FirebaseAuthController::class, 'resend_otp']);
-    
+        '/resend-otp',
+        [FirebaseAuthController::class, 'resend_otp']
+    );
+
     Route::post(
         '/login',
         [FirebaseAuthController::class, 'login']
     );
 
     Route::post(
-        '/google/auth', 
-        [FirebaseAuthController::class, 'google_auth']);
-    
+        '/google/auth',
+        [FirebaseAuthController::class, 'google_auth']
+    );
 
     Route::post(
-        'password/reset', 
+        'password/reset',
         [FirebaseAuthController::class, 'reset_password']
     );
 
 });
-
-
