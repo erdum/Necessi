@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Exceptions\UserAlreadyRegisteredException;
+use Kreait\Firebase\Exception\Auth\FailedToVerifyToken;
 use App\Exceptions\UserNotFoundException;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -201,10 +202,11 @@ class FirebaseAuthService
                 'uid' => $user->uid,
             ];
 
-        } catch (\Kreait\Firebase\Exception\Auth\InvalidToken $e) {
-            return response()->json(['error' => 'Invalid ID token.'], 401);
+        } catch (FailedToVerifyToken $e) {
+            // throw new \Exception('Invalid ID token.', 401);
+            abort(401, 'Invalid ID token.');
         } catch (\Throwable $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            throw new \Exception($e->getMessage(), 500);
         }
     }
 }
