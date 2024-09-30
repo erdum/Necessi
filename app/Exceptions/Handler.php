@@ -3,6 +3,8 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
+use Illuminate\Validation\ValidationException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -44,5 +46,36 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+    }
+
+    public function render($request, Throwable $e)
+    {
+
+        if ($e instanceof ThrottleRequestsException) {
+            return response()->json(['error' => 'Too many attempts.'], 429);
+        }
+
+        if ($e instanceof ValidationException) {
+            $error = $e->validator->errors()->first();
+
+            return response()->json(['error' => $error], 400);
+        }
+
+        if ($this->isHttpException($e)) {
+            $status_code = $e->getStatusCode();
+        } else {
+
+            if (
+                is_int($e->getCode())
+                && $e->getCode() >= 100
+                && $e->getCode() < 600
+            ) {
+                $status_code = $e->getCode();
+            } else {
+                return parent::render($request, $e);
+            }
+        }
+
+        return response()->json(['error' => $e->getMessage()], $status_code);
     }
 }

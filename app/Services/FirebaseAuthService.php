@@ -39,8 +39,7 @@ class FirebaseAuthService
 
     protected function is_user_already_registered(string $email)
     {
-        return User::where('email', $email)
-            ->whereNotNull('email_verified_at')->first();
+        return User::where('email', $email)->first();
     }
 
     public function register(
@@ -125,8 +124,12 @@ class FirebaseAuthService
             throw new \Exception('User not found', 404);
         }
 
-        if (! $user->user_otp || $user->user_otp->verified_at === null) {
-            throw new \Exception('OTP is not verified', 400);
+        if ($user->email_verified_at == null) {
+            throw new \Exception('Email is not verified', 400);
+        }
+
+        if (!$user->user_otp || $user->user_otp->verified_at === null) {
+            throw new \Exception('OTP not found or not verified', 400);
         }
 
         $user->update([
@@ -148,6 +151,10 @@ class FirebaseAuthService
 
         if ($user->email_verified_at == null) {
             throw new \Exception('Email is not verified', 400);
+        }
+
+        if (!$user->user_otp || $user->user_otp->verified_at === null) {
+            throw new \Exception('OTP not found or not verified', 400);
         }
 
         if (! \Hash::check($password, $user->password)) {
