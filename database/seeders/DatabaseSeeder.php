@@ -13,7 +13,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         \App\Models\User::factory(6)->create();
-        \App\Models\User::factory()->create([
+        $dev = \App\Models\User::factory()->create([
             'first_name' => 'Erdum',
             'last_name' => 'Adnan',
             'email' => 'erdumadnan@gmail.com',
@@ -21,18 +21,23 @@ class DatabaseSeeder extends Seeder
 
         $posts = \App\Models\Post::factory(7)->create();
 
-        $posts->each(function ($post) {
+        $posts->each(function ($post) use ($dev) {
             \App\Models\PostImage::factory()->create([
                 'post_id' => $post->id,
             ]);
 
             \App\Models\PostLike::factory()->create([
-                'user_id' => \App\Models\User::latest()->first()->id,
+                'user_id' => $dev->id,
                 'post_id' => $post->id,
             ]);
 
             \App\Models\PostComment::factory()->create([
-                'user_id' => \App\Models\User::latest()->first()->id,
+                'user_id' => $dev->id,
+                'post_id' => $post->id,
+            ]);
+
+            \App\Models\PostBid::factory()->create([
+                'user_id' => $dev->id,
                 'post_id' => $post->id,
             ]);
         });

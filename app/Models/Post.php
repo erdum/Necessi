@@ -28,4 +28,9 @@ class Post extends Model
     {
         return $this->hasMany(PostComment::class);
     }
+
+    public function bids()
+    {
+        return $this->hasMany(PostBid::class);
+    }
 }
