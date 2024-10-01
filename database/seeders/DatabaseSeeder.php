@@ -36,9 +36,14 @@ class DatabaseSeeder extends Seeder
                 'post_id' => $post->id,
             ]);
 
-            \App\Models\PostBid::factory()->create([
+            $bid = \App\Models\PostBid::factory()->create([
                 'user_id' => $dev->id,
                 'post_id' => $post->id,
+            ]);
+
+            \App\Models\OrderHistory::factory()->create([
+                'post_id' => $post->id,
+                'bid_id' => $bid->id,
             ]);
         });
     }
