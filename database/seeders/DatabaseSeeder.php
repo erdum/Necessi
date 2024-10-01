@@ -23,7 +23,17 @@ class DatabaseSeeder extends Seeder
 
         $posts->each(function ($post) {
             \App\Models\PostImage::factory()->create([
-                'post_id' => $post->id
+                'post_id' => $post->id,
+            ]);
+
+            \App\Models\PostLike::factory()->create([
+                'user_id' => \App\Models\User::latest()->first()->id,
+                'post_id' => $post->id,
+            ]);
+
+            \App\Models\PostComment::factory()->create([
+                'user_id' => \App\Models\User::latest()->first()->id,
+                'post_id' => $post->id,
             ]);
         });
     }
