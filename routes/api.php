@@ -22,6 +22,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [UserController::class, 'update_user']
     );
 
+    Route::get(
+        '/profile', 
+        [UserController::class, 'get_user']
+    );
+
 });
 
 Route::middleware(['throttle:100,1'])->group(function () {

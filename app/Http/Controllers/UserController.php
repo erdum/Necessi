@@ -12,10 +12,10 @@ class UserController extends Controller
         UserService $user_service
     ) {
         $request->validate([
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'avatar' => 'nullable|image|max:2048',
             'about' => 'nullable|string|max:500',
             'gender' => 'required|in:male,female,non-binary',
-            'age' => 'required|integer|between:18,60',
+            'age' => 'required|integer',
         ]);
 
         $response = $user_service->update_profile(
@@ -27,5 +27,18 @@ class UserController extends Controller
         );
 
         return response()->json($response);
+    }
+
+    public function get_user(Request $request, UserService $user_service)
+    {
+        $user = $user_service->get_profile(
+            $request->user()->uid
+        );
+
+        if ($request->user_uid) {
+            $user = $user_service->get_profile($request->user_uid);
+        }
+
+        return response()->json($user);
     }
 }

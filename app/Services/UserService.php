@@ -77,4 +77,25 @@ class UserService
             'phone_number',
         ]);
     }
+
+    public function get_profile(string $user_uid)
+    {
+        $user = User::select([
+            'id',
+            'uid',
+            'first_name',
+            'last_name',
+            'email',
+            'gender',
+            'age',
+            'about',
+            'avatar',
+            'phone_number',
+            'lat',
+            'long',
+            'location',
+        ])->where('uid', $user_uid)->first();
+
+        return $user;
+    }
 }
