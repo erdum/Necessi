@@ -65,4 +65,19 @@ class User extends Authenticatable
     {
         return $this->hasOne(Otp::class);
     }
+
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
+
+    public function likes()
+    {
+        return $this->hasMany(PostLike::class);
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(PostComment::class);
+    }
 }
