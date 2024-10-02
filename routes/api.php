@@ -33,6 +33,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [PostController::class, 'create_post']
     );
 
+    Route::post(
+        '/location',
+        [UserController::class, 'set_location']
+    );
+
 });
 
 Route::middleware(['throttle:100,1'])->group(function () {

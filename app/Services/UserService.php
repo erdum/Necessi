@@ -98,4 +98,32 @@ class UserService
 
         return $user;
     }
+
+    public function set_location(
+        User $user, 
+        float $lat, 
+        float $long,
+        string $location
+    ) {
+        $user->lat = $lat;
+        $user->long = $long;
+        $user->location = $location;
+        $user->save();
+
+        return $user->only([
+            'id',
+            'uid',
+            'first_name',
+            'last_name',
+            'email',
+            'gender',
+            'age',
+            'about',
+            'avatar',
+            'phone_number',
+            'lat',
+            'long',
+            'location',
+        ]);
+    }
 }

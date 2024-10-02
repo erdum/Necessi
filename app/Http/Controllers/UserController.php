@@ -41,4 +41,22 @@ class UserController extends Controller
 
         return response()->json($user);
     }
+
+    public function set_location(Request $request, UserService $user_service)
+    {
+        $request->validate([
+            'lat' => 'required|numeric',
+            'long' => 'required|numeric',
+            'location' => 'required|string',
+        ]);
+
+        $response = $user_service->set_location(
+            $request->user(),
+            $request->lat,
+            $request->long,
+            $request->location,
+        );
+
+        return response()->json($response);
+    }
 }
