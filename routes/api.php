@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\FirebaseAuthController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\PostController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -25,6 +26,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get(
         '/profile', 
         [UserController::class, 'get_user']
+    );
+
+    Route::post(
+        '/create-post', 
+        [PostController::class, 'create_post']
     );
 
 });
