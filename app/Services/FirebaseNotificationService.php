@@ -14,7 +14,7 @@ class FirebaseNotificationService
         $firebase = $factory->withServiceAccount(
             base_path()
             .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
+            .config("firebase.projects.app.credentials")
         );
         $this->messaging = $firebase->createMessaging();
     }
@@ -23,16 +23,16 @@ class FirebaseNotificationService
     {
         try {
             $user->notification_device()->updateOrCreate(
-                ['user_id' => $user->id],
-                ['fcm_token' => $token]
+                ["user_id" => $user->id],
+                ["fcm_token" => $token]
             );
         } catch (\Exception $error) {
             throw new \Exception(
-                'Token is already linked to another user',
+                "Token is already linked to another user",
                 400
             );
         }
 
-        return ['message' => 'FCM token successfully stored'];
+        return ["message" => "FCM token successfully stored"];
     }
 }

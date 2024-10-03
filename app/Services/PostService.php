@@ -19,7 +19,7 @@ class PostService
         $firebase = $factory->withServiceAccount(
             base_path()
             .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
+            .config("firebase.projects.app.credentials")
         );
         $this->db = $firebase->createFirestore()->database();
     }
@@ -64,7 +64,7 @@ class PostService
     
                 StoreImages::dispatchAfterResponse(
                     $avatar->path(),
-                    'avatars',
+                    "avatars",
                     $avatar_name
                 );
             }

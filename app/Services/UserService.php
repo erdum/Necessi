@@ -19,7 +19,7 @@ class UserService
         $firebase = $factory->withServiceAccount(
             base_path()
             .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
+            .config("firebase.projects.app.credentials")
         );
         $this->db = $firebase->createFirestore()->database();
         $this->auth = $firebase->createAuth();
@@ -27,16 +27,16 @@ class UserService
 
     public function update_firestore_profile(User $user)
     {
-        $user_ref = $this->db->collection('users')->document($user->uid);
+        $user_ref = $this->db->collection("users")->document($user->uid);
 
         $user_ref->set([
-            'first_name' => $user->first_name,
-            'uid' => $user->uid,
-            'last_name' => $user->last_name,
-            'email' => $user->email,
-            'email_verified_at' => $user->email_verified_at,
-            'phone_number' => $user->phone_number,
-            'is_online' => true,
+            "first_name" => $user->first_name,
+            "uid" => $user->uid,
+            "last_name" => $user->last_name,
+            "email" => $user->email,
+            "email_verified_at" => $user->email_verified_at,
+            "phone_number" => $user->phone_number,
+            "is_online" => true,
         ]);
     }
 
@@ -57,7 +57,7 @@ class UserService
 
             StoreImages::dispatchAfterResponse(
                 $avatar->path(),
-                'avatars',
+                "avatars",
                 $avatar_name
             );
         }
@@ -66,35 +66,35 @@ class UserService
         // UpdateFirestoreProfile::dispatch($user);
 
         return $user->only([
-            'id',
-            'first_name',
-            'last_name',
-            'about',
-            'gender',
-            'age',
-            'uid',
-            'avatar',
-            'phone_number',
+            "id",
+            "first_name",
+            "last_name",
+            "about",
+            "gender",
+            "age",
+            "uid",
+            "avatar",
+            "phone_number",
         ]);
     }
 
     public function get_profile(string $user_uid)
     {
         $user = User::select([
-            'id',
-            'uid',
-            'first_name',
-            'last_name',
-            'email',
-            'gender',
-            'age',
-            'about',
-            'avatar',
-            'phone_number',
-            'lat',
-            'long',
-            'location',
-        ])->where('uid', $user_uid)->first();
+            "id",
+            "uid",
+            "first_name",
+            "last_name",
+            "email",
+            "gender",
+            "age",
+            "about",
+            "avatar",
+            "phone_number",
+            "lat",
+            "long",
+            "location",
+        ])->where("uid", $user_uid)->first();
 
         return $user;
     }
@@ -111,19 +111,19 @@ class UserService
         $user->save();
 
         return $user->only([
-            'id',
-            'uid',
-            'first_name',
-            'last_name',
-            'email',
-            'gender',
-            'age',
-            'about',
-            'avatar',
-            'phone_number',
-            'lat',
-            'long',
-            'location',
+            "id",
+            "uid",
+            "first_name",
+            "last_name",
+            "email",
+            "gender",
+            "age",
+            "about",
+            "avatar",
+            "phone_number",
+            "lat",
+            "long",
+            "location",
         ]);
     }
 }
