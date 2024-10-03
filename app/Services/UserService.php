@@ -126,4 +126,23 @@ class UserService
             "location",
         ]);
     }
+
+    public function connect_users_mutually($user1_id, $user2_id)
+    {
+        $user1 = User::findOrFail($user1_id);
+        $user2 = User::findOrFail($user2_id);
+
+        $user1->connections()->syncWithoutDetaching([$user2->id]);
+        $user2->connections()->syncWithoutDetaching([$user1->id]);
+    }
+
+    public function are_connected($user1_id, $user2_id)
+    {
+        $user1 = User::findOrFail($user1_id);
+
+        return $user1->connections()->where(
+            'connection_id',
+            $user2_id
+        )->exists();
+    }
 }

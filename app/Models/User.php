@@ -90,4 +90,24 @@ class User extends Authenticatable
     {
         return $this->hasMany(Reviews::class);
     }
+
+    public function connections()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'user_connections',
+            'user_id',
+            'connection_id'
+        )->withTimestamps();
+    }
+
+    public function connected_by()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'user_connections',
+            'connection_id',
+            'user_id'
+        )->withTimestamps();
+    }
 }
