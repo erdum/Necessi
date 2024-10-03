@@ -73,8 +73,8 @@ Route::middleware(['throttle:100,1'])->group(function () {
     );
 
     Route::post(
-        '/google/auth',
-        [FirebaseAuthController::class, 'google_auth']
+        '/social/auth',
+        [FirebaseAuthController::class, 'social_auth']
     );
 
     Route::post(

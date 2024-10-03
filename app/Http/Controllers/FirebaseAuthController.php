@@ -91,13 +91,13 @@ class FirebaseAuthController extends Controller
         return response()->json($response);
     }
 
-    public function google_auth(Request $request)
+    public function social_auth(Request $request)
     {
         $request->validate([
             'token' => 'required',
         ]);
 
-        $response = $this->auth_service->google_auth($request->token);
+        $response = $this->auth_service->social_auth($request->token);
 
         return response()->json($response);
     }
