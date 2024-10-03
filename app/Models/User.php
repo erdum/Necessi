@@ -85,4 +85,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(PostBid::class);
     }
+
+    public function reviews()
+    {
+        return $this->hasMany(Reviews::class);
+    }
 }
