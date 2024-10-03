@@ -47,4 +47,21 @@ class PostController extends Controller
 
         return response()->json($response);
     }
+
+    public function post_biding(Request $request,
+        PostService $post_service
+    ) {
+        $request->validate([
+            'post_id' => 'required|integer',
+            'amount' => 'required|integer',
+        ]);
+
+        $response = $post_service->post_biding(
+            $request->user(),
+            $request->post_id,
+            $request->amount,
+        );
+
+        return response()->json($response);
+    }
 }

@@ -34,6 +34,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     );
 
     Route::post(
+        '/post-biding', 
+        [PostController::class, 'post_biding']
+    );
+
+    Route::post(
         '/location',
         [UserController::class, 'set_location']
     );

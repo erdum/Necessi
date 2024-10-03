@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\User;
 use App\Models\Post;
+use App\Models\PostBid;
 use App\Models\PostImage;
 use Kreait\Firebase\Factory;
 use Illuminate\Http\UploadedFile;
@@ -71,5 +72,30 @@ class PostService
         }
 
         return $post;
+    }
+    
+    public function post_biding(User $user,
+        $post_id,
+        $amount,
+    ) {
+        $existing_bid = PostBid::where('user_id', $user->id)
+           ->where('post_id', $post_id)->first();
+           
+        if ($existing_bid) {
+            return [
+                'message' => 'You have already placed a bid on this post'
+            ];
+        }
+
+        $post_bid = new PostBid();
+        $post_bid->user_id = $user->id;
+        $post_bid->post_id = $post_id;
+        $post_bid->amount = $amount;
+        $post_bid->status = 'pending';
+        $post_bid->save();
+
+        return [
+            'message' => 'Your bid has been placed successfully'
+        ];
     }
 }
