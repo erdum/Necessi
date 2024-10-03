@@ -38,6 +38,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [UserController::class, 'set_location']
     );
 
+    Route::get(
+        '/nearby/users',
+        [UserController::class, 'get_nearby_users']
+    );
+
 });
 
 Route::middleware(['throttle:100,1'])->group(function () {
