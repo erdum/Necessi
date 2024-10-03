@@ -127,7 +127,7 @@ class UserService
         ]);
     }
 
-    public function connect_users_mutually(User $user1_id, User $user2_id)
+    public function connect_users_mutually(integer $user1_id, integer $user2_id)
     {
         $user1 = User::findOrFail($user1_id);
         $user2 = User::findOrFail($user2_id);
@@ -183,7 +183,12 @@ class UserService
         return $nearby_users;
     }
 
-    private function haversineDistance($lat1, $long1, $lat2, $long2) {
+    private function haversineDistance(
+        float $lat1,
+        float $long1,
+        float $lat2,
+        float $long2
+    ) {
         $earth_radius = 6371;
 
         $lat1 = deg2rad($lat1);
@@ -201,5 +206,36 @@ class UserService
         $distance = $earth_radius * $c;
 
         return $distance;
+    }
+
+    public function make_connections(User $user, Array $user_ids)
+    {
+        foreach ($user_ids as $id) {
+            $this->connect_users_mutually(
+                $user->id,
+                $id
+            );
+        }
+
+        return ['message' => 'Connections successfully created'];
+    }
+
+    public function get_connections(User $user)
+    {
+        return $user->connections()->select(
+            'users.id',
+            'users.first_name',
+            'users.last_name',
+            'users.uid',
+            'users.email',
+            'users.phone_number',
+            'users.avatar',
+            'users.gender',
+            'users.age',
+            'users.about',
+            'users.lat',
+            'users.long',
+            'users.location'
+        )->get();
     }
 }

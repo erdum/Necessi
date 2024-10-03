@@ -48,6 +48,16 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [UserController::class, 'get_nearby_users']
     );
 
+    Route::post(
+        '/users/connect',
+        [UserController::class, 'make_connections']
+    );
+
+    Route::get(
+        '/user/connections',
+        [UserController::class, 'get_connections']
+    );
+
 });
 
 Route::middleware(['throttle:100,1'])->group(function () {
