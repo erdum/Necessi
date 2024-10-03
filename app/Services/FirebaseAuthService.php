@@ -158,7 +158,7 @@ class FirebaseAuthService
         ];
     }
 
-    public function google_auth($token)
+    public function social_auth($token)
     {
         try {
             $verifiedIdToken = $this->auth->verifyIdToken($token);
