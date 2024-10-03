@@ -64,4 +64,15 @@ class PostController extends Controller
 
         return response()->json($response);
     }
+    
+    public function get_posts(
+        Request $request,
+        PostService $post_service,
+    ) {
+        $user = $request->user();
+
+        $response = $post_service->get_posts($user);
+
+        return response()->json($response);
+    }
 }

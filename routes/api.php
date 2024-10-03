@@ -38,6 +38,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [PostController::class, 'post_biding']
     );
 
+    Route::get(
+        '/user/post', 
+        [PostController::class, 'get_posts']
+    );
+
     Route::post(
         '/location',
         [UserController::class, 'set_location']

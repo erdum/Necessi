@@ -98,4 +98,9 @@ class PostService
             'message' => 'Your bid has been placed successfully'
         ];
     }
+
+    public function get_posts(User $user)
+    {
+        return $user->posts;
+    }
 }
