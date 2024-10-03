@@ -43,13 +43,15 @@ class UserService
     public function update_profile(
         User $user,
         ?string $about,
-        string $gender,
-        string $age,
-        ?UploadedFile $avatar
+        ?string $gender,
+        ?string $age,
+        ?UploadedFile $avatar,
+        ?string $phone_number,
     ) {
-        $user->about = $about ?? null;
-        $user->gender = $gender;
-        $user->age = $age;
+        $user->about = $about ?? $user->about ?? null;
+        $user->gender = $gender ?? $user->gender ?? null;
+        $user->age = $age ?? $user->age ?? null;
+        $user->phone_number = $phone_number ?? $user->phone_number ?? null;
 
         if ($avatar) {
             $avatar_name = str()->random(15);
@@ -61,9 +63,7 @@ class UserService
                 $avatar_name
             );
         }
-
         $user->save();
-        // UpdateFirestoreProfile::dispatch($user);
 
         return $user->only([
             "id",
