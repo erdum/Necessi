@@ -9,6 +9,7 @@ use App\Models\PostImage;
 use Kreait\Firebase\Factory;
 use Illuminate\Http\UploadedFile;
 use App\Jobs\StoreImages;
+use Carbon\Carbon;
 
 class PostService
 {
@@ -101,6 +102,23 @@ class PostService
 
     public function get_posts(User $user)
     {
-        return $user->posts;
+        $posts = $user->posts()->orderBy('created_at', 'desc')->paginate(5);
+
+        return $posts->map(function ($post) {
+            return [
+                "id" => $post->id,
+                "user_id" => $post->user_id,
+                "type" => $post->type,
+                "title" => $post->title,
+                "description" => $post->description,
+                "location" => $post->location,
+                "lat" => $post->lat,
+                "long" => $post->long,
+                "budget" => $post->budget,
+                "start_date" => Carbon::parse($post->start_date)->format('Y-m-d H:i:s'),
+                "end_date" => Carbon::parse($post->end_date)->format('Y-m-d H:i:s'),
+                "delivery_requested" => $post->delivery_requested,
+            ];
+        });
     }
 }
