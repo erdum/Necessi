@@ -21,7 +21,7 @@ class UserFactory extends Factory
             ),
             'password' => Hash::make('123456'),
             'avatar' => fake()->image(),
-            'gender' => fake()->randomElement(['male', 'female', 'non-binary']),
+            'gender' => fake()->randomElement(['male', 'female']),
             'age' => fake()->numberBetween(18, 65),
             'about' => fake()->paragraph(),
             'lat' => fake()->latitude(),
