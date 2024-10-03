@@ -8,6 +8,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Closure;
 use Illuminate\Support\Facades\Cache;
+use App\Exceptions;
 
 class OtpService
 {
@@ -31,10 +32,7 @@ class OtpService
                     $seconds = $diff_secs % 60;
                     $diff_human = sprintf('%d:%02d', $minutes, $seconds);
 
-                    throw new \Exception(
-                        'You have exceeded the maximum OTP retry limit. Please try again after '.$diff_human,
-                        429
-                    );
+                    throw new Exceptions\OtpCoolingDown($diff_human);
                 }
 
                 $otp->retries = 0;
@@ -54,10 +52,7 @@ class OtpService
             )->isPast();
 
             if (! $is_expired) {
-                throw new \Exception(
-                    'You have recently requested a OTP. Please try again after some time.',
-                    429
-                );
+                throw new Exceptions\OtpNotExpired();
             }
 
             $otp->retries += 1;
@@ -95,15 +90,9 @@ class OtpService
 
     public function send_otp(User $user, string $identifier)
     {
-        //   $receivers = config('otp.dev_emails');
         $receivers = [
             $user->email,
-            // 'fahad.didx@gmail.com',
         ];
-
-        if (! app()->hasDebugModeEnabled()) {
-            $receivers = [$identifier];
-        }
 
         return $this->check_abuse(
             $user,
@@ -156,10 +145,7 @@ class OtpService
         }
 
         if (! $user) {
-            throw new \Exception(
-                'Invalid phone-number',
-                400
-            );
+            throw new Exceptions\UserNotFound();
         }
 
         return $this->send_otp($user, $identifier);

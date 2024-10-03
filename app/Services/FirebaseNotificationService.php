@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\User;
 use Kreait\Firebase\Factory;
+use App\Exceptions;
 
 class FirebaseNotificationService
 {
@@ -27,10 +28,7 @@ class FirebaseNotificationService
                 ["fcm_token" => $token]
             );
         } catch (\Exception $error) {
-            throw new \Exception(
-                "Token is already linked to another user",
-                400
-            );
+            throw new Exceptions\TokenAlreadyLinked();
         }
 
         return ["message" => "FCM token successfully stored"];

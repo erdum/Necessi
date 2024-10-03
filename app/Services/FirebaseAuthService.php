@@ -2,12 +2,12 @@
 
 namespace App\Services;
 
-use App\Exceptions\UserAlreadyRegisteredException;
-use Kreait\Firebase\Exception\Auth\FailedToVerifyToken;
-use App\Exceptions\UserNotFoundException;
+use Exception;
 use App\Models\User;
+use App\Exceptions;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Kreait\Firebase\Exception\Auth\FailedToVerifyToken;
 use Kreait\Firebase\Auth;
 use Kreait\Firebase\Factory;
 
@@ -50,13 +50,9 @@ class FirebaseAuthService
         $email,
         $password
     ) {
-        // $user = $this->auth->createUser([
-        //     'email' => $email,
-        //     'password' => $password,
-        // ]);
 
         if ($this->is_user_already_registered($email)) {
-            throw new UserAlreadyRegisteredException;
+            throw new Exceptions\UserAlreadyRegistered();
         }
 
         $user = User::updateOrCreate(
@@ -69,14 +65,6 @@ class FirebaseAuthService
                 'uid' => Str::random(28),
             ]
         );
-
-        $this->auth->createUser([
-            'email' => $email,
-            'password' => $password,
-            'uid' => $user->uid,
-        ]);
-
-        // $this->user_service->update_firestore_profile($user);
 
         return $this->otp_service->send_otp($user, $email);
     }
@@ -93,7 +81,7 @@ class FirebaseAuthService
         $verified = $this->otp_service->verify_otp($email, $otp);
 
         if (! $verified) {
-            throw new \Exception("Invalid or expired OTP $otp", 400);
+            throw new Exceptions\InvalidOtp();
         }
         $user = User::where('email', $email)->first();
 
@@ -103,7 +91,6 @@ class FirebaseAuthService
         }
 
         $token = $this->generate_token($user);
-        $this->user_service->update_firestore_profile($user);
 
         return [
             'message' => 'Email is successfully verified',
@@ -122,15 +109,15 @@ class FirebaseAuthService
         $user = $this->is_user_already_registered($email);
 
         if (! $user) {
-            throw new \Exception('User not found', 404);
+            throw new Exceptions\UserNotFound();
         }
 
         if ($user->email_verified_at == null) {
-            throw new \Exception('Email is not verified', 400);
+            throw new Exceptions\EmailNotVerified();
         }
 
         if (!$user->user_otp || $user->user_otp->verified_at === null) {
-            throw new \Exception('OTP not found or not verified', 400);
+            throw new Exceptions\InvalidOtp();
         }
 
         $user->update([
@@ -147,19 +134,15 @@ class FirebaseAuthService
         $user = $this->is_user_already_registered($email);
 
         if (! $user) {
-            throw new UserNotFoundException;
+            throw new Exceptions\InvalidCredentials();
+        }
+
+        if (! Hash::check($password, $user->password)) {
+            throw new Exceptions\InvalidCredentials();
         }
 
         if ($user->email_verified_at == null) {
-            throw new \Exception('Email is not verified', 400);
-        }
-
-        if (!$user->user_otp || $user->user_otp->verified_at === null) {
-            throw new \Exception('OTP not found or not verified', 400);
-        }
-
-        if (! \Hash::check($password, $user->password)) {
-            throw new \Exception('Invalid credentials', 401);
+            throw new Exceptions\EmailNotVerified();
         }
 
         if ($fcm_token != null) {
@@ -195,7 +178,6 @@ class FirebaseAuthService
             );
 
             $token = $this->generate_token($user);
-            // $this->user_service->update_firestore_profile($user);
 
             return [
                 'token' => $token,
@@ -203,8 +185,7 @@ class FirebaseAuthService
             ];
 
         } catch (FailedToVerifyToken $e) {
-            // throw new \Exception('Invalid ID token.', 401);
-            abort(401, 'Invalid ID token.');
+            throw new Exceptions\InvalidIdToken();
         } catch (\Throwable $e) {
             throw new \Exception($e->getMessage(), 500);
         }
