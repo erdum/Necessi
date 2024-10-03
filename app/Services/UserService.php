@@ -127,7 +127,7 @@ class UserService
         ]);
     }
 
-    public function connect_users_mutually($user1_id, $user2_id)
+    public function connect_users_mutually(User $user1_id, User $user2_id)
     {
         $user1 = User::findOrFail($user1_id);
         $user2 = User::findOrFail($user2_id);
@@ -136,7 +136,7 @@ class UserService
         $user2->connections()->syncWithoutDetaching([$user1->id]);
     }
 
-    public function are_connected($user1_id, $user2_id)
+    public function are_connected(User $user1_id, User $user2_id)
     {
         $user1 = User::findOrFail($user1_id);
 
@@ -144,5 +144,62 @@ class UserService
             'connection_id',
             $user2_id
         )->exists();
+    }
+
+    public function get_nearby_users(User $current_user)
+    {
+        $users = User::select(
+            'id',
+            'first_name',
+            'last_name',
+            'uid',
+            'email',
+            'phone_number',
+            'avatar',
+            'gender',
+            'age',
+            'about',
+            'lat',
+            'long',
+            'location'
+        )->whereNot('id', $current_user->id)->get();
+        $nearby_users = [];
+
+        foreach ($users as $user) {
+            $distance = $this->haversineDistance(
+                $current_user->lat,
+                $current_user->long,
+                $user->lat,
+                $user->long
+            );
+            
+            if ($distance <= 50) {
+                $nearby_users[] = $user;
+            }
+
+            if (count($nearby_users) >= 9) break;
+        }
+
+        return $nearby_users;
+    }
+
+    private function haversineDistance($lat1, $long1, $lat2, $long2) {
+        $earth_radius = 6371;
+
+        $lat1 = deg2rad($lat1);
+        $long1 = deg2rad($long1);
+        $lat2 = deg2rad($lat2);
+        $long2 = deg2rad($long2);
+
+        // Haversine formula
+        $d_lat = $lat2 - $lat1;
+        $d_long = $long2 - $long1;
+
+        $a = sin($d_lat / 2) * sin($d_lat / 2) + cos($lat1) * cos($lat2) * sin($d_long / 2) * sin($d_long / 2);
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
+        $distance = $earth_radius * $c;
+
+        return $distance;
     }
 }
