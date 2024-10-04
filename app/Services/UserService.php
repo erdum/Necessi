@@ -47,11 +47,19 @@ class UserService
         ?string $age,
         ?UploadedFile $avatar,
         ?string $phone_number,
+        ?string $city,
+        ?string $state,
+        ?string $address,
+
     ) {
         $user->about = $about ?? $user->about ?? null;
         $user->gender = $gender ?? $user->gender ?? null;
         $user->age = $age ?? $user->age ?? null;
         $user->phone_number = $phone_number ?? $user->phone_number ?? null;
+        $user->city = $city ?? $user->city ?? null;
+        $user->state = $state ?? $user->state ?? null;
+        $user->address = $address ?? $user->address ?? null;
+
 
         if ($avatar) {
             $avatar_name = str()->random(15);
@@ -66,15 +74,18 @@ class UserService
         $user->save();
 
         return $user->only([
-            "id",
-            "first_name",
-            "last_name",
-            "about",
-            "gender",
-            "age",
-            "uid",
-            "avatar",
-            "phone_number",
+            'id',
+            'first_name',
+            'last_name',
+            'about',
+            'gender',
+            'age',
+            'uid',
+            'avatar',
+            'phone_numbe',
+            'city',
+            'state',
+            'address',
         ]);
     }
 

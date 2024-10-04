@@ -97,4 +97,6 @@ Route::middleware(['throttle:100,1'])->group(function () {
         [FirebaseAuthController::class, 'reset_password']
     );
 
+    Route::post('/dev-login', [FirebaseAuthController::class, 'dev_login']);
+
 });

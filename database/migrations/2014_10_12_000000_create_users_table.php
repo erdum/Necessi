@@ -25,8 +25,9 @@ return new class extends Migration
             $table->enum('gender', ['male', 'female', 'non-binary'])->nullable();
             $table->integer('age')->nullable();
             $table->text('about')->nullable();
-            $table->decimal('lat', 7, 4)->nullable();
-            $table->decimal('long', 7, 4)->nullable();
+            $table->string('city')->nullable();
+            $table->string('state')->nullable();
+            $table->string('address')->nullable();
             $table->string('location')->nullable();
             $table->rememberToken();
             $table->timestamps();

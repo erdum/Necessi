@@ -18,6 +18,9 @@ class UserController extends Controller
             'gender' => 'nullable|in:male,female,non-binary',
             'age' => 'nullable|integer',
             'phone_number' => 'nullable',
+            'city' => 'nullable|string',
+            'state' => 'nullable|string',
+            'address' => 'nullable|string'
         ]);
 
         $response = $user_service->update_profile(
@@ -27,6 +30,9 @@ class UserController extends Controller
             $request->age,
             $request->avatar,
             $request->phone_number,
+            $request->city,
+            $request->state,
+            $request->address,
         );
 
         return response()->json($response);

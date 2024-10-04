@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\FirebaseAuthService;
 use Illuminate\Http\Request;
+use App\Models\User;
 
 class FirebaseAuthController extends Controller
 {
@@ -100,5 +101,13 @@ class FirebaseAuthController extends Controller
         $response = $this->auth_service->social_auth($request->token);
 
         return response()->json($response);
+    }
+
+    public function dev_login(Request $request)
+    {
+        $user = User::find($request->id);
+        $token = $user->createToken($user->email)->plainTextToken;
+
+        return response()->json(['token' => $token]);
     }
 }
