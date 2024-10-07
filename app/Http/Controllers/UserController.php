@@ -20,7 +20,9 @@ class UserController extends Controller
             'phone_number' => 'nullable',
             'city' => 'nullable|string',
             'state' => 'nullable|string',
-            'address' => 'nullable|string'
+            'address' => 'nullable|string',
+            'lat' => 'nullable|numeric',
+            'long' => 'nullable|numeric',
         ]);
 
         $response = $user_service->update_profile(
@@ -33,6 +35,8 @@ class UserController extends Controller
             $request->city,
             $request->state,
             $request->address,
+            $request->lat,
+            $request->long,
         );
 
         return response()->json($response);

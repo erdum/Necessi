@@ -50,6 +50,8 @@ class UserService
         ?string $city,
         ?string $state,
         ?string $address,
+        ?float $lat,
+        ?float $long,
 
     ) {
         $user->about = $about ?? $user->about ?? null;
@@ -59,7 +61,8 @@ class UserService
         $user->city = $city ?? $user->city ?? null;
         $user->state = $state ?? $user->state ?? null;
         $user->address = $address ?? $user->address ?? null;
-
+        $user->lat = $lat ?? $user->lat ?? null;
+        $user->long = $long ?? $user->long ?? null;
 
         if ($avatar) {
             $avatar_name = str()->random(15);
@@ -86,6 +89,8 @@ class UserService
             'city',
             'state',
             'address',
+            'lat',
+            'long',
         ]);
     }
 
@@ -172,6 +177,8 @@ class UserService
             'about',
             'city',
             'state',
+            'lat',
+            'long',
             'address',
         )->where('city', $current_user->city)
         ->where('state', $current_user->state)
@@ -210,6 +217,8 @@ class UserService
             'users.about',
             'users.city',
             'users.state',
+            'users.lat',
+            'users.long',
             'users.address'
         )->get();
     }
