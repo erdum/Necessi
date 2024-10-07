@@ -138,7 +138,7 @@ class UserService
         ]);
     }
 
-    public function connect_users_mutually(integer $user1_id, integer $user2_id)
+    public function connect_users_mutually(int $user1_id, int $user2_id)
     {
         $user1 = User::findOrFail($user1_id);
         $user2 = User::findOrFail($user2_id);
@@ -170,54 +170,18 @@ class UserService
             'gender',
             'age',
             'about',
-            'lat',
-            'long',
-            'location'
-        )->whereNot('id', $current_user->id)->get();
-        $nearby_users = [];
+            'city',
+            'state',
+            'address',
+        )->where('city', $current_user->city)
+        ->where('state', $current_user->state)
+        ->whereNot('id', $current_user->id)
+        ->limit(9)
+        ->get();
 
-        foreach ($users as $user) {
-            $distance = $this->haversineDistance(
-                $current_user->lat,
-                $current_user->long,
-                $user->lat,
-                $user->long
-            );
-            
-            if ($distance <= 50) {
-                $nearby_users[] = $user;
-            }
-
-            if (count($nearby_users) >= 9) break;
-        }
-
-        return $nearby_users;
+        return $users;
     }
 
-    private function haversineDistance(
-        float $lat1,
-        float $long1,
-        float $lat2,
-        float $long2
-    ) {
-        $earth_radius = 6371;
-
-        $lat1 = deg2rad($lat1);
-        $long1 = deg2rad($long1);
-        $lat2 = deg2rad($lat2);
-        $long2 = deg2rad($long2);
-
-        // Haversine formula
-        $d_lat = $lat2 - $lat1;
-        $d_long = $long2 - $long1;
-
-        $a = sin($d_lat / 2) * sin($d_lat / 2) + cos($lat1) * cos($lat2) * sin($d_long / 2) * sin($d_long / 2);
-        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
-
-        $distance = $earth_radius * $c;
-
-        return $distance;
-    }
 
     public function make_connections(User $user, Array $user_ids)
     {
@@ -244,9 +208,9 @@ class UserService
             'users.gender',
             'users.age',
             'users.about',
-            'users.lat',
-            'users.long',
-            'users.location'
+            'users.city',
+            'users.state',
+            'users.address'
         )->get();
     }
 }
