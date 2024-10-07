@@ -38,9 +38,21 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [PostController::class, 'post_biding']
     );
 
+    // Get user posts
     Route::get(
         '/user/post', 
         [PostController::class, 'get_posts']
+    );
+
+    // Get all posts 
+    Route::get(
+        '/users/post', 
+        [PostController::class, 'get_users_posts']
+    );
+
+    Route::post(
+        '/post/like', 
+        [PostController::class, 'post_like']
     );
 
     Route::post(
