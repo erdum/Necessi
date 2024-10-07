@@ -24,6 +24,8 @@ class UserFactory extends Factory
             'gender' => fake()->randomElement(['male', 'female']),
             'age' => fake()->numberBetween(18, 65),
             'about' => fake()->paragraph(),
+            'lat' => fake()->latitude(),
+            'long' => fake()->longitude(),
             'city' => fake()->city(),
             'state' => fake()->state(),
             'address' => fake()->address(),

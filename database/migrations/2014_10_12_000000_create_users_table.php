@@ -22,9 +22,15 @@ return new class extends Migration
             $table->timestamp('phone_number_verified_at')->nullable();
             $table->string('password')->nullable();
             $table->string('avatar')->nullable();
-            $table->enum('gender', ['male', 'female', 'non-binary'])->nullable();
+            $table->enum('gender', [
+                'male',
+                'female',
+                'non-binary'
+            ])->nullable();
             $table->integer('age')->nullable();
             $table->text('about')->nullable();
+            $table->decimal('lat', 7, 4);
+            $table->decimal('long', 7, 4);
             $table->string('city')->nullable();
             $table->string('state')->nullable();
             $table->string('address')->nullable();
