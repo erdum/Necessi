@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\User;
 use App\Models\Post;
 use App\Models\PostBid;
+use App\Models\PostLike;
 use App\Models\PostImage;
 use Kreait\Firebase\Factory;
 use Illuminate\Http\UploadedFile;
@@ -102,7 +103,7 @@ class PostService
 
     public function get_posts(User $user)
     {
-        $posts = $user->posts()->orderBy('created_at', 'desc')->paginate(5);
+        $posts = $user->posts()->orderBy('created_at', 'desc')->paginate(10);
 
         return $posts->map(function ($post) {
             return [
@@ -118,7 +119,61 @@ class PostService
                 "start_date" => Carbon::parse($post->start_date)->format('Y-m-d H:i:s'),
                 "end_date" => Carbon::parse($post->end_date)->format('Y-m-d H:i:s'),
                 "delivery_requested" => $post->delivery_requested,
+                "images" => $post->images->map(function ($image) {
+                    return [
+                        "url" => $image->url,
+                    ];
+                }),
+                'bids' => $post->bids,
             ];
         });
+    }
+
+    public function get_users_posts()
+    {
+        $posts = Post::orderBy('created_at', 'desc')->paginate(10);
+    
+        return $posts->map(function ($post) {
+            return [
+                "id" => $post->id,
+                "user_id" => $post->user_id,
+                "type" => $post->type,
+                "title" => $post->title,
+                "description" => $post->description,
+                "location" => $post->location,
+                "lat" => $post->lat,
+                "long" => $post->long,
+                "budget" => $post->budget,
+                "start_date" => Carbon::parse($post->start_date)->format('Y-m-d H:i:s'),
+                "end_date" => Carbon::parse($post->end_date)->format('Y-m-d H:i:s'),
+                "delivery_requested" => $post->delivery_requested,
+                "images" => $post->images->map(function ($image) {
+                    return [
+                        "url" => $image->url,
+                    ];
+                }),
+                'bids' => $post->bids
+            ];
+        });
+    }    
+
+    public function post_like(User $user, $post_id)
+    {
+        $post_like = PostLike::where('post_id', $post_id)->where('user_id', $user->id)->first();
+
+        if($post_like){
+            $post_like->post_id = $post_id;
+            $post_like->user_id = $user->id;
+            $post_like->save();
+
+            return $post_like;
+        }
+
+        $post_like = new PostLike();
+        $post_like->post_id = $post_id;
+        $post_like->user_id = $user->id;
+        $post_like->save();
+
+        return $post_like;
     }
 }

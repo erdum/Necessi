@@ -75,4 +75,27 @@ class PostController extends Controller
 
         return response()->json($response);
     }
+
+    public function get_users_posts(PostService $post_service,) 
+    {
+        $response = $post_service->get_users_posts();
+
+        return response()->json($response);
+    }
+
+    public function post_like(
+        Request $request,
+        PostService $post_service,
+    ){
+        $request->validate([
+            'post_id' => 'required|integer',
+        ]);
+        
+        $response = $post_service->post_like(
+            $request->user(),
+            $request->post_id,
+        );
+
+        return response()->json($response);
+    }
 }
