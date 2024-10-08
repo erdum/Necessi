@@ -66,7 +66,7 @@ class FirebaseAuthController extends Controller
     {
         $request->validate([
             'email' => 'required|email|exists:users,email',
-            'password' => 'required',
+            'password' => 'required|confirmed',
         ]);
 
         $response = $this->auth_service->reset_password(

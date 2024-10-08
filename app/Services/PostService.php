@@ -101,13 +101,16 @@ class PostService
         ];
     }
 
-    public function get_posts(User $user)
+    public function get_user_posts(User $user)
     {
         $posts = $user->posts()->orderBy('created_at', 'desc')->paginate(10);
 
-        return $posts->map(function ($post) {
+        return $posts->map(function ($post) use  ($user)  {
             return [
-                "id" => $post->id,
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+                'avatar' => $user->avatar,
+                "post_id" => $post->id,
                 "user_id" => $post->user_id,
                 "type" => $post->type,
                 "title" => $post->title,
@@ -116,26 +119,37 @@ class PostService
                 "lat" => $post->lat,
                 "long" => $post->long,
                 "budget" => $post->budget,
-                "start_date" => Carbon::parse($post->start_date)->format('Y-m-d H:i:s'),
-                "end_date" => Carbon::parse($post->end_date)->format('Y-m-d H:i:s'),
+                "duration" => Carbon::parse($post->start_date)->format('d M') . ' - ' . 
+                              Carbon::parse($post->end_date)->format('d M y'),
+                "created_at" => $post->created_at->diffForHumans(),
                 "delivery_requested" => $post->delivery_requested,
+                'bids' => $post->bids->count(),
+                'likes' => $post->likes->count(),
                 "images" => $post->images->map(function ($image) {
                     return [
                         "url" => $image->url,
                     ];
                 }),
-                'bids' => $post->bids,
             ];
         });
     }
 
-    public function get_users_posts()
+    public function get_all_posts(User $current_user)
     {
         $posts = Post::orderBy('created_at', 'desc')->paginate(10);
     
-        return $posts->map(function ($post) {
+        return $posts->map(function ($post) use ($current_user)
+        {
+            $distance = $this->calculateDistance(
+                $current_user->lat,
+                $current_user->long,
+                $post->lat, $post->long
+            );
             return [
-                "id" => $post->id,
+                'first_name' => $post->user->first_name,
+                'last_name' => $post->user->last_name,
+                'avatar' => $post->user->avatar,
+                "post_id" => $post->id,
                 "user_id" => $post->user_id,
                 "type" => $post->type,
                 "title" => $post->title,
@@ -143,19 +157,44 @@ class PostService
                 "location" => $post->location,
                 "lat" => $post->lat,
                 "long" => $post->long,
+                "distance" => round($distance, 2) . ' miles away',
                 "budget" => $post->budget,
-                "start_date" => Carbon::parse($post->start_date)->format('Y-m-d H:i:s'),
-                "end_date" => Carbon::parse($post->end_date)->format('Y-m-d H:i:s'),
+                "duration" => Carbon::parse($post->start_date)->format('d M') . ' - ' . 
+                              Carbon::parse($post->end_date)->format('d M y'),
                 "delivery_requested" => $post->delivery_requested,
+                "created_at" => $post->created_at->diffForHumans(),
+                'likes'=> $post->likes->count(),
+                'bids' => $post->bids->count(),
                 "images" => $post->images->map(function ($image) {
                     return [
                         "url" => $image->url,
                     ];
                 }),
-                'bids' => $post->bids
             ];
         });
-    }    
+    } 
+    
+    private function calculateDistance($lat1, $lon1, $lat2, $lon2) {
+        $earthRadius = 3958.8;
+    
+        $lat1 = deg2rad($lat1);
+        $lon1 = deg2rad($lon1);
+        $lat2 = deg2rad($lat2);
+        $lon2 = deg2rad($lon2);
+    
+        $dlat = $lat2 - $lat1;
+        $dlon = $lon2 - $lon1;
+    
+        $a = sin($dlat / 2) * sin($dlat / 2) +
+             cos($lat1) * cos($lat2) *
+             sin($dlon / 2) * sin($dlon / 2);
+    
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+    
+        $distance = $earthRadius * $c;
+    
+        return $distance;
+    }
 
     public function post_like(User $user, $post_id)
     {

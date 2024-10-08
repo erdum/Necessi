@@ -41,13 +41,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Get user posts
     Route::get(
         '/user/post', 
-        [PostController::class, 'get_posts']
+        [PostController::class, 'get_user_posts']
     );
 
     // Get all posts 
     Route::get(
-        '/users/post', 
-        [PostController::class, 'get_users_posts']
+        '/posts', 
+        [PostController::class, 'get_all_posts']
     );
 
     Route::post(
