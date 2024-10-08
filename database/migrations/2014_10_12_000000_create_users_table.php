@@ -29,8 +29,8 @@ return new class extends Migration
             ])->nullable();
             $table->integer('age')->nullable();
             $table->text('about')->nullable();
-            $table->decimal('lat', 7, 4);
-            $table->decimal('long', 7, 4);
+            $table->decimal('lat', 7, 4)->nullable();
+            $table->decimal('long', 7, 4)->nullable();
             $table->string('city')->nullable();
             $table->string('state')->nullable();
             $table->string('address')->nullable();
