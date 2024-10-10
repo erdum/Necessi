@@ -33,7 +33,7 @@ class FirebaseAuthController extends Controller
             $request->password,
         );
 
-        return response()->json($response, 201);
+        return response()->json($response, 200);
     }
 
     public function verify_email(Request $request)
