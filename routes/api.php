@@ -51,6 +51,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     );
 
     Route::post(
+        '/post-details', 
+        [PostController::class, 'post_details']
+    );
+
+    Route::post(
         '/post/like', 
         [PostController::class, 'post_like']
     );

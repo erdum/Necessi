@@ -102,4 +102,20 @@ class PostController extends Controller
 
         return response()->json($response);
     }
+
+    public function post_details(
+        Request $request,
+        PostService $post_service,
+    ) {
+        $request->validate([
+            'post_id' => 'required|integer',
+        ]);
+
+        $response = $post_service->post_details(
+            $request->user(),
+            $request->post_id,
+        );
+
+        return response()->json($response);
+    }
 }

@@ -9,6 +9,7 @@ use App\Models\PostLike;
 use App\Models\PostImage;
 use Kreait\Firebase\Factory;
 use Illuminate\Http\UploadedFile;
+use Google\Cloud\Firestore\FieldValue;
 use App\Jobs\StoreImages;
 use Carbon\Carbon;
 
@@ -25,6 +26,29 @@ class PostService
             .config("firebase.projects.app.credentials")
         );
         $this->db = $firebase->createFirestore()->database();
+    }
+
+    private function calculateDistance($lat1, $lon1, $lat2, $lon2) 
+    {
+        $earthRadius = 3958.8;
+    
+        $lat1 = deg2rad($lat1);
+        $lon1 = deg2rad($lon1);
+        $lat2 = deg2rad($lat2);
+        $lon2 = deg2rad($lon2);
+    
+        $dlat = $lat2 - $lat1;
+        $dlon = $lon2 - $lon1;
+    
+        $a = sin($dlat / 2) * sin($dlat / 2) +
+             cos($lat1) * cos($lat2) *
+             sin($dlon / 2) * sin($dlon / 2);
+    
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+    
+        $distance = $earthRadius * $c;
+    
+        return $distance;
     }
 
     public function create_post(
@@ -80,6 +104,7 @@ class PostService
         $post_id,
         $amount,
     ) {
+        $bids = $this->db->collection("bids")->document($user->uid);
         $existing_bid = PostBid::where('user_id', $user->id)
            ->where('post_id', $post_id)->first();
            
@@ -88,6 +113,14 @@ class PostService
                 'message' => 'You have already placed a bid on this post'
             ];
         }
+
+        $bids->set([
+            "user_id" => $user->id,
+            "post_id" => $post_id,
+            "amount" => $amount,
+            "status" => 'pending',
+            'created_at' =>  FieldValue::serverTimestamp(),
+        ]);
 
         $post_bid = new PostBid();
         $post_bid->user_id = $user->id;
@@ -173,28 +206,6 @@ class PostService
             ];
         });
     } 
-    
-    private function calculateDistance($lat1, $lon1, $lat2, $lon2) {
-        $earthRadius = 3958.8;
-    
-        $lat1 = deg2rad($lat1);
-        $lon1 = deg2rad($lon1);
-        $lat2 = deg2rad($lat2);
-        $lon2 = deg2rad($lon2);
-    
-        $dlat = $lat2 - $lat1;
-        $dlon = $lon2 - $lon1;
-    
-        $a = sin($dlat / 2) * sin($dlat / 2) +
-             cos($lat1) * cos($lat2) *
-             sin($dlon / 2) * sin($dlon / 2);
-    
-        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
-    
-        $distance = $earthRadius * $c;
-    
-        return $distance;
-    }
 
     public function post_like(User $user, $post_id)
     {
@@ -214,5 +225,56 @@ class PostService
         $post_like->save();
 
         return $post_like;
+    }
+
+    public function post_details(User $user,  int $post_id) 
+    {
+        $post_details = Post::where('id', $post_id)->first();
+        $bids_ref = $this->db->collection("bids");
+        $bids_snapshot = $bids_ref->where('post_id', '=', $post_id)->documents();
+        $images = [];
+        $bids = [];
+        
+        foreach ($bids_snapshot as $bid_doc) {
+            $bid_data = $bid_doc->data();
+            $bid_user = User::find($bid_data['user_id']);
+            
+            $bids[] = [
+                'user_name' => $bid_user->first_name . ' ' . $bid_user->last_name,
+                'avatar' => $bid_user->avatar,
+                'amount' => $bid_data['amount'],
+                'created_at' => Carbon::parse($bid_data['created_at'])->diffForHumans(),
+                'status' => $bid_data['status']
+            ];
+        }
+        
+        foreach($post_details->images as $image) {
+            $images[] = $image->url;
+        }
+
+        $distance = $this->calculateDistance(
+            $user->lat,
+            $user->long,
+            $post_details->lat,
+            $post_details->long,
+        );
+
+        return [
+            'first_name' => $user->first_name,
+            'last_name' => $user->last_name,
+            'type' => $post_details->type,
+            'created_at' => $post_details->created_at->diffForHumans(),
+            'budget' => $post_details->budget,
+            "duration" => Carbon::parse($post_details->start_date)->format('d M') . ' - ' . 
+                          Carbon::parse($post_details->end_date)->format('d M y'),
+            'location' => $post_details->location,
+            "distance" => round($distance, 2) . ' miles away',
+            'title' => $post_details->title,
+            'description' => $post_details->description,
+            'likes' => $post_details->likes->count(),
+            'images' =>$images,
+            'bids' => $bids,
+            'comments' => $post_details->comments,
+        ];
     }
 }
