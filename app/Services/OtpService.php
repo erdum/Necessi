@@ -32,12 +32,7 @@ class OtpService
                     $seconds = $diff_secs % 60;
                     $diff_human = sprintf('%d:%02d', $minutes, $seconds);
 
-                    // throw new Exceptions\OtpCoolingDown($diff_human);
-
-                    return response()->json([
-                        'message' => 'You have exceeded the maximum OTP retry limit. Please try again.',
-                        'seconds_left' => $diff_secs,
-                    ], 429);
+                    throw new Exceptions\OtpCoolingDown($diff_human);
                 }
 
                 $otp->retries = 0;
@@ -58,14 +53,7 @@ class OtpService
             )->isPast();
 
             if (! $is_expired) {
-                // throw new Exceptions\OtpNotExpired;
-
-                return response()->json([
-                    'message' => 'You have recently requested a OTP. Please try again after some time.',
-                    'seconds_left' => Carbon::parse($otp->sent_at)->addSeconds(
-                        config('otp.expiry_duration')
-                    )->diffInSeconds(now()),
-                ], 429);
+                throw new Exceptions\OtpNotExpired;
             }
 
             $otp->retries += 1;
