@@ -1,8 +1,8 @@
 <?php
 
 use App\Http\Controllers\FirebaseAuthController;
-use App\Http\Controllers\UserController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,46 +17,46 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware(['auth:sanctum'])->group(function () {
-    
+
     Route::post(
-        '/profile', 
+        '/profile',
         [UserController::class, 'update_user']
     );
 
     Route::get(
-        '/profile', 
+        '/profile',
         [UserController::class, 'get_user']
     );
 
     Route::post(
-        '/create-post', 
+        '/create-post',
         [PostController::class, 'create_post']
     );
 
     Route::post(
-        '/post-biding', 
+        '/post-biding',
         [PostController::class, 'post_biding']
     );
 
     // Get user posts
     Route::get(
-        '/user/post', 
+        '/user/post',
         [PostController::class, 'get_user_posts']
     );
 
-    // Get all posts 
+    // Get all posts
     Route::get(
-        '/posts', 
+        '/posts',
         [PostController::class, 'get_all_posts']
     );
 
     Route::post(
-        '/post-details', 
+        '/post-details',
         [PostController::class, 'post_details']
     );
 
     Route::post(
-        '/post/like', 
+        '/post/like',
         [PostController::class, 'post_like']
     );
 

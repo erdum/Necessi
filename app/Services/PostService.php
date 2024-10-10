@@ -2,16 +2,15 @@
 
 namespace App\Services;
 
-use App\Models\User;
+use App\Jobs\StoreImages;
 use App\Models\Post;
 use App\Models\PostBid;
-use App\Models\PostLike;
 use App\Models\PostImage;
-use Kreait\Firebase\Factory;
-use Illuminate\Http\UploadedFile;
-use Google\Cloud\Firestore\FieldValue;
-use App\Jobs\StoreImages;
+use App\Models\PostLike;
+use App\Models\User;
 use Carbon\Carbon;
+use Google\Cloud\Firestore\FieldValue;
+use Kreait\Firebase\Factory;
 
 class PostService
 {
@@ -23,31 +22,31 @@ class PostService
         $firebase = $factory->withServiceAccount(
             base_path()
             .DIRECTORY_SEPARATOR
-            .config("firebase.projects.app.credentials")
+            .config('firebase.projects.app.credentials')
         );
         $this->db = $firebase->createFirestore()->database();
     }
 
-    private function calculateDistance($lat1, $lon1, $lat2, $lon2) 
+    private function calculateDistance($lat1, $lon1, $lat2, $lon2)
     {
         $earthRadius = 3958.8;
-    
+
         $lat1 = deg2rad($lat1);
         $lon1 = deg2rad($lon1);
         $lat2 = deg2rad($lat2);
         $lon2 = deg2rad($lon2);
-    
+
         $dlat = $lat2 - $lat1;
         $dlon = $lon2 - $lon1;
-    
+
         $a = sin($dlat / 2) * sin($dlat / 2) +
              cos($lat1) * cos($lat2) *
              sin($dlon / 2) * sin($dlon / 2);
-    
+
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
-    
+
         $distance = $earthRadius * $c;
-    
+
         return $distance;
     }
 
@@ -65,7 +64,7 @@ class PostService
         string $type,
         ?array $avatars
     ) {
-        $post = new Post();
+        $post = new Post;
         $post->user_id = $user->id;
         $post->title = $title;
         $post->description = $description;
@@ -79,19 +78,17 @@ class PostService
         $post->type = $type;
         $post->save();
 
-        if ($avatars) 
-        {
-            foreach ($avatars as $avatar) 
-            {
-                $post_image = new PostImage();
+        if ($avatars) {
+            foreach ($avatars as $avatar) {
+                $post_image = new PostImage;
                 $avatar_name = str()->random(15);
                 $post_image->post_id = $post->id;
                 $post_image->url = "avatars/$avatar_name.webp";
                 $post_image->save();
-    
+
                 StoreImages::dispatchAfterResponse(
                     $avatar->path(),
-                    "avatars",
+                    'avatars',
                     $avatar_name
                 );
             }
@@ -99,30 +96,30 @@ class PostService
 
         return $post;
     }
-    
+
     public function post_biding(User $user,
         $post_id,
         $amount,
     ) {
-        $bids = $this->db->collection("bids")->document($user->uid);
+        $bids = $this->db->collection('bids')->document($user->uid);
         $existing_bid = PostBid::where('user_id', $user->id)
-           ->where('post_id', $post_id)->first();
-           
+            ->where('post_id', $post_id)->first();
+
         if ($existing_bid) {
             return [
-                'message' => 'You have already placed a bid on this post'
+                'message' => 'You have already placed a bid on this post',
             ];
         }
 
         $bids->set([
-            "user_id" => $user->id,
-            "post_id" => $post_id,
-            "amount" => $amount,
-            "status" => 'pending',
-            'created_at' =>  FieldValue::serverTimestamp(),
+            'user_id' => $user->id,
+            'post_id' => $post_id,
+            'amount' => $amount,
+            'status' => 'pending',
+            'created_at' => FieldValue::serverTimestamp(),
         ]);
 
-        $post_bid = new PostBid();
+        $post_bid = new PostBid;
         $post_bid->user_id = $user->id;
         $post_bid->post_id = $post_id;
         $post_bid->amount = $amount;
@@ -130,7 +127,7 @@ class PostService
         $post_bid->save();
 
         return [
-            'message' => 'Your bid has been placed successfully'
+            'message' => 'Your bid has been placed successfully',
         ];
     }
 
@@ -138,29 +135,29 @@ class PostService
     {
         $posts = $user->posts()->orderBy('created_at', 'desc')->paginate(10);
 
-        return $posts->map(function ($post) use  ($user)  {
+        return $posts->map(function ($post) use ($user) {
             return [
                 'first_name' => $user->first_name,
                 'last_name' => $user->last_name,
                 'avatar' => $user->avatar,
-                "post_id" => $post->id,
-                "user_id" => $post->user_id,
-                "type" => $post->type,
-                "title" => $post->title,
-                "description" => $post->description,
-                "location" => $post->location,
-                "lat" => $post->lat,
-                "long" => $post->long,
-                "budget" => $post->budget,
-                "duration" => Carbon::parse($post->start_date)->format('d M') . ' - ' . 
+                'post_id' => $post->id,
+                'user_id' => $post->user_id,
+                'type' => $post->type,
+                'title' => $post->title,
+                'description' => $post->description,
+                'location' => $post->location,
+                'lat' => $post->lat,
+                'long' => $post->long,
+                'budget' => $post->budget,
+                'duration' => Carbon::parse($post->start_date)->format('d M').' - '.
                               Carbon::parse($post->end_date)->format('d M y'),
-                "created_at" => $post->created_at->diffForHumans(),
-                "delivery_requested" => $post->delivery_requested,
+                'created_at' => $post->created_at->diffForHumans(),
+                'delivery_requested' => $post->delivery_requested,
                 'bids' => $post->bids->count(),
                 'likes' => $post->likes->count(),
-                "images" => $post->images->map(function ($image) {
+                'images' => $post->images->map(function ($image) {
                     return [
-                        "url" => $image->url,
+                        'url' => $image->url,
                     ];
                 }),
             ];
@@ -170,48 +167,48 @@ class PostService
     public function get_all_posts(User $current_user)
     {
         $posts = Post::orderBy('created_at', 'desc')->paginate(10);
-    
-        return $posts->map(function ($post) use ($current_user)
-        {
+
+        return $posts->map(function ($post) use ($current_user) {
             $distance = $this->calculateDistance(
                 $current_user->lat,
                 $current_user->long,
                 $post->lat, $post->long
             );
+
             return [
                 'first_name' => $post->user->first_name,
                 'last_name' => $post->user->last_name,
                 'avatar' => $post->user->avatar,
-                "post_id" => $post->id,
-                "user_id" => $post->user_id,
-                "type" => $post->type,
-                "title" => $post->title,
-                "description" => $post->description,
-                "location" => $post->location,
-                "lat" => $post->lat,
-                "long" => $post->long,
-                "distance" => round($distance, 2) . ' miles away',
-                "budget" => $post->budget,
-                "duration" => Carbon::parse($post->start_date)->format('d M') . ' - ' . 
+                'post_id' => $post->id,
+                'user_id' => $post->user_id,
+                'type' => $post->type,
+                'title' => $post->title,
+                'description' => $post->description,
+                'location' => $post->location,
+                'lat' => $post->lat,
+                'long' => $post->long,
+                'distance' => round($distance, 2).' miles away',
+                'budget' => $post->budget,
+                'duration' => Carbon::parse($post->start_date)->format('d M').' - '.
                               Carbon::parse($post->end_date)->format('d M y'),
-                "delivery_requested" => $post->delivery_requested,
-                "created_at" => $post->created_at->diffForHumans(),
-                'likes'=> $post->likes->count(),
+                'delivery_requested' => $post->delivery_requested,
+                'created_at' => $post->created_at->diffForHumans(),
+                'likes' => $post->likes->count(),
                 'bids' => $post->bids->count(),
-                "images" => $post->images->map(function ($image) {
+                'images' => $post->images->map(function ($image) {
                     return [
-                        "url" => $image->url,
+                        'url' => $image->url,
                     ];
                 }),
             ];
         });
-    } 
+    }
 
     public function post_like(User $user, $post_id)
     {
         $post_like = PostLike::where('post_id', $post_id)->where('user_id', $user->id)->first();
 
-        if($post_like){
+        if ($post_like) {
             $post_like->post_id = $post_id;
             $post_like->user_id = $user->id;
             $post_like->save();
@@ -219,7 +216,7 @@ class PostService
             return $post_like;
         }
 
-        $post_like = new PostLike();
+        $post_like = new PostLike;
         $post_like->post_id = $post_id;
         $post_like->user_id = $user->id;
         $post_like->save();
@@ -227,28 +224,28 @@ class PostService
         return $post_like;
     }
 
-    public function post_details(User $user,  int $post_id) 
+    public function post_details(User $user, int $post_id)
     {
         $post_details = Post::where('id', $post_id)->first();
-        $bids_ref = $this->db->collection("bids");
+        $bids_ref = $this->db->collection('bids');
         $bids_snapshot = $bids_ref->where('post_id', '=', $post_id)->documents();
         $images = [];
         $bids = [];
-        
+
         foreach ($bids_snapshot as $bid_doc) {
             $bid_data = $bid_doc->data();
             $bid_user = User::find($bid_data['user_id']);
-            
+
             $bids[] = [
-                'user_name' => $bid_user->first_name . ' ' . $bid_user->last_name,
+                'user_name' => $bid_user->first_name.' '.$bid_user->last_name,
                 'avatar' => $bid_user->avatar,
                 'amount' => $bid_data['amount'],
                 'created_at' => Carbon::parse($bid_data['created_at'])->diffForHumans(),
-                'status' => $bid_data['status']
+                'status' => $bid_data['status'],
             ];
         }
-        
-        foreach($post_details->images as $image) {
+
+        foreach ($post_details->images as $image) {
             $images[] = $image->url;
         }
 
@@ -265,14 +262,14 @@ class PostService
             'type' => $post_details->type,
             'created_at' => $post_details->created_at->diffForHumans(),
             'budget' => $post_details->budget,
-            "duration" => Carbon::parse($post_details->start_date)->format('d M') . ' - ' . 
+            'duration' => Carbon::parse($post_details->start_date)->format('d M').' - '.
                           Carbon::parse($post_details->end_date)->format('d M y'),
             'location' => $post_details->location,
-            "distance" => round($distance, 2) . ' miles away',
+            'distance' => round($distance, 2).' miles away',
             'title' => $post_details->title,
             'description' => $post_details->description,
             'likes' => $post_details->likes->count(),
-            'images' =>$images,
+            'images' => $images,
             'bids' => $bids,
             'comments' => $post_details->comments,
         ];

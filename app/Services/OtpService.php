@@ -2,13 +2,13 @@
 
 namespace App\Services;
 
+use App\Exceptions;
 use App\Jobs\SendEmails;
 use App\Models\Otp;
 use App\Models\User;
 use Carbon\Carbon;
 use Closure;
 use Illuminate\Support\Facades\Cache;
-use App\Exceptions;
 
 class OtpService
 {
@@ -52,7 +52,7 @@ class OtpService
             )->isPast();
 
             if (! $is_expired) {
-                throw new Exceptions\OtpNotExpired();
+                throw new Exceptions\OtpNotExpired;
             }
 
             $otp->retries += 1;
@@ -145,7 +145,7 @@ class OtpService
         }
 
         if (! $user) {
-            throw new Exceptions\UserNotFound();
+            throw new Exceptions\UserNotFound;
         }
 
         return $this->send_otp($user, $identifier);

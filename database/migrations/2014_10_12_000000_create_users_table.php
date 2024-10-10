@@ -25,7 +25,7 @@ return new class extends Migration
             $table->enum('gender', [
                 'male',
                 'female',
-                'non-binary'
+                'non-binary',
             ])->nullable();
             $table->integer('age')->nullable();
             $table->text('about')->nullable();

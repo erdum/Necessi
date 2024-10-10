@@ -2,13 +2,11 @@
 
 namespace App\Services;
 
-use Exception;
-use App\Models\User;
 use App\Exceptions;
+use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Kreait\Firebase\Exception\Auth\FailedToVerifyToken;
-use Kreait\Firebase\Auth;
 use Kreait\Firebase\Factory;
 
 class FirebaseAuthService
@@ -52,7 +50,7 @@ class FirebaseAuthService
     ) {
 
         if ($this->is_user_already_registered($email)) {
-            throw new Exceptions\UserAlreadyRegistered();
+            throw new Exceptions\UserAlreadyRegistered;
         }
 
         $user = User::updateOrCreate(
@@ -81,7 +79,7 @@ class FirebaseAuthService
         $verified = $this->otp_service->verify_otp($email, $otp);
 
         if (! $verified) {
-            throw new Exceptions\InvalidOtp();
+            throw new Exceptions\InvalidOtp;
         }
         $user = User::where('email', $email)->first();
 
@@ -109,15 +107,15 @@ class FirebaseAuthService
         $user = $this->is_user_already_registered($email);
 
         if (! $user) {
-            throw new Exceptions\UserNotFound();
+            throw new Exceptions\UserNotFound;
         }
 
         if ($user->email_verified_at == null) {
-            throw new Exceptions\EmailNotVerified();
+            throw new Exceptions\EmailNotVerified;
         }
 
-        if (!$user->user_otp || $user->user_otp->verified_at === null) {
-            throw new Exceptions\InvalidOtp();
+        if (! $user->user_otp || $user->user_otp->verified_at === null) {
+            throw new Exceptions\InvalidOtp;
         }
 
         $user->update([
@@ -134,15 +132,15 @@ class FirebaseAuthService
         $user = $this->is_user_already_registered($email);
 
         if (! $user) {
-            throw new Exceptions\InvalidCredentials();
+            throw new Exceptions\InvalidCredentials;
         }
 
         if (! Hash::check($password, $user->password)) {
-            throw new Exceptions\InvalidCredentials();
+            throw new Exceptions\InvalidCredentials;
         }
 
         if ($user->email_verified_at == null) {
-            throw new Exceptions\EmailNotVerified();
+            throw new Exceptions\EmailNotVerified;
         }
 
         if ($fcm_token != null) {
@@ -185,7 +183,7 @@ class FirebaseAuthService
             ];
 
         } catch (FailedToVerifyToken $e) {
-            throw new Exceptions\InvalidIdToken();
+            throw new Exceptions\InvalidIdToken;
         } catch (\Throwable $e) {
             throw new \Exception($e->getMessage(), 500);
         }

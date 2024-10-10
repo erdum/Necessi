@@ -7,15 +7,16 @@ use Exception;
 class BaseException extends Exception
 {
     protected $message;
+
     protected $code;
 
     public function __construct(
-        $message = "API Internal Error",
+        $message = 'API Internal Error',
         $code = 500
     ) {
         $this->message = $this->message ?: $message;
         $this->code = $this->code ?: $code;
-        
+
         parent::__construct($this->message, $this->code);
     }
 

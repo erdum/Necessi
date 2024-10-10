@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Services\FirebaseAuthService;
 use Illuminate\Http\Request;
-use App\Models\User;
 
 class FirebaseAuthController extends Controller
 {

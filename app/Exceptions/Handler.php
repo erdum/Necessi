@@ -3,9 +3,7 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Http\Request;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -42,9 +40,7 @@ class Handler extends ExceptionHandler
     /**
      * Register the exception handling callbacks for the application.
      */
-    public function register(): void
-    {
-    }
+    public function register(): void {}
 
     public function render($request, Throwable $e)
     {
@@ -52,13 +48,13 @@ class Handler extends ExceptionHandler
             $error = $e->validator->errors()->first();
 
             return response()->json([
-                "message" => $error,
+                'message' => $error,
             ], 400);
         }
 
         if ($e instanceof BaseException) {
             return response()->json([
-                "message" => $e->getMessage(),
+                'message' => $e->getMessage(),
             ], $e->get_status_code());
         }
 

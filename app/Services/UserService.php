@@ -2,10 +2,10 @@
 
 namespace App\Services;
 
-use App\Models\User;
-use Kreait\Firebase\Factory;
 use App\Jobs\StoreImages;
+use App\Models\User;
 use Illuminate\Http\UploadedFile;
+use Kreait\Firebase\Factory;
 
 class UserService
 {
@@ -19,7 +19,7 @@ class UserService
         $firebase = $factory->withServiceAccount(
             base_path()
             .DIRECTORY_SEPARATOR
-            .config("firebase.projects.app.credentials")
+            .config('firebase.projects.app.credentials')
         );
         $this->db = $firebase->createFirestore()->database();
         $this->auth = $firebase->createAuth();
@@ -27,16 +27,16 @@ class UserService
 
     public function update_firestore_profile(User $user)
     {
-        $user_ref = $this->db->collection("users")->document($user->uid);
+        $user_ref = $this->db->collection('users')->document($user->uid);
 
         $user_ref->set([
-            "first_name" => $user->first_name,
-            "uid" => $user->uid,
-            "last_name" => $user->last_name,
-            "email" => $user->email,
-            "email_verified_at" => $user->email_verified_at,
-            "phone_number" => $user->phone_number,
-            "is_online" => true,
+            'first_name' => $user->first_name,
+            'uid' => $user->uid,
+            'last_name' => $user->last_name,
+            'email' => $user->email,
+            'email_verified_at' => $user->email_verified_at,
+            'phone_number' => $user->phone_number,
+            'is_online' => true,
         ]);
     }
 
@@ -70,7 +70,7 @@ class UserService
 
             StoreImages::dispatchAfterResponse(
                 $avatar->path(),
-                "avatars",
+                'avatars',
                 $avatar_name
             );
         }
@@ -97,27 +97,27 @@ class UserService
     public function get_profile(string $user_uid)
     {
         $user = User::select([
-            "id",
-            "uid",
-            "first_name",
-            "last_name",
-            "email",
-            "gender",
-            "age",
-            "about",
-            "avatar",
-            "phone_number",
-            "lat",
-            "long",
-            "location",
-        ])->where("uid", $user_uid)->first();
+            'id',
+            'uid',
+            'first_name',
+            'last_name',
+            'email',
+            'gender',
+            'age',
+            'about',
+            'avatar',
+            'phone_number',
+            'lat',
+            'long',
+            'location',
+        ])->where('uid', $user_uid)->first();
 
         return $user;
     }
 
     public function set_location(
-        User $user, 
-        float $lat, 
+        User $user,
+        float $lat,
         float $long,
         string $location
     ) {
@@ -127,19 +127,19 @@ class UserService
         $user->save();
 
         return $user->only([
-            "id",
-            "uid",
-            "first_name",
-            "last_name",
-            "email",
-            "gender",
-            "age",
-            "about",
-            "avatar",
-            "phone_number",
-            "lat",
-            "long",
-            "location",
+            'id',
+            'uid',
+            'first_name',
+            'last_name',
+            'email',
+            'gender',
+            'age',
+            'about',
+            'avatar',
+            'phone_number',
+            'lat',
+            'long',
+            'location',
         ]);
     }
 
@@ -181,16 +181,15 @@ class UserService
             'long',
             'address',
         )->where('city', $current_user->city)
-        ->where('state', $current_user->state)
-        ->whereNot('id', $current_user->id)
-        ->limit(9)
-        ->get();
+            ->where('state', $current_user->state)
+            ->whereNot('id', $current_user->id)
+            ->limit(9)
+            ->get();
 
         return $users;
     }
 
-
-    public function make_connections(User $user, Array $user_ids)
+    public function make_connections(User $user, array $user_ids)
     {
         foreach ($user_ids as $id) {
             $this->connect_users_mutually(

@@ -26,7 +26,7 @@ class PostBidFactory extends Factory
             'status' => fake()->randomElement([
                 'accepted',
                 'rejected',
-                'pending'
+                'pending',
             ]),
         ];
     }

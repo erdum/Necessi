@@ -2,16 +2,15 @@
 
 namespace App\Exceptions;
 
-use Exception;
-
 class OtpCoolingDown extends BaseException
 {
     protected $code = 429;
-    protected $message = "You have exceeded the maximum OTP retry limit. Please try again after ";
+
+    protected $message = 'You have exceeded the maximum OTP retry limit. Please try again after ';
 
     public function __construct($time)
     {
-    	$this->message = $message.' '.$time;
-    	parent::__construct($this->message, $this->code);
+        $this->message = $message.' '.$time;
+        parent::__construct($this->message, $this->code);
     }
 }

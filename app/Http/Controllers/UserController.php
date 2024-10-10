@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use Illuminate\Http\Request;
 use App\Services\UserService;
+use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
@@ -76,8 +75,7 @@ class UserController extends Controller
     public function get_nearby_users(
         Request $request,
         UserService $user_service
-    )
-    {
+    ) {
         $user = $request->user();
 
         $response = $user_service->get_nearby_users($user);
@@ -88,11 +86,10 @@ class UserController extends Controller
     public function make_connections(
         Request $request,
         UserService $user_service
-    )
-    {
+    ) {
         $request->validate([
             'user_ids' => 'required|array',
-            'user_ids.*' => 'exists:users,id'
+            'user_ids.*' => 'exists:users,id',
         ]);
 
         $response = $user_service->make_connections(

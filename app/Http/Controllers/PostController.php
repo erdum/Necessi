@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Services\PostService;
+use Illuminate\Http\Request;
 
 class PostController extends Controller
 {
@@ -26,7 +26,7 @@ class PostController extends Controller
 
         $avatars = $request->file('avatar');
 
-        if ($avatars && !is_array($avatars)) {
+        if ($avatars && ! is_array($avatars)) {
             $avatars = [$avatars];
         }
 
@@ -42,7 +42,7 @@ class PostController extends Controller
             $request->end_date,
             $request->request_delivery,
             $request->type,
-            $avatars 
+            $avatars
         );
 
         return response()->json($response);
@@ -64,7 +64,7 @@ class PostController extends Controller
 
         return response()->json($response);
     }
-    
+
     public function get_user_posts(
         Request $request,
         PostService $post_service,
@@ -77,7 +77,7 @@ class PostController extends Controller
     }
 
     public function get_all_posts(
-        Request $request, 
+        Request $request,
         PostService $post_service,
     ) {
         $response = $post_service->get_all_posts(
@@ -90,11 +90,11 @@ class PostController extends Controller
     public function post_like(
         Request $request,
         PostService $post_service,
-    ){
+    ) {
         $request->validate([
             'post_id' => 'required|integer',
         ]);
-        
+
         $response = $post_service->post_like(
             $request->user(),
             $request->post_id,
