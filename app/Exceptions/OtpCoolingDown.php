@@ -10,7 +10,7 @@ class OtpCoolingDown extends BaseException
 
     public function __construct($time)
     {
-        $this->message = $message.' '.$time;
+        $this->message = $this->message.' '.$time;
         parent::__construct($this->message, $this->code);
     }
 }
