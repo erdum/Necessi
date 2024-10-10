@@ -43,6 +43,7 @@ class OtpService
                 return [
                     'message' => 'OTP has been successfully sent',
                     'ref' => $send(),
+                    'retry_duration' => config('otp.retry_duration'),
                 ];
             }
 
@@ -72,6 +73,7 @@ class OtpService
         return [
             'message' => 'OTP has been successfully sent',
             'ref' => $send(),
+            'retry_duration' => config('otp.expiry_duration'),
         ];
     }
 
