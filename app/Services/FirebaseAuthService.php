@@ -48,8 +48,9 @@ class FirebaseAuthService
         $email,
         $password
     ) {
+        $user = $this->is_user_already_registered($email);
 
-        if ($this->is_user_already_registered($email)) {
+        if ($user && $user->email_verified_at != null) {
             throw new Exceptions\UserAlreadyRegistered;
         }
 
