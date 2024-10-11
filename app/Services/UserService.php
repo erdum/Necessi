@@ -43,7 +43,6 @@ class UserService
     public function update_profile(
         User $user,
         ?string $about,
-        ?string $gender,
         ?string $age,
         ?UploadedFile $avatar,
         ?string $phone_number,
@@ -55,7 +54,6 @@ class UserService
 
     ) {
         $user->about = $about ?? $user->about ?? null;
-        $user->gender = $gender ?? $user->gender ?? null;
         $user->age = $age ?? $user->age ?? null;
         $user->phone_number = $phone_number ?? $user->phone_number ?? null;
         $user->city = $city ?? $user->city ?? null;
@@ -81,7 +79,6 @@ class UserService
             'first_name',
             'last_name',
             'about',
-            'gender',
             'age',
             'uid',
             'avatar',
@@ -102,7 +99,6 @@ class UserService
             'first_name',
             'last_name',
             'email',
-            'gender',
             'age',
             'about',
             'avatar',
@@ -132,7 +128,6 @@ class UserService
             'first_name',
             'last_name',
             'email',
-            'gender',
             'age',
             'about',
             'avatar',
@@ -172,7 +167,6 @@ class UserService
             'email',
             'phone_number',
             'avatar',
-            'gender',
             'age',
             'about',
             'lat',
@@ -201,7 +195,6 @@ class UserService
                 'email',
                 'phone_number',
                 'avatar',
-                'gender',
                 'age',
                 'about',
                 'lat',
@@ -279,7 +272,6 @@ class UserService
             'users.email',
             'users.phone_number',
             'users.avatar',
-            'users.gender',
             'users.age',
             'users.about',
             'users.city',

@@ -14,7 +14,6 @@ class UserController extends Controller
         $request->validate([
             'avatar' => 'nullable|image|max:2048',
             'about' => 'nullable|string|max:500',
-            'gender' => 'nullable|in:male,female,non-binary',
             'age' => 'nullable|integer',
             'phone_number' => 'nullable',
             'city' => 'nullable|string',

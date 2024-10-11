@@ -22,11 +22,6 @@ return new class extends Migration
             $table->timestamp('phone_number_verified_at')->nullable();
             $table->string('password')->nullable();
             $table->string('avatar')->nullable();
-            $table->enum('gender', [
-                'male',
-                'female',
-                'non-binary',
-            ])->nullable();
             $table->integer('age')->nullable();
             $table->text('about')->nullable();
             $table->decimal('lat', 7, 4)->nullable();
