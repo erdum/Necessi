@@ -26,7 +26,6 @@ class UserController extends Controller
         $response = $user_service->update_profile(
             $request->user(),
             $request->about,
-            $request->gender,
             $request->age,
             $request->avatar,
             $request->phone_number,
