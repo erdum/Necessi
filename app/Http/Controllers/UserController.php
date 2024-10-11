@@ -12,7 +12,7 @@ class UserController extends Controller
         UserService $user_service
     ) {
         $request->validate([
-            'avatar' => 'nullable|image|max:2048',
+            'avatar' => 'nullable|image',
             'about' => 'nullable|string|max:500',
             'age' => 'nullable|integer',
             'phone_number' => 'nullable',
