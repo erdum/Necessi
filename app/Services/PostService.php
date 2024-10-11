@@ -10,6 +10,7 @@ use App\Models\PostLike;
 use App\Models\User;
 use Carbon\Carbon;
 use Google\Cloud\Firestore\FieldValue;
+use App\Exceptions;
 use Kreait\Firebase\Factory;
 
 class PostService
@@ -101,9 +102,14 @@ class PostService
         $post_id,
         $amount,
     ) {
+        $post = Post::find($post_id);
         $bids = $this->db->collection('bids')->document($user->uid);
         $existing_bid = PostBid::where('user_id', $user->id)
             ->where('post_id', $post_id)->first();
+        
+        if(!$post){
+            throw new Exceptions\InvalidPostId;
+        }
 
         if ($existing_bid) {
             return [
@@ -206,7 +212,12 @@ class PostService
 
     public function post_like(User $user, $post_id)
     {
+        $post = Post::find($post_id);
         $post_like = PostLike::where('post_id', $post_id)->where('user_id', $user->id)->first();
+
+        if(!$post){
+            throw new Exceptions\InvalidPostId;
+        }
 
         if ($post_like) {
             $post_like->post_id = $post_id;
@@ -231,6 +242,10 @@ class PostService
         $bids_snapshot = $bids_ref->where('post_id', '=', $post_id)->documents();
         $images = [];
         $bids = [];
+
+        if(!$post_details){
+            throw new Exceptions\InvalidPostId;
+        }
 
         foreach ($bids_snapshot as $bid_doc) {
             $bid_data = $bid_doc->data();
