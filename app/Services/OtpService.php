@@ -28,11 +28,8 @@ class OtpService
 
                 if (! $is_cool_down) {
                     $diff_secs = $expiry->diffInSeconds(now());
-                    $minutes = intdiv($diff_secs, 60);
-                    $seconds = $diff_secs % 60;
-                    $diff_human = sprintf('%d:%02d', $minutes, $seconds);
 
-                    throw new Exceptions\OtpCoolingDown($diff_human);
+                    throw new Exceptions\OtpCoolingDown($diff_secs);
                 }
 
                 $otp->retries = 0;
