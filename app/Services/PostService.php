@@ -7,6 +7,7 @@ use App\Models\Post;
 use App\Models\PostBid;
 use App\Models\PostImage;
 use App\Models\PostLike;
+use App\Models\PostComment;
 use App\Models\User;
 use Carbon\Carbon;
 use Google\Cloud\Firestore\FieldValue;
@@ -103,17 +104,38 @@ class PostService
         $amount,
     ) {
         $post = Post::find($post_id);
-        $bids = $this->db->collection('bids')->document($user->uid);
-        $existing_bid = PostBid::where('user_id', $user->id)
-            ->where('post_id', $post_id)->first();
-        
+
         if(!$post){
             throw new Exceptions\InvalidPostId;
         }
 
-        if ($existing_bid) {
+        $bids = $this->db->collection('bids')->document($user->uid);
+        $existing_bid = PostBid::where('user_id', $user->id)
+            ->where('post_id', $post_id)->first();
+
+        if ($existing_bid)
+        {
+            if($amount < $existing_bid->amount)
+            {
+                $bids->update([
+                    ['path' => 'user_id', 'value' => $user->id],
+                    ['path' => 'post_id', 'value' => $post_id],
+                    ['path' => 'amount', 'value' => $amount],
+                    ['path' => 'status', 'value' => 'pending'],
+                    ['path' => 'created_at', 'value' => FieldValue::serverTimestamp()],
+                ]);
+
+                $existing_bid->amount = $amount;
+                $existing_bid->status = 'pending';
+                $existing_bid->save();
+
+                return [
+                    'message' => 'Your bid has been updated successfully',
+                ];
+            }
+
             return [
-                'message' => 'You have already placed a bid on this post',
+                'message' => 'New bid amount must be less than the previous bid',
             ];
         }
 
@@ -210,7 +232,7 @@ class PostService
         });
     }
 
-    public function post_like(User $user, $post_id)
+    public function post_like(User $user, int $post_id)
     {
         $post = Post::find($post_id);
         $post_like = PostLike::where('post_id', $post_id)->where('user_id', $user->id)->first();
@@ -237,14 +259,30 @@ class PostService
 
     public function post_details(User $user, int $post_id)
     {
-        $post_details = Post::where('id', $post_id)->first();
-        $bids_ref = $this->db->collection('bids');
-        $bids_snapshot = $bids_ref->where('post_id', '=', $post_id)->documents();
-        $images = [];
-        $bids = [];
+        $post_details = Post::find($post_id);
 
         if(!$post_details){
             throw new Exceptions\InvalidPostId;
+        }
+
+        $bids_ref = $this->db->collection('bids');
+        $bids_snapshot = $bids_ref->where('post_id', '=', $post_id)
+            ->orderBy('amount', 'ASC')
+            ->documents();
+        $comments = PostComment::where('post_id', $post_id)
+            ->orderBy('created_at', 'DESC')
+            ->get();
+        $images = [];
+        $comment_list = [];
+        $bids = [];
+
+        foreach ($comments as $comment) {
+            $comment_list[] = [
+                'avatar' => $comment->user->avatar,
+                'user_name' => $comment->user->first_name . ' ' . $comment->user->last_name,
+                'comment' => $comment->data,
+                'created_at' => $comment->created_at->diffForHumans(),
+            ];
         }
 
         foreach ($bids_snapshot as $bid_doc) {
@@ -286,7 +324,7 @@ class PostService
             'likes' => $post_details->likes->count(),
             'images' => $images,
             'bids' => $bids,
-            'comments' => $post_details->comments,
+            'comments' => $comment_list,
         ];
     }
 }

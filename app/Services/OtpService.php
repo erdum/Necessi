@@ -82,6 +82,7 @@ class OtpService
             return false;
         }
         $otp->verified_at = now();
+        $otp->retries = 0;
         $otp->save();
 
         return true;

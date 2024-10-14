@@ -24,8 +24,8 @@ return new class extends Migration
             $table->string('avatar')->nullable();
             $table->integer('age')->nullable();
             $table->text('about')->nullable();
-            $table->decimal('lat', 7, 4)->nullable();
-            $table->decimal('long', 7, 4)->nullable();
+            $table->double('lat')->nullable();
+            $table->double('long')->nullable();
             $table->string('city')->nullable();
             $table->string('state')->nullable();
             $table->string('address')->nullable();
