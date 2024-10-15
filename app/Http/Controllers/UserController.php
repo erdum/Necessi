@@ -10,7 +10,7 @@ class UserController extends Controller
     public function update_user(
         Request $request,
         UserService $user_service
-    ) {
+    ) {     
         $request->validate([
             'avatar' => 'nullable|image',
             'about' => 'nullable|string|max:500',
@@ -52,8 +52,8 @@ class UserController extends Controller
             'lat' => 'required|numeric',
             'long' => 'required|numeric',
             'location' => 'required|string',
-            'city' => 'nullable|string',
-            'state' => 'nullable|string',
+            'city' => 'required|string',
+            'state' => 'required|string',
         ]);
 
         $response = $user_service->set_location(
