@@ -46,21 +46,18 @@ class UserService
         ?string $age,
         ?UploadedFile $avatar,
         ?string $phone_number,
-        ?string $city,
-        ?string $state,
-        ?string $address,
         ?float $lat,
-        ?float $long,
-
+        ?float $long
     ) {
         $user->about = $about ?? $user->about ?? null;
         $user->age = $age ?? $user->age ?? null;
         $user->phone_number = $phone_number ?? $user->phone_number ?? null;
-        $user->city = $city ?? $user->city ?? null;
-        $user->state = $state ?? $user->state ?? null;
-        $user->address = $address ?? $user->address ?? null;
         $user->lat = $lat ?? $user->lat ?? null;
         $user->long = $long ?? $user->long ?? null;
+
+        if(!$avatar){
+            $user->avatar = $avatar ?? $user->avatar ?? null;
+        }
 
         if ($avatar) {
             $avatar_name = str()->random(15);
@@ -80,12 +77,8 @@ class UserService
             'last_name',
             'about',
             'age',
-            'uid',
             'avatar',
-            'phone_numbe',
-            'city',
-            'state',
-            'address',
+            'phone_number',
             'lat',
             'long',
         ]);
@@ -106,6 +99,8 @@ class UserService
             'lat',
             'long',
             'location',
+            'city',
+            'state',
         ])->where('uid', $user_uid)->first();
 
         return $user;
@@ -115,11 +110,16 @@ class UserService
         User $user,
         float $lat,
         float $long,
-        string $location
+        string $location,
+        string $city,
+        string $state,
     ) {
         $user->lat = $lat;
         $user->long = $long;
         $user->location = $location;
+        $user->city = $city;
+        $user->state = $state;
+
         $user->save();
 
         return $user->only([
@@ -135,6 +135,8 @@ class UserService
             'lat',
             'long',
             'location',
+            'city',
+            'state',
         ]);
     }
 
@@ -278,7 +280,6 @@ class UserService
             'users.state',
             'users.lat',
             'users.long',
-            'users.address'
         )->get();
     }
 }

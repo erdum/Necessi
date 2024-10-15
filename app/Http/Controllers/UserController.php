@@ -16,9 +16,6 @@ class UserController extends Controller
             'about' => 'nullable|string|max:500',
             'age' => 'nullable|integer',
             'phone_number' => 'nullable',
-            'city' => 'nullable|string',
-            'state' => 'nullable|string',
-            'address' => 'nullable|string',
             'lat' => 'nullable|numeric',
             'long' => 'nullable|numeric',
         ]);
@@ -29,9 +26,6 @@ class UserController extends Controller
             $request->age,
             $request->avatar,
             $request->phone_number,
-            $request->city,
-            $request->state,
-            $request->address,
             $request->lat,
             $request->long,
         );
@@ -58,6 +52,8 @@ class UserController extends Controller
             'lat' => 'required|numeric',
             'long' => 'required|numeric',
             'location' => 'required|string',
+            'city' => 'nullable|string',
+            'state' => 'nullable|string',
         ]);
 
         $response = $user_service->set_location(
@@ -65,6 +61,8 @@ class UserController extends Controller
             $request->lat,
             $request->long,
             $request->location,
+            $request->city,
+            $request->state,
         );
 
         return response()->json($response);

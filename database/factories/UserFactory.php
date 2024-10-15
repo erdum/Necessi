@@ -27,7 +27,6 @@ class UserFactory extends Factory
             'long' => fake()->longitude(),
             'city' => fake()->city(),
             'state' => fake()->state(),
-            'address' => fake()->address(),
             'location' => fake()->address(),
         ];
     }

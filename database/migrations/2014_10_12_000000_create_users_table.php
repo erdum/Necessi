@@ -28,7 +28,6 @@ return new class extends Migration
             $table->double('long')->nullable();
             $table->string('city')->nullable();
             $table->string('state')->nullable();
-            $table->string('address')->nullable();
             $table->string('location')->nullable();
             $table->rememberToken();
             $table->timestamps();
