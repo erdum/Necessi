@@ -202,8 +202,9 @@ class UserService
                 'lat',
                 'long',
                 'location'
-            )->whereNot('id', $current_user->id)
-             ->get();
+            )->whereNot('id', $current_user->id
+            )->where('city', '!=', $current_user->city
+            )->orWhere('state', '!=', $current_user->state)->get();
     
             foreach ($remaining_users as $user) {
                 $distance = $this->haversineDistance(
