@@ -17,6 +17,8 @@ class DatabaseSeeder extends Seeder
             'first_name' => 'Erdum',
             'last_name' => 'Adnan',
             'email' => 'erdumadnan@gmail.com',
+            'lat' => 24.8599499,
+            'long' => 67.0525505,
         ]);
 
         $posts = \App\Models\Post::factory(7)->create();
