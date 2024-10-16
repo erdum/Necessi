@@ -118,4 +118,20 @@ class PostController extends Controller
 
         return response()->json($response);
     }
+
+    public function post_bids(
+        Request $request, 
+        PostService $post_service
+    ) {
+        $request->validate([
+            'post_id' => 'required',
+        ]);
+        
+        $response = $post_service->post_bids(
+            $request->user(),
+            $request->post_id,
+        );
+
+        return response()->json($response);
+    }
 }

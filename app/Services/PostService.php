@@ -327,4 +327,15 @@ class PostService
             'comments' => $comment_list,
         ];
     }
+
+    public function post_bids(User $user, $post_id)
+    {
+        $post = Post::find($post_id);
+
+        if(!$post){
+            throw new Exceptions\InvalidPostId;
+        }
+
+        return $post->bids;
+    }
 }

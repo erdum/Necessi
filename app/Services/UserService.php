@@ -6,6 +6,7 @@ use App\Jobs\StoreImages;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Kreait\Firebase\Factory;
+use Carbon\Carbon;
 
 class UserService
 {
@@ -86,24 +87,40 @@ class UserService
 
     public function get_profile(string $user_uid)
     {
-        $user = User::select([
-            'id',
-            'uid',
-            'first_name',
-            'last_name',
-            'email',
-            'age',
-            'about',
-            'avatar',
-            'phone_number',
-            'lat',
-            'long',
-            'location',
-            'city',
-            'state',
-        ])->where('uid', $user_uid)->first();
+        $user = User::where('uid', $user_uid)->first();
+        $recent_post = $user->posts()->latest()->first();
 
-        return $user;
+        return [
+            'id' => $user->id,
+            'first_name' => $user->first_name,
+            'last_name' => $user->last_name,
+            'uid' => $user->uid,
+            'email' => $user->email,
+            'email_verified_at'=> $user->email_verified_at,
+            'phone_number' => $user->phone_number,
+            'avatar' => $user->avatar,
+            'age' => $user->age,
+            'about' => $user->about,
+            'city' => $user->city,
+            'state' => $user->state,
+            'location' => $user->location,
+            'connection_count' => $user->connections->count(),
+            'connections' => $user->connections,
+            'recent_post' => [
+                'id' => $recent_post->id,
+                'user_id' => $recent_post->user_id,
+                'type' => $recent_post->type,
+                'title' => $recent_post->title,
+                'description' => $recent_post->description,
+                'location' => $recent_post->location,
+                'budget' => $recent_post->budget,
+                'duration' => Carbon::parse($recent_post->start_date)->format('d M').' - '.
+                              Carbon::parse($recent_post->end_date)->format('d M y'),
+                'created_at' => $recent_post->created_at->diffForHumans(),
+                'bids' => $recent_post->bids->count(),
+                'likes' => $recent_post->likes->count(),
+            ],
+        ];
     }
 
     public function set_location(
