@@ -47,6 +47,11 @@ class DatabaseSeeder extends Seeder
                 'post_id' => $post->id,
                 'bid_id' => $bid->id,
             ]);
+
+            \App\Models\Review::factory()->create([
+                'user_id' => $dev->id,
+                'post_id' => $post->id,
+            ]);
         });
     }
 }

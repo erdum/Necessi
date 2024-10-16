@@ -111,7 +111,7 @@ class UserService
             'location' => $user->location,
             'connection_count' => $user->connections->count(),
             'connections' => $user->connections,
-            'recent_post' => [
+            'recent_post' => $recent_post ? [
                 'id' => $recent_post->id,
                 'user_id' => $recent_post->user_id,
                 'type' => $recent_post->type,
@@ -119,12 +119,12 @@ class UserService
                 'description' => $recent_post->description,
                 'location' => $recent_post->location,
                 'budget' => $recent_post->budget,
-                'duration' => Carbon::parse($recent_post->start_date)->format('d M').' - '.
+                'duration' => Carbon::parse($recent_post->start_date)->format('d M') . ' - ' .
                               Carbon::parse($recent_post->end_date)->format('d M y'),
                 'created_at' => $recent_post->created_at->diffForHumans(),
                 'bids' => $recent_post->bids->count(),
                 'likes' => $recent_post->likes->count(),
-            ],
+            ] : [],
         ];
     }
 
