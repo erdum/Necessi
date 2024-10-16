@@ -36,7 +36,7 @@ class UserController extends Controller
     public function get_user(Request $request, UserService $user_service)
     {
         $user = $user_service->get_profile(
-            $request->user()->uid
+            $request->user(),
         );
 
         if ($request->user_uid) {

@@ -85,9 +85,14 @@ class UserService
         ]);
     }
 
-    public function get_profile(string $user_uid)
+    public function get_profile(User $user)
     {
-        $user = User::where('uid', $user_uid)->first();
+        $user = User::where('id', $user->id)->first();
+        
+        if(!$user){
+            throw new Exceptions\UserNotFound;
+        }
+
         $recent_post = $user->posts()->latest()->first();
 
         return [
