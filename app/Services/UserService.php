@@ -89,7 +89,6 @@ class UserService
     public function get_profile(User $user)
     {
         $user = User::where('id', $user->id)->first();
-        $reviews = [];
 
         if(!$user){
             throw new Exceptions\UserNotFound;
@@ -97,10 +96,22 @@ class UserService
 
         $post_ids = $user->posts->pluck('id');
         $post_reviews = Review::whereIn('post_id', $post_ids)->get();
+        $average_rating = round($post_reviews->avg('rating'), 1);
+        $recent_post = $user->posts()->latest()->first();
+        $reviews = [];
+        $connections = [];
+        
+        foreach($user->connections->take(3) as $connection)
+        {
+            $user_connection = User::find($connection->id);
+            $connections[] = [
+                'id' => $connection->id,
+                'user_name' => $user_connection->first_name . ' ' . $user_connection->last_name,
+                'avatar' => $user_connection->avatar,
+            ];
+        }
 
-        // dd($post_reviews);
-
-        foreach($user->reviews as $review){
+        foreach($post_reviews->take(3) as $review){
             $users = User::find($review->user_id);
             $reviews[] = [
                 'user_id' => $users->id,
@@ -108,13 +119,11 @@ class UserService
                 'avatar' => $users->avatar,
                 'post_id' => $review->post_id,
                 'rating' => $review->rating,
-                'created_at' => $review->created_at->diffForHumans(),
                 'description' => $review->data,
+                'created_at' => $review->created_at->diffForHumans(),
             ];
         }
         
-        $recent_post = $user->posts()->latest()->first();
-
         return [
             'id' => $user->id,
             'first_name' => $user->first_name,
@@ -124,13 +133,14 @@ class UserService
             'email_verified_at'=> $user->email_verified_at,
             'phone_number' => $user->phone_number,
             'avatar' => $user->avatar,
+            'rating' => $average_rating,
             'age' => $user->age,
             'about' => $user->about,
             'city' => $user->city,
             'state' => $user->state,
             'location' => $user->location,
             'connection_count' => $user->connections->count(),
-            'connections' => $user->connections,
+            'connections' => $connections,
             'recent_post' => $recent_post ? [[
                 'id' => $recent_post->id,
                 'user_id' => $recent_post->user_id,
@@ -141,15 +151,11 @@ class UserService
                 'budget' => $recent_post->budget,
                 'duration' => Carbon::parse($recent_post->start_date)->format('d M') . ' - ' .
                               Carbon::parse($recent_post->end_date)->format('d M y'),
-                'created_at' => str_replace(
-                    ['minutes', 'minute', 'hours', 'hour', 'seconds', 'second'],
-                    ['mins', 'min', 'hrs', 'hr', 'secs', 'sec'],
-                    $recent_post->created_at->diffForHumans()
-                ),
+                'created_at' => $recent_post->created_at->diffForHumans(),
                 'bids' => $recent_post->bids->count(),
                 'likes' => $recent_post->likes->count(),
             ]] : [],
-            // 'reviews' => $reviews,
+            'reviews' => $reviews,
         ];
     }
 
