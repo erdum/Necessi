@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Jobs\StoreImages;
 use App\Models\User;
+use App\Models\Review;
 use Illuminate\Http\UploadedFile;
 use Kreait\Firebase\Factory;
 use Carbon\Carbon;
@@ -88,11 +89,30 @@ class UserService
     public function get_profile(User $user)
     {
         $user = User::where('id', $user->id)->first();
-        
+        $reviews = [];
+
         if(!$user){
             throw new Exceptions\UserNotFound;
         }
 
+        $post_ids = $user->posts->pluck('id');
+        $post_reviews = Review::whereIn('post_id', $post_ids)->get();
+
+        // dd($post_reviews);
+
+        foreach($user->reviews as $review){
+            $users = User::find($review->user_id);
+            $reviews[] = [
+                'user_id' => $users->id,
+                'user_name' => $users->first_name . ' ' . $users->last_name,
+                'avatar' => $users->avatar,
+                'post_id' => $review->post_id,
+                'rating' => $review->rating,
+                'created_at' => $review->created_at->diffForHumans(),
+                'description' => $review->data,
+            ];
+        }
+        
         $recent_post = $user->posts()->latest()->first();
 
         return [
@@ -111,7 +131,7 @@ class UserService
             'location' => $user->location,
             'connection_count' => $user->connections->count(),
             'connections' => $user->connections,
-            'recent_post' => $recent_post ? [
+            'recent_post' => $recent_post ? [[
                 'id' => $recent_post->id,
                 'user_id' => $recent_post->user_id,
                 'type' => $recent_post->type,
@@ -121,10 +141,15 @@ class UserService
                 'budget' => $recent_post->budget,
                 'duration' => Carbon::parse($recent_post->start_date)->format('d M') . ' - ' .
                               Carbon::parse($recent_post->end_date)->format('d M y'),
-                'created_at' => $recent_post->created_at->diffForHumans(),
+                'created_at' => str_replace(
+                    ['minutes', 'minute', 'hours', 'hour', 'seconds', 'second'],
+                    ['mins', 'min', 'hrs', 'hr', 'secs', 'sec'],
+                    $recent_post->created_at->diffForHumans()
+                ),
                 'bids' => $recent_post->bids->count(),
                 'likes' => $recent_post->likes->count(),
-            ] : [],
+            ]] : [],
+            // 'reviews' => $reviews,
         ];
     }
 
