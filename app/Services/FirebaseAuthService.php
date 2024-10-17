@@ -156,6 +156,7 @@ class FirebaseAuthService
             'message' => 'Login successful',
             'uid' => $user->uid,
             'token' => $token,
+            'user_details' =>$user,
         ];
     }
 

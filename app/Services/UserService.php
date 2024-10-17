@@ -156,6 +156,8 @@ class UserService
             'city' => $user->city,
             'state' => $user->state,
             'location' => $user->city,
+            'lat' => $user->lat,
+            'long' => $user->long,
             'connection_count' => $user->connections->count(),
             'connections' => $connections,
             'recent_post' => $recent_post ? [[
