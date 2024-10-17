@@ -357,4 +357,28 @@ class PostService
 
         return $post_bid;
     }
+
+    public function post_comments(User $user, $post_id)
+    {
+        $post = Post::find($post_id);
+
+        if(!$post){
+            throw new Exceptions\InvalidPostId;
+        }
+        $post_comments = [];
+
+        foreach($post->comments as $post_comment)
+        {
+            $user_comment = User::find($post_id);
+            $post_comments[] = [
+                'post_id' => $post_comment->post_id,
+                'user_id' => $user_comment->id,
+                'user_name' => $user_comment->first_name . ' ' . $user_comment->last_name,
+                'avatar' => $user_comment->avatar,
+                'comment' => $post_comment->data,
+            ];
+        }
+
+        return $post_comments;
+    }
 }

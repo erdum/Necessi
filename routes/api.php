@@ -56,6 +56,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     );
 
     Route::post(
+        '/post/comments',
+        [PostController::class, 'post_comments']
+    );
+
+    Route::post(
         '/post-details',
         [PostController::class, 'post_details']
     );
