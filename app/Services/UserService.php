@@ -15,8 +15,11 @@ class UserService
 
     protected $auth;
 
+    protected $post_service;
+
     public function __construct(
         Factory $factory,
+        PostService $post_service,
     ) {
         $firebase = $factory->withServiceAccount(
             base_path()
@@ -25,6 +28,7 @@ class UserService
         );
         $this->db = $firebase->createFirestore()->database();
         $this->auth = $firebase->createAuth();
+        $this->post_service = $post_service;
     }
 
     public function update_firestore_profile(User $user)
@@ -96,6 +100,13 @@ class UserService
         $recent_post = $user->posts()->latest()->first();
         $reviews = [];
         $connections = [];
+
+        $distance = $this->post_service->calculateDistance(
+            $user->lat,
+            $user->long,
+            $recent_post->lat,
+            $recent_post->long,
+        );
         
         foreach($user->connections->take(3) as $connection)
         {
@@ -144,6 +155,7 @@ class UserService
                 'title' => $recent_post->title,
                 'description' => $recent_post->description,
                 'location' => $recent_post->location,
+                'distance' => round($distance, 2).' miles away',
                 'budget' => $recent_post->budget,
                 'duration' => Carbon::parse($recent_post->start_date)->format('d M') . ' - ' .
                               Carbon::parse($recent_post->end_date)->format('d M y'),

@@ -29,7 +29,7 @@ class PostService
         $this->db = $firebase->createFirestore()->database();
     }
 
-    private function calculateDistance($lat1, $lon1, $lat2, $lon2)
+    public function calculateDistance($lat1, $lon1, $lat2, $lon2)
     {
         $earthRadius = 3958.8;
 
