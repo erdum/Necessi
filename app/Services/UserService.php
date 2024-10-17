@@ -90,10 +90,6 @@ class UserService
     {
         $user = User::where('id', $user->id)->first();
 
-        if(!$user){
-            throw new Exceptions\UserNotFound;
-        }
-
         $post_ids = $user->posts->pluck('id');
         $post_reviews = Review::whereIn('post_id', $post_ids)->get();
         $average_rating = round($post_reviews->avg('rating'), 1);
@@ -138,7 +134,7 @@ class UserService
             'about' => $user->about,
             'city' => $user->city,
             'state' => $user->state,
-            'location' => $user->location,
+            'location' => $user->city,
             'connection_count' => $user->connections->count(),
             'connections' => $connections,
             'recent_post' => $recent_post ? [[

@@ -336,6 +336,25 @@ class PostService
             throw new Exceptions\InvalidPostId;
         }
 
-        return $post->bids;
+        $bids_ref = $this->db->collection('bids');
+        $bids_snapshot = $bids_ref->where('post_id', '=', $post_id)
+            ->orderBy('amount', 'ASC')
+            ->documents();
+        $post_bid = [];
+
+        foreach ($bids_snapshot as $bid_doc) {
+            $bid_data = $bid_doc->data();
+            $bid_user = User::find($bid_data['user_id']);
+
+            $post_bid[] = [
+                'user_name' => $bid_user->first_name.' '.$bid_user->last_name,
+                'avatar' => $bid_user->avatar,
+                'amount' => $bid_data['amount'],
+                'created_at' => Carbon::parse($bid_data['created_at'])->diffForHumans(),
+                'status' => $bid_data['status'],
+            ];
+        }
+
+        return $post_bid;
     }
 }
