@@ -106,13 +106,13 @@ class UserService
         if (!is_null($user->lat) && !is_null($user->long)
              && !is_null($recent_post->lat) && !is_null($recent_post->long)
         ) {
-            $distance = $this->post_service->calculateDistance(
+            $calculatedDistance = $this->post_service->calculateDistance(
                 $user->lat,
                 $user->long,
                 $recent_post->lat,
                 $recent_post->long,
             );
-            
+
             $distance = round($calculatedDistance, 2) . ' miles away';
         }
         
