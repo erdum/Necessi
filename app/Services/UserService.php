@@ -103,17 +103,19 @@ class UserService
         $distance = null;
 
 
-        if (!is_null($user->lat) && !is_null($user->long)
-             && !is_null($recent_post->lat) && !is_null($recent_post->long)
-        ) {
-            $calculatedDistance = $this->post_service->calculateDistance(
-                $user->lat,
-                $user->long,
-                $recent_post->lat,
-                $recent_post->long,
-            );
-
-            $distance = round($calculatedDistance, 2) . ' miles away';
+        if (!is_null($user->lat) && !is_null($user->long))
+        {
+            if($recent_post)
+            {
+                $calculatedDistance = $this->post_service->calculateDistance(
+                    $user->lat,
+                    $user->long,
+                    $recent_post->lat,
+                    $recent_post->long,
+                );
+    
+                $distance = round($calculatedDistance, 2) . ' miles away';
+            }
         }
         
         foreach($user->connections->take(3) as $connection)
