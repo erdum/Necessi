@@ -18,8 +18,8 @@ return new class extends Migration
             $table->string('title');
             $table->text('description');
             $table->string('location');
-            $table->decimal('lat', 7, 4)->nullable();
-            $table->decimal('long', 7, 4)->nullable();
+            $table->double('lat')->nullable();
+            $table->double('long')->nullable();
             $table->integer('budget');
             $table->timestamp('start_date');
             $table->timestamp('end_date');

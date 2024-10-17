@@ -100,13 +100,21 @@ class UserService
         $recent_post = $user->posts()->latest()->first();
         $reviews = [];
         $connections = [];
+        $distance = null;
 
-        $distance = $this->post_service->calculateDistance(
-            $user->lat,
-            $user->long,
-            $recent_post->lat,
-            $recent_post->long,
-        );
+
+        if (!is_null($user->lat) && !is_null($user->long)
+             && !is_null($recent_post->lat) && !is_null($recent_post->long)
+        ) {
+            $distance = $this->post_service->calculateDistance(
+                $user->lat,
+                $user->long,
+                $recent_post->lat,
+                $recent_post->long,
+            );
+            
+            $distance = round($calculatedDistance, 2) . ' miles away';
+        }
         
         foreach($user->connections->take(3) as $connection)
         {
@@ -155,7 +163,7 @@ class UserService
                 'title' => $recent_post->title,
                 'description' => $recent_post->description,
                 'location' => $recent_post->location,
-                'distance' => round($distance, 2).' miles away',
+                'distance' => $distance,
                 'budget' => $recent_post->budget,
                 'duration' => Carbon::parse($recent_post->start_date)->format('d M') . ' - ' .
                               Carbon::parse($recent_post->end_date)->format('d M y'),
