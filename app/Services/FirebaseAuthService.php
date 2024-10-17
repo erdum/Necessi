@@ -174,7 +174,7 @@ class FirebaseAuthService
                     'last_name' => $verifiedIdToken->claims()->get('family_name'),
                     'email' => $verifiedIdToken->claims()->get('email'),
                     'email_verified_at' => $email_verified_at,
-                    'avatar' => $verifiedIdToken->claims()->get('picture'),
+                    // 'avatar' => $verifiedIdToken->claims()->get('picture'),
                     'uid' => $firebaseUid,
                 ]
             );
