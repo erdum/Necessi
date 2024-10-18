@@ -299,7 +299,9 @@ class PostService
         }
 
         foreach ($post_details->images as $image) {
-            $images[] = $image->url;
+            $images[] = [
+                'image' => $image->url,
+            ];
         }
 
         $distance = $this->calculateDistance(
