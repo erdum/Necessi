@@ -180,10 +180,12 @@ class FirebaseAuthService
             );
 
             $token = $this->generate_token($user);
+            $user_details = User::find($user->id);
 
             return [
                 'token' => $token,
                 'uid' => $user->uid,
+                'user_details' => $user_details,
             ];
 
         } catch (FailedToVerifyToken $e) {
