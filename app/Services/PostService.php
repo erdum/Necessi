@@ -454,4 +454,23 @@ class PostService
 
         return $post;
     }
+
+    public function delete_post(User $user, $post_id)
+    {
+        $post = Post::find($post_id);
+
+        if(!$post){
+            throw new Exceptions\InvalidPostId;
+        }
+
+        if (!$user->posts->contains('id', $post_id)) {
+            throw new Exceptions\PostOwnership;
+        }
+
+        $post->delete();
+
+        return [
+            'message' => 'Post successfully deleted',
+        ];
+    }
 }

@@ -196,4 +196,18 @@ class PostController extends Controller
 
         return response()->json($response);
     }
+
+    public function delete_post(Request $request, PostService $post_service)
+    {
+        $request->validate([
+            'post_id' => 'required|integer',
+        ]);
+
+        $response = $post_service->delete_post(
+            $request->user(),
+            $request->post_id,
+        );
+
+        return response()->json($response);
+    }
 }

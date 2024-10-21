@@ -38,6 +38,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [PostController::class, 'edit_post']
     );
 
+    Route::delete(
+        '/delete-post',
+        [PostController::class, 'delete_post']
+    );
+
     Route::post(
         '/post-biding',
         [PostController::class, 'post_biding']
