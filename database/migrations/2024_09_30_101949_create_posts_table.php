@@ -21,10 +21,10 @@ return new class extends Migration
             $table->double('lat')->nullable();
             $table->double('long')->nullable();
             $table->integer('budget');
-            $table->date('start_date');
-            $table->date('end_date')->nullable();
-            $table->time('start_time')->nullable();
-            $table->time('end_time');
+            $table->timestamp('start_date');
+            $table->timestamp('end_date');
+            $table->timestamp('start_time')->nullable();
+            $table->timestamp('end_time')->nullable();
             $table->boolean('delivery_requested')->default(false);
             $table->timestamps();
         });
