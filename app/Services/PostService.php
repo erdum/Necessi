@@ -62,6 +62,8 @@ class PostService
         int $budget,
         string $start_date,
         string $end_date,
+        ?string $start_time,
+        ?string $end_time,
         int $delivery_requested,
         string $type,
         ?array $avatars
@@ -78,6 +80,12 @@ class PostService
         $post->end_date = $end_date;
         $post->delivery_requested = $delivery_requested;
         $post->type = $type;
+
+        if($type === 'service'){
+            $post->start_time = $start_time;
+            $post->end_time = $end_time;
+        }
+
         $post->save();
 
         if ($avatars) {
@@ -268,6 +276,7 @@ class PostService
         $bids_ref = $this->db->collection('bids');
         $bids_snapshot = $bids_ref->where('post_id', '=', $post_id)
             ->orderBy('amount', 'ASC')
+            ->limit(4)
             ->documents();
         $comments = PostComment::where('post_id', $post_id)
             ->orderBy('created_at', 'DESC')
@@ -276,7 +285,7 @@ class PostService
         $comment_list = [];
         $bids = [];
 
-        foreach ($comments as $comment) {
+        foreach ($comments->take(2) as $comment) {
             $comment_list[] = [
                 'avatar' => $comment->user->avatar,
                 'user_name' => $comment->user->first_name . ' ' . $comment->user->last_name,
@@ -382,5 +391,67 @@ class PostService
         }
 
         return $post_comments;
+    }
+
+    public function edit_post(
+        User $user,
+        int $post_id,
+        ?string $title,
+        ?string $description,
+        ?string $location,
+        ?int $budget,
+        ?string $start_date,
+        ?string $end_date,
+        ?string $start_time,
+        ?string $end_time,
+        ?int $request_delivery,
+        ?array $avatars
+    ) {
+        $post = Post::find($post_id);
+
+        if(!$post){
+            throw new Exceptions\InvalidPostId;
+        }
+
+        if (!$user->posts->contains('id', $post_id)) {
+            throw new Exceptions\PostOwnership;
+        }
+
+        $post->title = $title ?? $post->title ?? null;
+        $post->description = $description ?? $post->description ?? null;
+        $post->location = $location ?? $post->location ?? null;
+        $post->budget = $budget ?? $post->budget ?? null;
+        $post->start_date = $start_date ?? $post->start_date ?? null;
+        $post->end_date = $end_date ?? $post->end_date ?? null;
+        $post->delivery_requested = $request_delivery ?? $post->delivery_requested ?? null;
+
+        if($post->type === 'service'){
+            $post->start_time = $start_time ?? $post->start_time ?? null;
+            $post->end_time = $end_time ?? $post->end_time ?? null;
+        }
+
+        $post->save();
+
+        if ($avatars) 
+        {
+            PostImage::where('post_id', $post->id)->delete();
+
+            foreach ($avatars as $avatar) 
+            {
+                $new_post_image = new PostImage;
+                $new_post_image->post_id = $post->id;
+                $avatar_name = str()->random(15);
+                $new_post_image->url = "avatars/{$avatar_name}.webp";
+                $new_post_image->save();
+        
+                StoreImages::dispatchAfterResponse(
+                    $avatar->path(),
+                    'avatars',
+                    $avatar_name
+                );
+            }
+        }
+
+        return $post;
     }
 }

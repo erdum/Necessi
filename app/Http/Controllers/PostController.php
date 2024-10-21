@@ -19,6 +19,8 @@ class PostController extends Controller
             'budget' => 'required',
             'start_date' => 'required|date_format:Y-m-d|after_or_equal:today',
             'end_date' => 'required|date_format:Y-m-d|after:start_date',
+            'start_time' => 'nullable|date_format:H:i:s',
+            'end_time' => 'nullable|date_format:H:i:s|after:start_time',
             'request_delivery' => 'required',
             'type' => 'required|string',
             'avatar.*' => 'nullable',
@@ -40,6 +42,8 @@ class PostController extends Controller
             $request->budget,
             $request->start_date,
             $request->end_date,
+            $request->start_time,
+            $request->end_time,
             $request->request_delivery,
             $request->type,
             $avatars
@@ -146,6 +150,48 @@ class PostController extends Controller
         $response = $post_service->post_comments(
             $request->user(),
             $request->post_id,
+        );
+
+        return response()->json($response);
+    }
+    
+    public function edit_post(
+        Request $request,
+        PostService $post_service
+    ) {
+        $request->validate([
+            'post_id' => 'required|integer',
+            'title' => 'nullable|string',
+            'description' => 'nullable|string',
+            'location' => 'nullable',
+            'budget' => 'nullable|integer',
+            'start_date' => 'nullable',
+            'end_date' => 'nullable',
+            'start_time' => 'nullable',
+            'end_time' => 'nullable',
+            'request_delivery' => 'nullable',
+            'avatar.*' => 'nullable',
+        ]);
+
+        $avatars = $request->file('avatar');
+
+        if ($avatars && ! is_array($avatars)) {
+            $avatars = [$avatars];
+        }
+
+        $response = $post_service->edit_post(
+            $request->user(),
+            $request->post_id,
+            $request->title,
+            $request->description,
+            $request->location,
+            $request->budget,
+            $request->start_date,
+            $request->end_date,
+            $request->start_time,
+            $request->end_time,
+            $request->request_delivery,
+            $avatars
         );
 
         return response()->json($response);

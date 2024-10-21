@@ -34,6 +34,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     );
 
     Route::post(
+        '/edit-post',
+        [PostController::class, 'edit_post']
+    );
+
+    Route::post(
         '/post-biding',
         [PostController::class, 'post_biding']
     );
