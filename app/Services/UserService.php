@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Review;
 use Illuminate\Http\UploadedFile;
 use Kreait\Firebase\Factory;
+use App\Exceptions;
 use Carbon\Carbon;
 
 class UserService
@@ -336,6 +337,23 @@ class UserService
         }
 
         return ['message' => 'Connections successfully created'];
+    }
+
+    public function user_remove(User $user, $user_id)
+    {
+        if (!$user->connections->contains('id', $user_id)) {
+            throw new Exceptions\UserNotConnected;
+        }
+
+        $user1 = User::findOrFail($user->id);
+        $user2 = User::findOrFail($user_id);
+
+        $user1->connections()->detach($user2->id);
+        $user2->connections()->detach($user1->id);
+
+        return [
+            'message' => 'user Disconnected Successfully',
+        ];
     }
 
     public function get_connections(User $user)

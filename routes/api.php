@@ -95,6 +95,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [UserController::class, 'make_connections']
     );
 
+    Route::delete(
+        '/user/remove',
+        [UserController::class, 'user_remove']
+    );
+
     Route::get(
         '/user/connections',
         [UserController::class, 'get_connections']

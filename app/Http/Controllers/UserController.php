@@ -96,6 +96,22 @@ class UserController extends Controller
         return response()->json($response);
     }
 
+    public function user_remove(
+        Request $request, 
+        UserService $user_service
+    ){
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        $response = $user_service->user_remove(
+            $request->user(),
+            $request->user_id
+        );
+
+        return response()->json($response);
+    }
+
     public function get_connections(Request $request, UserService $user_service)
     {
         $response = $user_service->get_connections($request->user());
