@@ -111,9 +111,10 @@ class PostService
         return $post;
     }
 
-    public function post_biding(User $user,
+    public function place_bid(
+        User $user,
         $post_id,
-        $amount,
+        $amount
     ) {
         $post = Post::find($post_id);
 

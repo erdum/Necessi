@@ -18,40 +18,16 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum'])->group(function () {
 
-    Route::post(
-        '/profile',
-        [UserController::class, 'update_user']
-    );
-
+    // Get user profile
     Route::get(
         '/profile',
         [UserController::class, 'get_user']
     );
 
+    // Update user profile
     Route::post(
-        '/create-post',
-        [PostController::class, 'create_post']
-    );
-
-    Route::post(
-        '/edit-post',
-        [PostController::class, 'edit_post']
-    );
-
-    Route::delete(
-        '/delete-post',
-        [PostController::class, 'delete_post']
-    );
-
-    Route::post(
-        '/post-biding',
-        [PostController::class, 'post_biding']
-    );
-
-    // Get user posts
-    Route::get(
-        '/user/post',
-        [PostController::class, 'get_user_posts']
+        '/profile',
+        [UserController::class, 'update_user']
     );
 
     // Get all posts
@@ -60,51 +36,90 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [PostController::class, 'get_all_posts']
     );
 
-    Route::post(
-        '/post/bids',
-        [PostController::class, 'post_bids']
-    );
-
-    Route::post(
-        '/post/comments',
-        [PostController::class, 'post_comments']
-    );
-
-    Route::post(
-        '/post-details',
+    // Get specific post
+    Route::get(
+        '/posts/{post_id}',
         [PostController::class, 'post_details']
     );
 
+    // Get user posts
+    Route::get(
+        '/user/posts',
+        [PostController::class, 'get_user_posts']
+    );
+
+    // Create post
     Route::post(
-        '/post/like',
+        '/posts/create',
+        [PostController::class, 'create_post']
+    );
+
+    // Edit post
+    Route::post(
+        '/posts/{post_id}',
+        [PostController::class, 'edit_post']
+    );
+
+    // Delete post
+    Route::delete(
+        '/posts/{post_id}',
+        [PostController::class, 'delete_post']
+    );
+
+    // Place bid on a post
+    Route::post(
+        '/posts/{post_id}/bid',
+        [PostController::class, 'place_bid']
+    );
+
+    // Get bids on a post
+    Route::get(
+        '/posts/{post_id}/bids',
+        [PostController::class, 'post_bids']
+    );
+
+    // Get comments on a post
+    Route::get(
+        '/posts/{post_id}/comments',
+        [PostController::class, 'post_comments']
+    );
+
+    // Place like on a post
+    Route::post(
+        '/posts/{post_id}/like',
         [PostController::class, 'post_like']
     );
 
+    // Set user location
     Route::post(
-        '/location',
+        '/user/location',
         [UserController::class, 'set_location']
     );
 
+    // Get nearby users
     Route::get(
         '/nearby/users',
         [UserController::class, 'get_nearby_users']
     );
 
+    // Make user connections
     Route::post(
         '/user/send-connection-request',
         [UserController::class, 'send_connection_request']
     );
 
-    Route::post(
-        '/users/connect',
-        [UserController::class, 'make_connections']
-    );
+    // Route::post(
+    //     '/users/connect',
+    //     [UserController::class, 'make_connections']
+    // );
 
+    // Remove user connections
     Route::delete(
         '/user/remove',
         [UserController::class, 'user_remove']
     );
 
+    // Get user connections
     Route::get(
         '/user/connections',
         [UserController::class, 'get_connections']
@@ -114,31 +129,37 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 Route::middleware(['throttle:100,1'])->group(function () {
 
+    // Register user
     Route::post(
         '/register',
         [FirebaseAuthController::class, 'register']
     );
 
+    // Verify user email
     Route::post(
         '/verify-email',
         [FirebaseAuthController::class, 'verify_email']
     );
 
+    // Request resend OTP
     Route::post(
         '/resend-otp',
         [FirebaseAuthController::class, 'resend_otp']
     );
 
+    // Login user
     Route::post(
         '/login',
         [FirebaseAuthController::class, 'login']
     );
 
+    // Login user with social providers
     Route::post(
         '/social/auth',
         [FirebaseAuthController::class, 'social_auth']
     );
 
+    // Request password reset
     Route::post(
         'password/reset',
         [FirebaseAuthController::class, 'reset_password']

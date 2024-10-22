@@ -52,17 +52,18 @@ class PostController extends Controller
         return response()->json($response);
     }
 
-    public function post_biding(Request $request,
+    public function place_bid(
+        string $post_id,
+        Request $request,
         PostService $post_service
     ) {
         $request->validate([
-            'post_id' => 'required|integer',
             'amount' => 'required|integer',
         ]);
 
-        $response = $post_service->post_biding(
+        $response = $post_service->place_bid(
             $request->user(),
-            $request->post_id,
+            $post_id,
             $request->amount,
         );
 
@@ -124,32 +125,26 @@ class PostController extends Controller
     }
 
     public function post_bids(
-        Request $request,
+        string $post_id,
+        Request $request, 
         PostService $post_service
     ) {
-        $request->validate([
-            'post_id' => 'required',
-        ]);
-
         $response = $post_service->post_bids(
             $request->user(),
-            $request->post_id,
+            $post_id,
         );
 
         return response()->json($response);
     }
 
     public function post_comments(
+        string $post_id,
         Request $request,
         PostService $post_service
     ) {
-        $request->validate([
-            'post_id' => 'required',
-        ]);
-
         $response = $post_service->post_comments(
             $request->user(),
-            $request->post_id,
+            $post_id,
         );
 
         return response()->json($response);
