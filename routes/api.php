@@ -30,6 +30,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [UserController::class, 'update_user']
     );
 
+    // Update user FCM token
+    Route::post(
+        '/user/fcm',
+        [UserController::class, 'update_user_fcm']
+    );
+
     // Get all posts
     Route::get(
         '/posts',

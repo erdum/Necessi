@@ -134,4 +134,18 @@ class UserController extends Controller
 
         return response()->json($response);
     }
+
+    public function update_user_fcm(Request $request, UserService $user_service)
+    {
+        $request->validate([
+            'fcm_token' => 'required|unique:user_notification_devices,fcm_token'
+        ]);
+
+        $response = $user_service->store_fcm(
+            $request->fcm_token,
+            $request->user()
+        );
+
+        return response()->json($response);
+    }
 }

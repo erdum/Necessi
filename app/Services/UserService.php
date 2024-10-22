@@ -401,4 +401,14 @@ class UserService
             'message' => 'Connection request sent successfully!',
         ];
     }
+
+    public function store_fcm(string $fcm_token, User $user)
+    {
+        $user->notification_device()->updateOrCreate(
+            ['user_id' => $user->id],
+            ['fcm_token' => $fcm_token]
+        );
+
+        return ['message' => 'FCM token successfully stored'];
+    }
 }
