@@ -411,4 +411,25 @@ class UserService
 
         return ['message' => 'FCM token successfully stored'];
     }
+
+    public function get_connection_requests(User $user)
+    {
+        $connection_requests = ConnectionRequest::where(
+            'receiver_id', $user->id)->get();
+        $requests=[];
+
+        foreach($connection_requests as $connection_request)
+        {
+            $user = User::find($connection_request->sender_id);
+            $requests[] = [
+                'user_id' => $user->id,
+                'user_name' => $user->first_name . ' ' . $user->last_name,
+                'avatar' => $user->avatar,
+                'status' => $connection_request->status,
+                'request_id' => $connection_request->id
+            ];
+        }
+
+        return $requests;
+    }
 }

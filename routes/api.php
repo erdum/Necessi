@@ -118,6 +118,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
     //     '/users/connect',
     //     [UserController::class, 'make_connections']
     // );
+    Route::get(
+        '/user/connection-requests',
+        [UserController::class, 'get_connection_requests']
+    );
+
+    Route::post(
+        '/users/connect',
+        [UserController::class, 'make_connections']
+    );
 
     // Remove user connections
     Route::delete(

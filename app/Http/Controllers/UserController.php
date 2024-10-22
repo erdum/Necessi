@@ -148,4 +148,15 @@ class UserController extends Controller
 
         return response()->json($response);
     }
+    
+    public function get_connection_requests(
+        Request $request, 
+        UserService $user_service
+    ){
+        $response = $user_service->get_connection_requests(
+            $request->user(),
+        );
+
+        return response()->json($response);
+    }
 }
