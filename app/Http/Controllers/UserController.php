@@ -10,7 +10,7 @@ class UserController extends Controller
     public function update_user(
         Request $request,
         UserService $user_service
-    ) {     
+    ) {
         $request->validate([
             'avatar' => 'nullable|image',
             'about' => 'nullable|string|max:500',
@@ -97,9 +97,9 @@ class UserController extends Controller
     }
 
     public function user_remove(
-        Request $request, 
+        Request $request,
         UserService $user_service
-    ){
+    ) {
         $request->validate([
             'user_id' => 'required|exists:users,id',
         ]);
@@ -115,6 +115,22 @@ class UserController extends Controller
     public function get_connections(Request $request, UserService $user_service)
     {
         $response = $user_service->get_connections($request->user());
+
+        return response()->json($response);
+    }
+
+    public function send_connection_request(
+        Request $request,
+        UserService $user_service
+    ) {
+        $request->validate([
+            'receiver_ids.*' => 'required|exists:users,id',
+        ]);
+
+        $response = $user_service->send_connection_request(
+            $request->user(),
+            $request->receiver_ids
+        );
 
         return response()->json($response);
     }

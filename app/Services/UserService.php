@@ -2,13 +2,14 @@
 
 namespace App\Services;
 
+use App\Exceptions;
 use App\Jobs\StoreImages;
-use App\Models\User;
+use App\Models\ConnectionRequest;
 use App\Models\Review;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
 use Kreait\Firebase\Factory;
-use App\Exceptions;
-use Carbon\Carbon;
 
 class UserService
 {
@@ -62,7 +63,7 @@ class UserService
         $user->lat = $lat ?? $user->lat ?? null;
         $user->long = $long ?? $user->long ?? null;
 
-        if(!$avatar){
+        if (! $avatar) {
             $user->avatar = $avatar ?? $user->avatar ?? null;
         }
 
@@ -103,37 +104,33 @@ class UserService
         $connections = [];
         $distance = null;
 
-
-        if (!is_null($user->lat) && !is_null($user->long))
-        {
-            if($recent_post)
-            {
+        if (! is_null($user->lat) && ! is_null($user->long)) {
+            if ($recent_post) {
                 $calculatedDistance = $this->post_service->calculateDistance(
                     $user->lat,
                     $user->long,
                     $recent_post->lat,
                     $recent_post->long,
                 );
-    
-                $distance = round($calculatedDistance, 2) . ' miles away';
+
+                $distance = round($calculatedDistance, 2).' miles away';
             }
         }
-        
-        foreach($user->connections->take(3) as $connection)
-        {
+
+        foreach ($user->connections->take(3) as $connection) {
             $user_connection = User::find($connection->id);
             $connections[] = [
                 'id' => $connection->id,
-                'user_name' => $user_connection->first_name . ' ' . $user_connection->last_name,
+                'user_name' => $user_connection->first_name.' '.$user_connection->last_name,
                 'avatar' => $user_connection->avatar,
             ];
         }
 
-        foreach($post_reviews->take(3) as $review){
+        foreach ($post_reviews->take(3) as $review) {
             $users = User::find($review->user_id);
             $reviews[] = [
                 'user_id' => $users->id,
-                'user_name' => $users->first_name . ' ' . $users->last_name,
+                'user_name' => $users->first_name.' '.$users->last_name,
                 'avatar' => $users->avatar,
                 'post_id' => $review->post_id,
                 'rating' => $review->rating,
@@ -141,14 +138,14 @@ class UserService
                 'created_at' => $review->created_at->diffForHumans(),
             ];
         }
-        
+
         return [
             'id' => $user->id,
             'first_name' => $user->first_name,
             'last_name' => $user->last_name,
             'uid' => $user->uid,
             'email' => $user->email,
-            'email_verified_at'=> $user->email_verified_at,
+            'email_verified_at' => $user->email_verified_at,
             'phone_number' => $user->phone_number,
             'avatar' => $user->avatar,
             'rating' => $average_rating,
@@ -170,7 +167,7 @@ class UserService
                 'location' => $recent_post->location,
                 'distance' => $distance,
                 'budget' => $recent_post->budget,
-                'duration' => Carbon::parse($recent_post->start_date)->format('d M') . ' - ' .
+                'duration' => Carbon::parse($recent_post->start_date)->format('d M').' - '.
                               Carbon::parse($recent_post->end_date)->format('d M y'),
                 'created_at' => $recent_post->created_at->diffForHumans(),
                 'bids' => $recent_post->bids->count(),
@@ -249,19 +246,19 @@ class UserService
             'long',
             'location'
         )->whereNot('id', $current_user->id)
-         ->where('city', $current_user->city)
-         ->where('state', $current_user->state) 
-         ->get();
-    
+            ->where('city', $current_user->city)
+            ->where('state', $current_user->state)
+            ->get();
+
         $nearby_users = [];
-    
+
         foreach ($users as $user) {
             $nearby_users[] = $user;
             if (count($nearby_users) >= 9) {
-                return $nearby_users; 
+                return $nearby_users;
             }
         }
-    
+
         if (count($nearby_users) < 9) {
             $remaining_users = User::select(
                 'id',
@@ -279,7 +276,7 @@ class UserService
             )->whereNot('id', $current_user->id
             )->where('city', '!=', $current_user->city
             )->orWhere('state', '!=', $current_user->state)->get();
-    
+
             foreach ($remaining_users as $user) {
                 $distance = $this->haversineDistance(
                     $current_user->lat,
@@ -287,20 +284,19 @@ class UserService
                     $user->lat,
                     $user->long
                 );
-    
+
                 if ($distance <= 50) {
                     $nearby_users[] = $user;
                 }
-    
+
                 if (count($nearby_users) >= 9) {
                     break;
                 }
             }
         }
-    
-        return $nearby_users; 
+
+        return $nearby_users;
     }
-    
 
     private function haversineDistance(
         float $lat1,
@@ -341,7 +337,7 @@ class UserService
 
     public function user_remove(User $user, $user_id)
     {
-        if (!$user->connections->contains('id', $user_id)) {
+        if (! $user->connections->contains('id', $user_id)) {
             throw new Exceptions\UserNotConnected;
         }
 
@@ -373,5 +369,36 @@ class UserService
             'users.lat',
             'users.long',
         )->get();
+    }
+
+    public function send_requests(int $user1_id, int $user2_id)
+    {
+        $existing_request = ConnectionRequest::where('sender_id', $user1_id)
+            ->where('receiver_id', $user2_id)->first();
+
+        if ($existing_request) {
+            return [
+                'message' => 'Connection request already sent!',
+            ];
+        }
+
+        $connection_request = new ConnectionRequest;
+        $connection_request->sender_id = $user1_id;
+        $connection_request->receiver_id = $user2_id;
+        $connection_request->save();
+    }
+
+    public function send_connection_request(User $user, array $user_ids)
+    {
+        foreach ($user_ids as $id) {
+            $response = $this->send_requests(
+                $user->id,
+                $id
+            );
+        }
+
+        return [
+            'message' => 'Connection request sent successfully!',
+        ];
     }
 }

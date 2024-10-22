@@ -2,24 +2,27 @@
 
 namespace App\Services;
 
+use App\Exceptions;
 use App\Jobs\StoreImages;
 use App\Models\Post;
 use App\Models\PostBid;
+use App\Models\PostComment;
 use App\Models\PostImage;
 use App\Models\PostLike;
-use App\Models\PostComment;
 use App\Models\User;
 use Carbon\Carbon;
 use Google\Cloud\Firestore\FieldValue;
-use App\Exceptions;
 use Kreait\Firebase\Factory;
 
 class PostService
 {
     protected $db;
 
+    protected $notification_service;
+
     public function __construct(
         Factory $factory,
+        FirebaseNotificationService $notification_service,
     ) {
         $firebase = $factory->withServiceAccount(
             base_path()
@@ -27,6 +30,7 @@ class PostService
             .config('firebase.projects.app.credentials')
         );
         $this->db = $firebase->createFirestore()->database();
+        $this->notification_service = $notification_service;
     }
 
     public function calculateDistance($lat1, $lon1, $lat2, $lon2)
@@ -81,7 +85,7 @@ class PostService
         $post->delivery_requested = $delivery_requested;
         $post->type = $type;
 
-        if($type === 'service'){
+        if ($type === 'service') {
             $post->start_time = $start_time;
             $post->end_time = $end_time;
         }
@@ -113,7 +117,7 @@ class PostService
     ) {
         $post = Post::find($post_id);
 
-        if(!$post){
+        if (! $post) {
             throw new Exceptions\InvalidPostId;
         }
 
@@ -121,10 +125,8 @@ class PostService
         $existing_bid = PostBid::where('user_id', $user->id)
             ->where('post_id', $post_id)->first();
 
-        if ($existing_bid)
-        {
-            if($amount < $existing_bid->amount)
-            {
+        if ($existing_bid) {
+            if ($amount < $existing_bid->amount) {
                 $bids->update([
                     ['path' => 'user_id', 'value' => $user->id],
                     ['path' => 'post_id', 'value' => $post_id],
@@ -245,7 +247,7 @@ class PostService
         $post = Post::find($post_id);
         $post_like = PostLike::where('post_id', $post_id)->where('user_id', $user->id)->first();
 
-        if(!$post){
+        if (! $post) {
             throw new Exceptions\InvalidPostId;
         }
 
@@ -269,7 +271,7 @@ class PostService
     {
         $post_details = Post::find($post_id);
 
-        if(!$post_details){
+        if (! $post_details) {
             throw new Exceptions\InvalidPostId;
         }
 
@@ -288,7 +290,7 @@ class PostService
         foreach ($comments->take(2) as $comment) {
             $comment_list[] = [
                 'avatar' => $comment->user->avatar,
-                'user_name' => $comment->user->first_name . ' ' . $comment->user->last_name,
+                'user_name' => $comment->user->first_name.' '.$comment->user->last_name,
                 'comment' => $comment->data,
                 'created_at' => $comment->created_at->diffForHumans(),
             ];
@@ -343,7 +345,7 @@ class PostService
     {
         $post = Post::find($post_id);
 
-        if(!$post){
+        if (! $post) {
             throw new Exceptions\InvalidPostId;
         }
 
@@ -373,18 +375,17 @@ class PostService
     {
         $post = Post::find($post_id);
 
-        if(!$post){
+        if (! $post) {
             throw new Exceptions\InvalidPostId;
         }
         $post_comments = [];
 
-        foreach($post->comments as $post_comment)
-        {
+        foreach ($post->comments as $post_comment) {
             $user_comment = User::find($post_id);
             $post_comments[] = [
                 'post_id' => $post_comment->post_id,
                 'user_id' => $user_comment->id,
-                'user_name' => $user_comment->first_name . ' ' . $user_comment->last_name,
+                'user_name' => $user_comment->first_name.' '.$user_comment->last_name,
                 'avatar' => $user_comment->avatar,
                 'comment' => $post_comment->data,
             ];
@@ -409,11 +410,11 @@ class PostService
     ) {
         $post = Post::find($post_id);
 
-        if(!$post){
+        if (! $post) {
             throw new Exceptions\InvalidPostId;
         }
 
-        if (!$user->posts->contains('id', $post_id)) {
+        if (! $user->posts->contains('id', $post_id)) {
             throw new Exceptions\PostOwnership;
         }
 
@@ -425,25 +426,23 @@ class PostService
         $post->end_date = $end_date ?? $post->end_date ?? null;
         $post->delivery_requested = $request_delivery ?? $post->delivery_requested ?? null;
 
-        if($post->type === 'service'){
+        if ($post->type === 'service') {
             $post->start_time = $start_time ?? $post->start_time ?? null;
             $post->end_time = $end_time ?? $post->end_time ?? null;
         }
 
         $post->save();
 
-        if ($avatars) 
-        {
+        if ($avatars) {
             PostImage::where('post_id', $post->id)->delete();
 
-            foreach ($avatars as $avatar) 
-            {
+            foreach ($avatars as $avatar) {
                 $new_post_image = new PostImage;
                 $new_post_image->post_id = $post->id;
                 $avatar_name = str()->random(15);
                 $new_post_image->url = "avatars/{$avatar_name}.webp";
                 $new_post_image->save();
-        
+
                 StoreImages::dispatchAfterResponse(
                     $avatar->path(),
                     'avatars',
@@ -459,11 +458,11 @@ class PostService
     {
         $post = Post::find($post_id);
 
-        if(!$post){
+        if (! $post) {
             throw new Exceptions\InvalidPostId;
         }
 
-        if (!$user->posts->contains('id', $post_id)) {
+        if (! $user->posts->contains('id', $post_id)) {
             throw new Exceptions\PostOwnership;
         }
 

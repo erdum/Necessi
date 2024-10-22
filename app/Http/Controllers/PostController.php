@@ -124,13 +124,13 @@ class PostController extends Controller
     }
 
     public function post_bids(
-        Request $request, 
+        Request $request,
         PostService $post_service
     ) {
         $request->validate([
             'post_id' => 'required',
         ]);
-        
+
         $response = $post_service->post_bids(
             $request->user(),
             $request->post_id,
@@ -140,13 +140,13 @@ class PostController extends Controller
     }
 
     public function post_comments(
-        Request $request, 
+        Request $request,
         PostService $post_service
     ) {
         $request->validate([
             'post_id' => 'required',
         ]);
-        
+
         $response = $post_service->post_comments(
             $request->user(),
             $request->post_id,
@@ -154,7 +154,7 @@ class PostController extends Controller
 
         return response()->json($response);
     }
-    
+
     public function edit_post(
         Request $request,
         PostService $post_service

@@ -81,6 +81,11 @@ class User extends Authenticatable
         return $this->hasMany(PostComment::class);
     }
 
+    public function connection_request()
+    {
+        return $this->hasMany(ConnectionRequest::class);
+    }
+
     public function bids()
     {
         return $this->hasMany(PostBid::class);

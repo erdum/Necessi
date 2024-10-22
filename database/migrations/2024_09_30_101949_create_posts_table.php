@@ -23,8 +23,8 @@ return new class extends Migration
             $table->integer('budget');
             $table->timestamp('start_date');
             $table->timestamp('end_date');
-            $table->timestamp('start_time')->nullable();
-            $table->timestamp('end_time')->nullable();
+            $table->time('start_time')->nullable();
+            $table->time('end_time')->nullable();
             $table->boolean('delivery_requested')->default(false);
             $table->timestamps();
         });

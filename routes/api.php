@@ -91,6 +91,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     );
 
     Route::post(
+        '/user/send-connection-request',
+        [UserController::class, 'send_connection_request']
+    );
+
+    Route::post(
         '/users/connect',
         [UserController::class, 'make_connections']
     );
