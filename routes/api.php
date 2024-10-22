@@ -125,7 +125,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::post(
         '/users/connect',
-        [UserController::class, 'make_connections']
+        [UserController::class, 'make_connection']
     );
 
     // Remove user connections

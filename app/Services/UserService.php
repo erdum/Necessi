@@ -323,14 +323,17 @@ class UserService
         return $distance;
     }
 
-    public function make_connections(User $user, array $user_ids)
+    public function make_connection(User $user, int $user_id)
     {
-        foreach ($user_ids as $id) {
-            $this->connect_users_mutually(
-                $user->id,
-                $id
-            );
-        }
+        $connection_request = ConnectionRequest::where('receiver_id', $user->id)
+            ->where('sender_id', $user_id)->first();
+
+        $this->connect_users_mutually(
+            $user->id,
+            $user_id
+        );
+
+        $connection_request->delete();
 
         return ['message' => 'Connections successfully created'];
     }

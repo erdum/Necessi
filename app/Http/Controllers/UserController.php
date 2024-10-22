@@ -79,18 +79,17 @@ class UserController extends Controller
         return response()->json($response);
     }
 
-    public function make_connections(
+    public function make_connection(
         Request $request,
         UserService $user_service
     ) {
         $request->validate([
-            'user_ids' => 'required|array',
-            'user_ids.*' => 'exists:users,id',
+            'user_id' => 'exists:users,id',
         ]);
 
-        $response = $user_service->make_connections(
+        $response = $user_service->make_connection(
             $request->user(),
-            $request->user_ids
+            $request->user_id
         );
 
         return response()->json($response);
@@ -148,7 +147,7 @@ class UserController extends Controller
 
         return response()->json($response);
     }
-    
+
     public function get_connection_requests(
         Request $request, 
         UserService $user_service

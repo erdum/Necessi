@@ -68,7 +68,7 @@ class PostService
         string $end_date,
         ?string $start_time,
         ?string $end_time,
-        int $delivery_requested,
+        ?int $delivery_requested,
         string $type,
         ?array $avatars
     ) {
@@ -82,7 +82,7 @@ class PostService
         $post->budget = $budget;
         $post->start_date = $start_date;
         $post->end_date = $end_date;
-        $post->delivery_requested = $delivery_requested;
+        $post->delivery_requested = $delivery_requested ?? false;
         $post->type = $type;
 
         if ($type === 'service') {

@@ -21,7 +21,7 @@ class PostController extends Controller
             'end_date' => 'required|date_format:Y-m-d|after:start_date',
             'start_time' => 'nullable|date_format:H:i:s',
             'end_time' => 'nullable|date_format:H:i:s|after:start_time',
-            'request_delivery' => 'required',
+            'request_delivery' => 'nullable',
             'type' => 'required|string',
             'avatar.*' => 'nullable',
         ]);
