@@ -109,16 +109,13 @@ class PostController extends Controller
     }
 
     public function post_details(
+        string $post_id,
         Request $request,
         PostService $post_service,
     ) {
-        $request->validate([
-            'post_id' => 'required|integer',
-        ]);
-
         $response = $post_service->post_details(
             $request->user(),
-            $request->post_id,
+            $post_id,
         );
 
         return response()->json($response);
