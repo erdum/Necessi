@@ -93,27 +93,11 @@ class PostController extends Controller
     }
 
     public function post_like(
-        Request $request,
-        PostService $post_service,
-    ) {
-        $request->validate([
-            'post_id' => 'required|integer',
-        ]);
-
-        $response = $post_service->post_like(
-            $request->user(),
-            $request->post_id,
-        );
-
-        return response()->json($response);
-    }
-
-    public function post_details(
         string $post_id,
         Request $request,
         PostService $post_service,
     ) {
-        $response = $post_service->post_details(
+        $response = $post_service->post_like(
             $request->user(),
             $post_id,
         );
@@ -121,12 +105,25 @@ class PostController extends Controller
         return response()->json($response);
     }
 
-    public function post_bids(
+    public function get_post_details(
+        string $post_id,
+        Request $request,
+        PostService $post_service,
+    ) {
+        $response = $post_service->get_post_details(
+            $request->user(),
+            $post_id,
+        );
+
+        return response()->json($response);
+    }
+
+    public function get_post_bids(
         string $post_id,
         Request $request, 
         PostService $post_service
     ) {
-        $response = $post_service->post_bids(
+        $response = $post_service->get_post_bids(
             $request->user(),
             $post_id,
         );
@@ -134,12 +131,12 @@ class PostController extends Controller
         return response()->json($response);
     }
 
-    public function post_comments(
+    public function get_post_comments(
         string $post_id,
         Request $request,
         PostService $post_service
     ) {
-        $response = $post_service->post_comments(
+        $response = $post_service->get_post_comments(
             $request->user(),
             $post_id,
         );

@@ -45,7 +45,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Get specific post
     Route::get(
         '/posts/{post_id}',
-        [PostController::class, 'post_details']
+        [PostController::class, 'get_post_details']
     );
 
     // Get user posts
@@ -81,13 +81,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Get bids on a post
     Route::get(
         '/posts/{post_id}/bids',
-        [PostController::class, 'post_bids']
+        [PostController::class, 'get_post_bids']
     );
 
     // Get comments on a post
     Route::get(
         '/posts/{post_id}/comments',
-        [PostController::class, 'post_comments']
+        [PostController::class, 'get_post_comments']
     );
 
     // Place like on a post

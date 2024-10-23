@@ -268,7 +268,7 @@ class PostService
         return $post_like;
     }
 
-    public function post_details(User $user, int $post_id)
+    public function get_post_details(User $user, int $post_id)
     {
         $post_details = Post::find($post_id);
 
@@ -342,7 +342,7 @@ class PostService
         ];
     }
 
-    public function post_bids(User $user, $post_id)
+    public function get_post_bids(User $user, $post_id)
     {
         $post = Post::find($post_id);
 
@@ -372,7 +372,7 @@ class PostService
         return $post_bid;
     }
 
-    public function post_comments(User $user, $post_id)
+    public function get_post_comments(User $user, $post_id)
     {
         $post = Post::find($post_id);
 
