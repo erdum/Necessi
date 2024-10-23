@@ -131,6 +131,15 @@ class PostController extends Controller
         return response()->json($response);
     }
 
+    public function get_post_reviews(
+        string $post_id, 
+        PostService $post_service
+    ) {
+        $response = $post_service->get_post_reviews($post_id);
+
+        return response()->json($response);
+    }
+
     public function get_post_comments(
         string $post_id,
         Request $request,

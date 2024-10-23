@@ -372,6 +372,31 @@ class PostService
         return $post_bid;
     }
 
+    public function get_post_reviews(int $post_id)
+    {
+        $post = Post::find($post_id);
+
+        if(!$post){
+            throw new Exceptions\InvalidPostId;
+        }
+        $post_reviews = [];
+
+        foreach($post->reviews as $review)
+        {
+            $user = User::find($review->user_id);
+            $post_reviews[] = [
+                'user_id' => $review->user_id,
+                'user_name' => $user->first_name . ' ' . $user->last_name,
+                'avatar' => $user->avatar,
+                'rating' => $review->rating,
+                'description' => $review->data,
+                'created_at' => $review->created_at->diffForHumans(),
+            ];
+        }
+        
+        return $post_reviews;
+    }
+
     public function get_post_comments(User $user, $post_id)
     {
         $post = Post::find($post_id);

@@ -84,6 +84,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [PostController::class, 'get_post_bids']
     );
 
+    // Get reviews on a post
+    Route::get(
+        '/posts/{post_id}/reviews',
+        [PostController::class, 'get_post_reviews']
+    );
+
     // Get comments on a post
     Route::get(
         '/posts/{post_id}/comments',
