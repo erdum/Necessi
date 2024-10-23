@@ -194,4 +194,13 @@ class FirebaseAuthService
             throw new \Exception($e->getMessage(), 500);
         }
     }
+
+    public function logout(User $user)
+    {
+        $user->tokens()->delete();
+        $user->notification_device()->delete();
+        $user->save();
+
+        return ['message' => 'User successfully logged out'];
+    }
 }

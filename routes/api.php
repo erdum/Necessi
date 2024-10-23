@@ -151,6 +151,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [UserController::class, 'get_connections']
     );
 
+    // Logout user
+    Route::get(
+        '/user/logout',
+        [FirebaseAuthController::class, 'logout']
+    );
+
 });
 
 Route::middleware(['throttle:100,1'])->group(function () {

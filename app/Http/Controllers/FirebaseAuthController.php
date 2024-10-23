@@ -110,4 +110,11 @@ class FirebaseAuthController extends Controller
 
         return response()->json(['token' => $token]);
     }
+
+    public function logout(Request $request)
+    {
+        $response = $this->logout($request->user());
+
+        return response()->json($response);
+    }
 }
