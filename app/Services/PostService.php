@@ -268,12 +268,18 @@ class PostService
         return $post_like;
     }
 
-    public function get_post_details(User $user, int $post_id)
+    public function get_post_details(int $post_id)
     {
         $post_details = Post::find($post_id);
 
-        if (! $post_details) {
+        if (!$post_details) {
             throw new Exceptions\InvalidPostId;
+        }
+
+        $user = User::find($post_details->user_id);
+
+        if (!$user) {
+            throw new Exceptions\UserNotFound;
         }
 
         $bids_ref = $this->db->collection('bids');
