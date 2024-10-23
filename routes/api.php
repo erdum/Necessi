@@ -128,6 +128,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [UserController::class, 'make_connection']
     );
 
+    Route::post(
+        '/user/request-decline',
+        [UserController::class, 'request_decline']
+    );
+
     // Remove user connections
     Route::delete(
         '/user/remove',

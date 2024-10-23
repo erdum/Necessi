@@ -338,6 +338,29 @@ class UserService
         return ['message' => 'Connections successfully created'];
     }
 
+    public function request_decline(User $current_user, int $user_id)
+    {
+        $user = User::find($user_id);
+
+        if(!$user){
+            throw new Exceptions\UserNotFound;
+        }
+
+        $connection_request = ConnectionRequest::where(
+            'sender_id', $user_id)->where('receiver_id', $current_user->id)->first();
+        
+        if(!$connection_request){
+            throw new Exceptions\ConnectionRequestNotFound;
+        }
+
+        $connection_request->status = 'rejected';
+        $connection_request->save();
+
+        return [
+            'message' => 'Connection Decline successfully',
+        ];
+    }
+
     public function user_remove(User $user, $user_id)
     {
         if (! $user->connections->contains('id', $user_id)) {
@@ -417,8 +440,8 @@ class UserService
 
     public function get_connection_requests(User $user)
     {
-        $connection_requests = ConnectionRequest::where(
-            'receiver_id', $user->id)->get();
+        $connection_requests = ConnectionRequest::where('receiver_id', $user->id)
+                ->where('status', '!=', 'rejected')->get();
         $requests=[];
 
         foreach($connection_requests as $connection_request)

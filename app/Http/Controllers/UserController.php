@@ -95,6 +95,22 @@ class UserController extends Controller
         return response()->json($response);
     }
 
+    public function request_decline(
+        Request $request, 
+        UserService $user_service
+    ) {
+        $request->validate([
+            'user_id' => 'required|integer'
+        ]);
+
+        $response = $user_service->request_decline(
+            $request->user(),
+            $request->user_id,
+        );
+
+        return response()->json($response);
+    }
+
     public function user_remove(
         Request $request,
         UserService $user_service
