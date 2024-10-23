@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\UserService;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -33,14 +34,20 @@ class UserController extends Controller
         return response()->json($response);
     }
 
-    public function get_user(Request $request, UserService $user_service)
-    {
+    public function get_user(
+        Request $request, 
+        UserService $user_service
+    ) {
         $user = $user_service->get_profile(
             $request->user(),
         );
 
-        if ($request->user_uid) {
-            $user = $user_service->get_profile($request->user_uid);
+        if ($request->user_id) 
+        {
+            $user_model = User::findOrFail($request->user_id);
+            $user = $user_service->get_profile(
+                $user_model
+            );
         }
 
         return response()->json($user);
