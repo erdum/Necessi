@@ -508,7 +508,7 @@ class PostService
     public function search_all_posts(User $user, string $search_txt)
     {
         $search_terms = explode(' ', $search_txt);
-
+    
         $posts = Post::where(function ($query) use ($search_txt, $search_terms) 
         {
             $query->where('title', 'like', '%' . $search_txt . '%');
@@ -517,7 +517,7 @@ class PostService
                 $query->orWhere('description', 'like', '%' . $term . '%');
             }
         })->orderBy('created_at', 'desc')->get();
-
+    
         if ($posts->isEmpty()) 
         {
             $user = User::where(function ($query) use ($search_terms) 
@@ -527,16 +527,15 @@ class PostService
                         ->orWhere('last_name', 'like', '%' . $term . '%');
                 }
             })->first();
-
+    
             if ($user) {
                 $posts = $user->posts()->orderBy('created_at', 'desc')->get();
             }
         }
-
-        $all_post = [];
-        $all_peoples = [];
+    
+        $all_items = [];
         $user_ids_added = [];
-
+    
         foreach ($posts as $post) 
         {
             $user = User::find($post->user_id);
@@ -546,13 +545,14 @@ class PostService
                 $post->lat,
                 $post->long,
             );
-
-            $all_post[] = [
+    
+            $all_items[] = [
+                'type' => 'posts',
                 'post_id' => $post->id,
                 'user_id' => $post->user_id,
                 'user_name' => $user->first_name . ' ' . $user->last_name,
                 'avatar' => $user->avatar,
-                'type' => $post->type,
+                'post_type' => $post->type,
                 'created_at' => $post->created_at->diffForHumans(),
                 'budget' => $post->budget,
                 'duration' => Carbon::parse($post->start_date)->format('d M').' - '.
@@ -563,29 +563,27 @@ class PostService
                 'description' => $post->description,
             ];
         }
-
+    
         foreach ($posts as $post) 
         {
             if (!in_array($post->user_id, $user_ids_added)) 
             {
                 $user = User::find($post->user_id);
                 if ($user) {
-                    $all_peoples[] = [
+                    $all_items[] = [
+                        'type' => 'peoples',
                         'user_id' => $post->user_id,
                         'user_name' => $user->first_name . ' ' . $user->last_name,
                         'avatar' => $user->avatar,
                     ];
-                    
+    
                     $user_ids_added[] = $post->user_id;
                 }
             }
         }
-
-        return [
-            'posts' => $all_post,
-            'peoples' => $all_peoples
-        ];
-    }
+    
+        return $all_items;
+    }    
 
     public function search_people(User $current_user, string $search_txt)
     {
