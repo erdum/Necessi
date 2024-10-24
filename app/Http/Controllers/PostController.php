@@ -133,7 +133,6 @@ class PostController extends Controller
         ]);
 
         $response = $post_service->search_people(
-            $request->user(),
             $request->search_txt,
         );
 

@@ -505,7 +505,7 @@ class PostService
         ];
     }
 
-    public function search_all_posts(User $user, string $search_txt)
+    public function search_all_posts(User $current_user, string $search_txt)
     {
         $search_terms = explode(' ', $search_txt);
     
@@ -540,8 +540,8 @@ class PostService
         {
             $user = User::find($post->user_id);
             $distance = $this->calculateDistance(
-                $user->lat,
-                $user->long,
+                $current_user->lat,
+                $current_user->long,
                 $post->lat,
                 $post->long,
             );
@@ -583,9 +583,54 @@ class PostService
         }
     
         return $all_items;
-    }    
+    }
+    
+    public function search_post(User $current_user, string $search_txt)
+    {
+        $search_terms = explode(' ', $search_txt);
+    
+        $posts = Post::where(function ($query) use ($search_txt, $search_terms) 
+        {
+            $query->where('title', 'like', '%' . $search_txt . '%');
+            foreach ($search_terms as $term) 
+            {
+                $query->orWhere('description', 'like', '%' . $term . '%');
+            }
+        })->orderBy('created_at', 'desc')->get();
+        
+        $post_lists = [];
 
-    public function search_people(User $current_user, string $search_txt)
+        foreach ($posts as $post) 
+        {
+            $user = User::find($post->user_id);
+            $distance = $this->calculateDistance(
+                $current_user->lat,
+                $current_user->long,
+                $post->lat,
+                $post->long,
+            );
+    
+            $post_lists[] = [
+                'post_id' => $post->id,
+                'user_id' => $post->user_id,
+                'user_name' => $user->first_name . ' ' . $user->last_name,
+                'avatar' => $user->avatar,
+                'post_types' => $post->type,
+                'created_at' => $post->created_at->diffForHumans(),
+                'budget' => $post->budget,
+                'duration' => Carbon::parse($post->start_date)->format('d M').' - '.
+                              Carbon::parse($post->end_date)->format('d M y'),
+                'location' => $post->location,
+                'distance' => round($distance, 2).' miles away',
+                'title' => $post->title,
+                'description' => $post->description,
+            ];
+        }
+
+        return $post_lists;
+    }
+
+    public function search_people(string $search_txt)
     {
         $search_terms = explode(' ', $search_txt);
         $user = User::where(function ($query) use ($search_terms, $search_txt) 
