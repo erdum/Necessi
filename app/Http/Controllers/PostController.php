@@ -108,6 +108,22 @@ class PostController extends Controller
         return response()->json($response);
     }
 
+    public function search_people(
+        Request $request, 
+        PostService $post_service
+    ){ 
+        $request->validate([
+            'search_txt' => 'required|string',
+        ]);
+
+        $response = $post_service->search_people(
+            $request->user(),
+            $request->search_txt,
+        );
+
+        return response()->json($response);
+    }
+
     public function post_like(
         string $post_id,
         Request $request,

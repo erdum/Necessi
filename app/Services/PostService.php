@@ -516,7 +516,7 @@ class PostService
             {
                 $query->orWhere('description', 'like', '%' . $term . '%');
             }
-        })->orderBy('created_at', 'desc')->paginate(10);
+        })->orderBy('created_at', 'desc')->get();
 
         if ($posts->isEmpty()) 
         {
@@ -529,7 +529,7 @@ class PostService
             })->first();
 
             if ($user) {
-                $posts = $user->posts()->orderBy('created_at', 'desc')->paginate(10);
+                $posts = $user->posts()->orderBy('created_at', 'desc')->get();
             }
         }
 
@@ -585,5 +585,19 @@ class PostService
             'posts' => $all_post,
             'peoples' => $all_peoples
         ];
+    }
+
+    public function search_people(User $current_user, string $search_txt)
+    {
+        $search_terms = explode(' ', $search_txt);
+        $user = User::where(function ($query) use ($search_terms, $search_txt) 
+        {
+            foreach ($search_terms as $term) {
+                $query->orWhere('first_name', 'like', '%' . $search_txt . '%')
+                    ->orWhere('last_name', 'like', '%' . $term . '%');
+            }
+        })->get();
+
+        return $user;
     }
 }
