@@ -504,4 +504,86 @@ class PostService
             'message' => 'Post successfully deleted',
         ];
     }
+
+    public function search_all_posts(User $user, string $search_txt)
+    {
+        $search_terms = explode(' ', $search_txt);
+
+        $posts = Post::where(function ($query) use ($search_txt, $search_terms) 
+        {
+            $query->where('title', 'like', '%' . $search_txt . '%');
+            foreach ($search_terms as $term) 
+            {
+                $query->orWhere('description', 'like', '%' . $term . '%');
+            }
+        })->orderBy('created_at', 'desc')->paginate(10);
+
+        if ($posts->isEmpty()) 
+        {
+            $user = User::where(function ($query) use ($search_terms) 
+            {
+                foreach ($search_terms as $term) {
+                    $query->orWhere('first_name', 'like', '%' . $term . '%')
+                        ->orWhere('last_name', 'like', '%' . $term . '%');
+                }
+            })->first();
+
+            if ($user) {
+                $posts = $user->posts()->orderBy('created_at', 'desc')->paginate(10);
+            }
+        }
+
+        $all_post = [];
+        $all_peoples = [];
+        $user_ids_added = [];
+
+        foreach ($posts as $post) 
+        {
+            $user = User::find($post->user_id);
+            $distance = $this->calculateDistance(
+                $user->lat,
+                $user->long,
+                $post->lat,
+                $post->long,
+            );
+
+            $all_post[] = [
+                'post_id' => $post->id,
+                'user_id' => $post->user_id,
+                'user_name' => $user->first_name . ' ' . $user->last_name,
+                'avatar' => $user->avatar,
+                'type' => $post->type,
+                'created_at' => $post->created_at->diffForHumans(),
+                'budget' => $post->budget,
+                'duration' => Carbon::parse($post->start_date)->format('d M').' - '.
+                              Carbon::parse($post->end_date)->format('d M y'),
+                'location' => $post->location,
+                'distance' => round($distance, 2).' miles away',
+                'title' => $post->title,
+                'description' => $post->description,
+            ];
+        }
+
+        foreach ($posts as $post) 
+        {
+            if (!in_array($post->user_id, $user_ids_added)) 
+            {
+                $user = User::find($post->user_id);
+                if ($user) {
+                    $all_peoples[] = [
+                        'user_id' => $post->user_id,
+                        'user_name' => $user->first_name . ' ' . $user->last_name,
+                        'avatar' => $user->avatar,
+                    ];
+                    
+                    $user_ids_added[] = $post->user_id;
+                }
+            }
+        }
+
+        return [
+            'posts' => $all_post,
+            'peoples' => $all_peoples
+        ];
+    }
 }
