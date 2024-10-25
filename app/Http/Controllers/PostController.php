@@ -121,6 +121,19 @@ class PostController extends Controller
         return response()->json($response);
     }
 
+    public function post_unlike(
+        string $post_id,
+        Request $request,
+        PostService $post_service,
+    ){
+        $response = $post_service->post_unlike(
+            $request->user(),
+            $post_id,
+        );
+
+        return response()->json($response);
+    }
+
     public function get_post_details(
         Request $request,
         string $post_id,
