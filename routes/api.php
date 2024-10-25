@@ -126,20 +126,19 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [UserController::class, 'send_connection_request']
     );
 
-    // Route::post(
-    //     '/users/connect',
-    //     [UserController::class, 'make_connections']
-    // );
+    // Get connection requests
     Route::get(
         '/user/connection-requests',
         [UserController::class, 'get_connection_requests']
     );
 
+    // Accept connection request
     Route::post(
-        '/users/connect',
+        '/users/request-accept',
         [UserController::class, 'make_connection']
     );
 
+    // Decline connection request
     Route::post(
         '/user/request-decline',
         [UserController::class, 'request_decline']
