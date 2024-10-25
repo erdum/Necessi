@@ -279,22 +279,24 @@ class PostService
 
     public function get_post_details(User $current_user, int $post_id)
     {
-        $post_details = Post::with('user')->find($post_id);
-        $comment_list = [];
-        $bid_list = [];
+        $post_details = Post::with([
+            'bids' => function ($query) {
+                $query->with('user')->orderBy('amount')->limit(4);
+            },
+            'comments' => function ($query) {
+                $query->with('user')->latest();
+            },
+        ])->with('user')->find($post_id);
+        $comments = [];
+        $bids = [];
         $images = [];
 
         if (!$post_details) {
             throw new Exceptions\InvalidPostId;
         }
 
-        $bids = PostBid::where('post_id', $post_id)
-            ->with('user')
-            ->limit(4)
-            ->get();
-
-        foreach ($bids as $bid) {
-            $bid_list[] = [
+        foreach ($post_details->bids as $bid) {
+            $bids[] = [
                 'user_name' => $bid->user->first_name . ' ' . $bid->user->last_name,
                 'avatar' => $bid->user->avatar,
                 'amount' => $bid->amount,
@@ -309,14 +311,8 @@ class PostService
             ];
         }
 
-        $comments = PostComment::where('post_id', $post_id)
-            ->with('user')
-           ->orderBy('created_at', 'DESC')
-           ->limit(2)
-           ->get();
-
-        foreach ($comments as $comment) {
-            $comment_list[] = [
+        foreach ($post_details->comments as $comment) {
+            $comments[] = [
                 'avatar' => $comment->user->avatar,
                 'user_name' => $comment->user->first_name . ' ' . $comment->user->last_name,
                 'comment' => $comment->data,
@@ -324,8 +320,9 @@ class PostService
             ];
         }
 
-        $current_user_like = PostLike::where('user_id', $current_user->id)
-          ->where('post_id', $post_details->id)->exists();
+        $current_user_like = $post_details->likes()
+            ->where('user_id', $current_user->id)
+            ->exists();
 
         $distance = $this->calculateDistance(
             $current_user->lat,
@@ -349,87 +346,81 @@ class PostService
             'current_user_like' => $current_user_like,
             'likes' => $post_details->likes->count(),
             'images' => $images,
-            'bids' => $bid_list,
-            'comments' => $comment_list,
+            'bids' => $bids,
+            'comments' => $comments,
         ];
     }
 
     public function get_post_bids(User $user, $post_id)
     {
-        $post = Post::find($post_id);
+        $post = Post::with([
+            'bids' => function ($query) {
+                $query->with('user')->orderBy('amount');
+            }
+        ])->find($post_id);
 
         if (! $post) {
             throw new Exceptions\InvalidPostId;
         }
+        $bids = [];
 
-        $bids_ref = $this->db->collection('bids');
-        $bids_snapshot = $bids_ref->where('post_id', '=', $post_id)
-            ->orderBy('amount', 'ASC')
-            ->documents();
-        $post_bid = [];
-
-        foreach ($bids_snapshot as $bid_doc) {
-            $bid_data = $bid_doc->data();
-            $bid_user = User::find($bid_data['user_id']);
-
-            $post_bid[] = [
-                'user_name' => $bid_user->first_name.' '.$bid_user->last_name,
-                'avatar' => $bid_user->avatar,
-                'amount' => $bid_data['amount'],
-                'created_at' => Carbon::parse($bid_data['created_at'])->diffForHumans(),
-                'status' => $bid_data['status'],
+        foreach ($post->bids as $bid) {
+            $bids[] = [
+                'user_name' => $bid->user->first_name . ' ' . $bid->user->last_name,
+                'avatar' => $bid->user->avatar,
+                'amount' => $bid->amount,
+                'created_at' => Carbon::parse($bid->created_at)->diffForHumans(),
+                'status' => $bid->status,
             ];
         }
 
-        return $post_bid;
+        return $bids;
     }
 
     public function get_post_reviews(int $post_id)
     {
-        $post = Post::find($post_id);
+        $post = Post::with(['reviews', 'reviews.user'])->find($post_id);
 
         if(!$post){
             throw new Exceptions\InvalidPostId;
         }
-        $post_reviews = [];
+        $reviews = [];
 
         foreach($post->reviews as $review)
         {
-            $user = User::find($review->user_id);
-            $post_reviews[] = [
-                'user_id' => $review->user_id,
-                'user_name' => $user->first_name . ' ' . $user->last_name,
-                'avatar' => $user->avatar,
+            $reviews[] = [
+                'user_id' => $review->user->id,
+                'user_name' => $review->user->first_name . ' ' . $review->user->last_name,
+                'avatar' => $review->user->avatar,
                 'rating' => $review->rating,
                 'description' => $review->data,
                 'created_at' => $review->created_at->diffForHumans(),
             ];
         }
         
-        return $post_reviews;
+        return $reviews;
     }
 
     public function get_post_comments(User $user, $post_id)
     {
-        $post = Post::find($post_id);
+        $post = Post::with(['comments', 'comments.user'])->find($post_id);
 
         if (! $post) {
             throw new Exceptions\InvalidPostId;
         }
-        $post_comments = [];
+        $comments = [];
 
-        foreach ($post->comments as $post_comment) {
-            $user_comment = User::find($post_id);
-            $post_comments[] = [
-                'post_id' => $post_comment->post_id,
-                'user_id' => $user_comment->id,
-                'user_name' => $user_comment->first_name.' '.$user_comment->last_name,
-                'avatar' => $user_comment->avatar,
-                'comment' => $post_comment->data,
+        foreach ($post->comments as $comment) {
+            $comments[] = [
+                'post_id' => $post->id,
+                'user_id' => $comment->user->id,
+                'user_name' => $comment->user->first_name . ' ' . $comment->user->last_name,
+                'avatar' => $comment->user->avatar,
+                'comment' => $comment->data,
             ];
         }
 
-        return $post_comments;
+        return $comments;
     }
 
     public function edit_post(
