@@ -101,6 +101,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         '/posts/{post_id}/like',
         [PostController::class, 'post_like']
     );
+    
+    // unlike on a post
+    Route::post(
+        '/posts/{post_id}/unlike',
+        [PostController::class, 'post_unlike']
+    );
 
     // Search all posts
     Route::post(
