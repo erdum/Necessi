@@ -92,53 +92,22 @@ class PostController extends Controller
         return response()->json($response);
     }
 
-    public function search_all_posts(
+    public function search_all(
         Request $request, 
         PostService $post_service
     ) {
         $request->validate([
-            'search_txt' => 'required|string',
+            'search_query' => 'required|string',
         ]);
 
-        $response = $post_service->search_all_posts(
+        $response = $post_service->search_all(
             $request->user(),
-            $request->search_txt,
+            $request->search_query,
         );
 
         return response()->json($response);
     }
     
-    public function search_post(
-        Request $request, 
-        PostService $post_service
-    ){ 
-        $request->validate([
-            'search_txt' => 'required|string'
-        ]);
-
-        $response = $post_service->search_post(
-            $request->user(),
-            $request->search_txt,
-        );
-
-        return response()->json($response);
-    }
-
-    public function search_people(
-        Request $request, 
-        PostService $post_service
-    ){ 
-        $request->validate([
-            'search_txt' => 'required|string',
-        ]);
-
-        $response = $post_service->search_people(
-            $request->search_txt,
-        );
-
-        return response()->json($response);
-    }
-
     public function post_like(
         string $post_id,
         Request $request,

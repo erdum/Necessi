@@ -104,20 +104,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Search all posts
     Route::post(
-        '/search/all-posts',
-        [PostController::class, 'search_all_posts']
-    );
-
-    // Search  post
-    Route::post(
-        '/search/post',
-        [PostController::class, 'search_post']
-    );
-
-    // Search people
-    Route::post(
-        '/search/people',
-        [PostController::class, 'search_people']
+        '/search',
+        [PostController::class, 'search_all']
     );
 
     // Set user location
