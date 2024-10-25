@@ -268,7 +268,7 @@ class PostService
         return $post_like;
     }
 
-    public function get_post_details(int $post_id)
+    public function get_post_details(User $current_user, int $post_id)
     {
         $post_details = Post::find($post_id);
 
@@ -284,14 +284,16 @@ class PostService
 
         $bids_ref = $this->db->collection('bids');
         $bids_snapshot = $bids_ref->where('post_id', '=', $post_id)
-            ->orderBy('amount', 'ASC')
-            ->limit(4)
-            ->documents();
+                  ->orderBy('amount', 'ASC')->limit(4)->documents();
+
         $comments = PostComment::where('post_id', $post_id)
-            ->orderBy('created_at', 'DESC')
-            ->get();
-        $images = [];
+                   ->orderBy('created_at', 'DESC')
+                   ->get();
+
+        $current_user_like = PostLike::where('user_id', $current_user->id)
+                          ->where('post_id', $post_details->id)->exists();
         $comment_list = [];
+        $images = [];
         $bids = [];
 
         foreach ($comments->take(2) as $comment) {
@@ -323,13 +325,14 @@ class PostService
         }
 
         $distance = $this->calculateDistance(
-            $user->lat,
-            $user->long,
+            $current_user->lat,
+            $current_user->long,
             $post_details->lat,
             $post_details->long,
         );
 
         return [
+            'post_id' => $post_details->id,
             'first_name' => $user->first_name,
             'last_name' => $user->last_name,
             'type' => $post_details->type,
@@ -341,6 +344,7 @@ class PostService
             'distance' => round($distance, 2).' miles away',
             'title' => $post_details->title,
             'description' => $post_details->description,
+            'current_user_like' => $current_user_like,
             'likes' => $post_details->likes->count(),
             'images' => $images,
             'bids' => $bids,

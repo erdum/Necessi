@@ -153,10 +153,12 @@ class PostController extends Controller
     }
 
     public function get_post_details(
+        Request $request,
         string $post_id,
         PostService $post_service,
     ) {
         $response = $post_service->get_post_details(
+            $request->user(),
             $post_id,
         );
 

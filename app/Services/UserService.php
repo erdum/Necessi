@@ -7,6 +7,7 @@ use App\Jobs\StoreImages;
 use App\Models\ConnectionRequest;
 use App\Models\Review;
 use App\Models\User;
+use App\Models\UserPreference;
 use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
 use Kreait\Firebase\Factory;
