@@ -22,7 +22,7 @@ return new class extends Migration
             $table->enum('who_can_see_connections', [
                 'public',
                 'connections',
-                'only_me'
+                'only_me',
             ]);
             $table->timestamps();
         });

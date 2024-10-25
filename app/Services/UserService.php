@@ -5,10 +5,9 @@ namespace App\Services;
 use App\Exceptions;
 use App\Jobs\StoreImages;
 use App\Models\ConnectionRequest;
+use App\Models\PostLike;
 use App\Models\Review;
 use App\Models\User;
-use App\Models\PostLike;
-use App\Models\UserPreference;
 use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
 use Kreait\Firebase\Factory;
@@ -88,7 +87,7 @@ class UserService
         $average_rating = round($post_reviews->avg('rating'), 1);
         $recent_post = $user->posts()->latest()->first();
         $current_user_like = PostLike::where('user_id', $user->id)
-                          ->where('post_id', $recent_post->id)->exists();
+            ->where('post_id', $recent_post->id)->exists();
         $connection_request = ConnectionRequest::where('sender_id', $current_user->id)->first();
         $is_connection = $current_user->connections()->where(
             'connection_id', $user->id)->exists();
@@ -97,7 +96,7 @@ class UserService
         $distance = null;
         $connection_request_status = 'not send';
 
-        if($connection_request){
+        if ($connection_request) {
             $connection_request_status = $connection_request->status;
         }
 
@@ -123,8 +122,7 @@ class UserService
             ];
         }
 
-        foreach ($post_reviews->take(3) as $review) 
-        {
+        foreach ($post_reviews->take(3) as $review) {
             $reviews[] = [
                 'user_id' => $review->user->id,
                 'user_name' => $review->user->first_name.' '.$review->user->last_name,
@@ -335,22 +333,21 @@ class UserService
     {
         $user = User::find($user_id);
 
-        if(!$user){
+        if (! $user) {
             throw new Exceptions\UserNotFound;
         }
 
-        $connection_request = ConnectionRequest::where(function($query) use ($user_id, $current_user) {
+        $connection_request = ConnectionRequest::where(function ($query) use ($user_id, $current_user) {
             $query->where('sender_id', $user_id)
-                  ->where('receiver_id', $current_user->id);
+                ->where('receiver_id', $current_user->id);
         })
-        ->orWhere(function($query) use ($user_id, $current_user) {
-            $query->where('sender_id', $current_user->id)
-                  ->where('receiver_id', $user_id);
-        })
-        ->first();
-    
-        
-        if(!$connection_request){
+            ->orWhere(function ($query) use ($user_id, $current_user) {
+                $query->where('sender_id', $current_user->id)
+                    ->where('receiver_id', $user_id);
+            })
+            ->first();
+
+        if (! $connection_request) {
             throw new Exceptions\ConnectionRequestNotFound;
         }
 
@@ -374,17 +371,17 @@ class UserService
         $user1->connections()->detach($user2->id);
         $user2->connections()->detach($user1->id);
 
-        $connection_request = ConnectionRequest::where(function($query) use ($user_id, $user) {
+        $connection_request = ConnectionRequest::where(function ($query) use ($user_id, $user) {
             $query->where('sender_id', $user_id)
-                  ->where('receiver_id', $user->id);
+                ->where('receiver_id', $user->id);
         })
-        ->orWhere(function($query) use ($user_id, $user) {
-            $query->where('sender_id', $user->id)
-                  ->where('receiver_id', $user_id);
-        })
-        ->first();
+            ->orWhere(function ($query) use ($user_id, $user) {
+                $query->where('sender_id', $user->id)
+                    ->where('receiver_id', $user_id);
+            })
+            ->first();
 
-        if($connection_request){
+        if ($connection_request) {
             $connection_request->delete();
         }
 
@@ -446,9 +443,9 @@ class UserService
     public function cancel_connection_request(User $user, int $user_id)
     {
         $connection_request = ConnectionRequest::where('sender_id', $user->id)
-                            ->where('receiver_id', $user_id)->first();
+            ->where('receiver_id', $user_id)->first();
 
-        if(!$connection_request){
+        if (! $connection_request) {
             throw new Exceptions\ConnectionRequestNotFound;
         }
 
@@ -472,18 +469,17 @@ class UserService
     public function get_connection_requests(User $user)
     {
         $connection_requests = ConnectionRequest::where('receiver_id', $user->id)
-                ->where('status', '!=', 'rejected')->get();
-        $requests=[];
+            ->where('status', '!=', 'rejected')->get();
+        $requests = [];
 
-        foreach($connection_requests as $connection_request)
-        {
+        foreach ($connection_requests as $connection_request) {
             $user = User::find($connection_request->sender_id);
             $requests[] = [
                 'user_id' => $user->id,
-                'user_name' => $user->first_name . ' ' . $user->last_name,
+                'user_name' => $user->first_name.' '.$user->last_name,
                 'avatar' => $user->avatar,
                 'status' => $connection_request->status,
-                'request_id' => $connection_request->id
+                'request_id' => $connection_request->id,
             ];
         }
 

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\PostService;
 use App\Models\User;
+use App\Services\PostService;
 use Illuminate\Http\Request;
 
 class PostController extends Controller
@@ -79,8 +79,7 @@ class PostController extends Controller
             $request->user(),
         );
 
-        if ($request->user_id)
-        {
+        if ($request->user_id) {
             $user_model = User::findOrFail($request->user_id);
             $user = $post_service->get_user_posts(
                 $user_model
@@ -102,7 +101,7 @@ class PostController extends Controller
     }
 
     public function search_all(
-        Request $request, 
+        Request $request,
         PostService $post_service
     ) {
         $request->validate([
@@ -116,7 +115,7 @@ class PostController extends Controller
 
         return response()->json($response);
     }
-    
+
     public function post_like(
         int $post_id,
         Request $request,
@@ -134,7 +133,7 @@ class PostController extends Controller
         int $post_id,
         Request $request,
         PostService $post_service,
-    ){
+    ) {
         $response = $post_service->post_unlike(
             $request->user(),
             $post_id,
@@ -158,7 +157,7 @@ class PostController extends Controller
 
     public function get_post_bids(
         int $post_id,
-        Request $request, 
+        Request $request,
         PostService $post_service
     ) {
         $response = $post_service->get_post_bids(
@@ -170,7 +169,7 @@ class PostController extends Controller
     }
 
     public function get_post_reviews(
-        int $post_id, 
+        int $post_id,
         PostService $post_service
     ) {
         $response = $post_service->get_post_reviews($post_id);

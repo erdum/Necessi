@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\UserService;
 use App\Models\User;
+use App\Services\UserService;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -35,15 +35,14 @@ class UserController extends Controller
     }
 
     public function get_user(
-        Request $request, 
+        Request $request,
         UserService $user_service
     ) {
         $user = $user_service->get_profile(
             $request->user(),
         );
 
-        if ($request->user_id) 
-        {
+        if ($request->user_id) {
             $user_model = User::findOrFail($request->user_id);
             $user = $user_service->get_profile(
                 $user_model
@@ -103,11 +102,11 @@ class UserController extends Controller
     }
 
     public function request_decline(
-        Request $request, 
+        Request $request,
         UserService $user_service
     ) {
         $request->validate([
-            'user_id' => 'required|integer'
+            'user_id' => 'required|integer',
         ]);
 
         $response = $user_service->request_decline(
@@ -176,7 +175,7 @@ class UserController extends Controller
     public function update_user_fcm(Request $request, UserService $user_service)
     {
         $request->validate([
-            'fcm_token' => 'required|unique:user_notification_devices,fcm_token'
+            'fcm_token' => 'required|unique:user_notification_devices,fcm_token',
         ]);
 
         $response = $user_service->store_fcm(
@@ -188,9 +187,9 @@ class UserController extends Controller
     }
 
     public function get_connection_requests(
-        Request $request, 
+        Request $request,
         UserService $user_service
-    ){
+    ) {
         $response = $user_service->get_connection_requests(
             $request->user(),
         );

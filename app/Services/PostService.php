@@ -6,7 +6,6 @@ use App\Exceptions;
 use App\Jobs\StoreImages;
 use App\Models\Post;
 use App\Models\PostBid;
-use App\Models\PostComment;
 use App\Models\PostImage;
 use App\Models\PostLike;
 use App\Models\User;
@@ -38,8 +37,7 @@ class PostService
         float $lon1,
         float $lat2,
         float $lon2
-    )
-    {
+    ) {
         $earthRadius = 3958.8;
 
         $lat1 = deg2rad($lat1);
@@ -179,10 +177,9 @@ class PostService
     {
         $posts = $user->posts()->orderBy('created_at', 'desc')->paginate(10);
 
-        return $posts->map(function ($post) use ($user) 
-        {
+        return $posts->map(function ($post) use ($user) {
             $current_user_like = PostLike::where('user_id', $user->id)
-               ->where('post_id', $post->id)->exists();
+                ->where('post_id', $post->id)->exists();
 
             return [
                 'post_id' => $post->id,
@@ -197,7 +194,7 @@ class PostService
                 'lat' => $post->lat,
                 'long' => $post->long,
                 'budget' => $post->budget,
-                'duration' => Carbon::parse($post->start_date)->format('d M') . ' - ' . Carbon::parse($post->end_date)->format('d M y'),
+                'duration' => Carbon::parse($post->start_date)->format('d M').' - '.Carbon::parse($post->end_date)->format('d M y'),
                 'created_at' => $post->created_at->diffForHumans(),
                 'delivery_requested' => $post->delivery_requested,
                 'bids' => $post->bids->count(),
@@ -216,11 +213,10 @@ class PostService
     {
         $posts = Post::orderBy('created_at', 'desc')->paginate(10);
 
-        return $posts->map(function ($post) use ($current_user) 
-        {
+        return $posts->map(function ($post) use ($current_user) {
             $current_user_like = PostLike::where('user_id', $current_user->id)
-              ->where('post_id', $post->id)->exists();
-            
+                ->where('post_id', $post->id)->exists();
+
             $distance = $this->calculateDistance(
                 $current_user->lat,
                 $current_user->long,
@@ -241,7 +237,7 @@ class PostService
                 'long' => $post->long,
                 'distance' => round($distance, 2).' miles away',
                 'budget' => $post->budget,
-                'duration' => Carbon::parse($post->start_date)->format('d M') . ' - ' . Carbon::parse($post->end_date)->format('d M y'),
+                'duration' => Carbon::parse($post->start_date)->format('d M').' - '.Carbon::parse($post->end_date)->format('d M y'),
                 'delivery_requested' => $post->delivery_requested,
                 'created_at' => $post->created_at->diffForHumans(),
                 'current_user_like' => $current_user_like,
@@ -292,9 +288,8 @@ class PostService
 
         $post_like = PostLike::where('post_id', $post_id)->where(
             'user_id', $user->id)->first();
-            
-        if($post_like)
-        {
+
+        if ($post_like) {
             $post_like->delete();
         }
 
@@ -317,13 +312,13 @@ class PostService
         $bids = [];
         $images = [];
 
-        if (!$post_details) {
+        if (! $post_details) {
             throw new Exceptions\InvalidPostId;
         }
 
         foreach ($post_details->bids as $bid) {
             $bids[] = [
-                'user_name' => $bid->user->first_name . ' ' . $bid->user->last_name,
+                'user_name' => $bid->user->first_name.' '.$bid->user->last_name,
                 'avatar' => $bid->user->avatar,
                 'amount' => $bid->amount,
                 'created_at' => Carbon::parse($bid->created_at)->diffForHumans(),
@@ -340,7 +335,7 @@ class PostService
         foreach ($post_details->comments as $comment) {
             $comments[] = [
                 'avatar' => $comment->user->avatar,
-                'user_name' => $comment->user->first_name . ' ' . $comment->user->last_name,
+                'user_name' => $comment->user->first_name.' '.$comment->user->last_name,
                 'comment' => $comment->data,
                 'created_at' => $comment->created_at->diffForHumans(),
             ];
@@ -364,9 +359,9 @@ class PostService
             'type' => $post_details->type,
             'created_at' => $post_details->created_at->diffForHumans(),
             'budget' => $post_details->budget,
-            'duration' => Carbon::parse($post_details->start_date)->format('d M') . ' - ' . Carbon::parse($post_details->end_date)->format('d M y'),
+            'duration' => Carbon::parse($post_details->start_date)->format('d M').' - '.Carbon::parse($post_details->end_date)->format('d M y'),
             'location' => $post_details->location,
-            'distance' => round($distance, 2) . ' miles away',
+            'distance' => round($distance, 2).' miles away',
             'title' => $post_details->title,
             'description' => $post_details->description,
             'current_user_like' => $current_user_like,
@@ -382,7 +377,7 @@ class PostService
         $post = Post::with([
             'bids' => function ($query) {
                 $query->with('user')->orderBy('amount');
-            }
+            },
         ])->find($post_id);
 
         if (! $post) {
@@ -392,7 +387,7 @@ class PostService
 
         foreach ($post->bids as $bid) {
             $bids[] = [
-                'user_name' => $bid->user->first_name . ' ' . $bid->user->last_name,
+                'user_name' => $bid->user->first_name.' '.$bid->user->last_name,
                 'avatar' => $bid->user->avatar,
                 'amount' => $bid->amount,
                 'created_at' => Carbon::parse($bid->created_at)->diffForHumans(),
@@ -407,23 +402,22 @@ class PostService
     {
         $post = Post::with(['reviews', 'reviews.user'])->find($post_id);
 
-        if(!$post){
+        if (! $post) {
             throw new Exceptions\InvalidPostId;
         }
         $reviews = [];
 
-        foreach($post->reviews as $review)
-        {
+        foreach ($post->reviews as $review) {
             $reviews[] = [
                 'user_id' => $review->user->id,
-                'user_name' => $review->user->first_name . ' ' . $review->user->last_name,
+                'user_name' => $review->user->first_name.' '.$review->user->last_name,
                 'avatar' => $review->user->avatar,
                 'rating' => $review->rating,
                 'description' => $review->data,
                 'created_at' => $review->created_at->diffForHumans(),
             ];
         }
-        
+
         return $reviews;
     }
 
@@ -440,7 +434,7 @@ class PostService
             $comments[] = [
                 'post_id' => $post->id,
                 'user_id' => $comment->user->id,
-                'user_name' => $comment->user->first_name . ' ' . $comment->user->last_name,
+                'user_name' => $comment->user->first_name.' '.$comment->user->last_name,
                 'avatar' => $comment->user->avatar,
                 'comment' => $comment->data,
             ];
@@ -536,37 +530,36 @@ class PostService
 
         $posts = Post::where(
             function ($query) use ($search_query, $search_terms) {
-                $query->where('title', 'like', '%' . $search_query . '%');
+                $query->where('title', 'like', '%'.$search_query.'%');
 
                 foreach ($search_terms as $term) {
-                    $query->orWhere('description', 'like', '%' . $term . '%');
+                    $query->orWhere('description', 'like', '%'.$term.'%');
                 }
             }
         )
-        ->with('user')
-        ->orderBy('created_at', 'desc')->get();
+            ->with('user')
+            ->orderBy('created_at', 'desc')->get();
 
-        foreach ($posts as $post) 
-        {
+        foreach ($posts as $post) {
             $distance = $this->calculateDistance(
                 $current_user->lat,
                 $current_user->long,
                 $post->lat,
                 $post->long,
             );
-    
+
             $searched_posts[] = [
                 'type' => 'posts',
                 'post_id' => $post->id,
                 'user_id' => $post->user->id,
-                'user_name' => $post->user->first_name . ' ' . $post->user->last_name,
+                'user_name' => $post->user->first_name.' '.$post->user->last_name,
                 'avatar' => $post->user->avatar,
                 'post_type' => $post->type,
                 'created_at' => $post->created_at->diffForHumans(),
                 'budget' => $post->budget,
-                'duration' => Carbon::parse($post->start_date)->format('d M') . ' - ' . Carbon::parse($post->end_date)->format('d M y'),
+                'duration' => Carbon::parse($post->start_date)->format('d M').' - '.Carbon::parse($post->end_date)->format('d M y'),
                 'location' => $post->location,
-                'distance' => round($distance, 2) . ' miles away',
+                'distance' => round($distance, 2).' miles away',
                 'title' => $post->title,
                 'description' => $post->description,
             ];
@@ -575,22 +568,21 @@ class PostService
         $users = User::where(
             function ($query) use ($search_terms) {
                 foreach ($search_terms as $term) {
-                    $query->orWhere('first_name', 'like', '%' . $term . '%')
-                        ->orWhere('last_name', 'like', '%' . $term . '%');
+                    $query->orWhere('first_name', 'like', '%'.$term.'%')
+                        ->orWhere('last_name', 'like', '%'.$term.'%');
                 }
             }
         )->get();
-    
-        foreach ($users as $user) 
-        {
+
+        foreach ($users as $user) {
             $searched_users[] = [
                 'type' => 'peoples',
                 'user_id' => $user->id,
-                'user_name' => $user->first_name . ' ' . $user->last_name,
+                'user_name' => $user->first_name.' '.$user->last_name,
                 'avatar' => $user->avatar,
             ];
         }
-    
+
         return [
             'posts' => $searched_posts,
             'people' => $searched_users,
