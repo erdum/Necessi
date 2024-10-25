@@ -33,7 +33,12 @@ class PostService
         $this->notification_service = $notification_service;
     }
 
-    public function calculateDistance($lat1, $lon1, $lat2, $lon2)
+    public function calculateDistance(
+        float $lat1,
+        float $lon1,
+        float $lat2,
+        float $lon2
+    )
     {
         $earthRadius = 3958.8;
 
@@ -113,8 +118,8 @@ class PostService
 
     public function place_bid(
         User $user,
-        $post_id,
-        $amount
+        int $post_id,
+        int $amount
     ) {
         $post = Post::find($post_id);
 
@@ -372,7 +377,7 @@ class PostService
         ];
     }
 
-    public function get_post_bids(User $user, $post_id)
+    public function get_post_bids(User $user, int $post_id)
     {
         $post = Post::with([
             'bids' => function ($query) {
@@ -422,7 +427,7 @@ class PostService
         return $reviews;
     }
 
-    public function get_post_comments(User $user, $post_id)
+    public function get_post_comments(User $user, int $post_id)
     {
         $post = Post::with(['comments', 'comments.user'])->find($post_id);
 
@@ -504,7 +509,7 @@ class PostService
         return $post;
     }
 
-    public function delete_post(User $user, $post_id)
+    public function delete_post(User $user, int $post_id)
     {
         $post = Post::find($post_id);
 

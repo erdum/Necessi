@@ -42,11 +42,11 @@ class FirebaseAuthService
     }
 
     public function register(
-        $first_name,
-        $last_name,
-        $phone_number,
-        $email,
-        $password
+        string $first_name,
+        string $last_name,
+        string $phone_number,
+        string $email,
+        string $password
     ) {
         $user = $this->is_user_already_registered($email);
 
@@ -160,7 +160,7 @@ class FirebaseAuthService
         ];
     }
 
-    public function social_auth($token)
+    public function social_auth(string $token)
     {
         try {
             $verifiedIdToken = $this->auth->verifyIdToken($token);

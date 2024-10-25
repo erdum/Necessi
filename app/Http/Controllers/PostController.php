@@ -54,7 +54,7 @@ class PostController extends Controller
     }
 
     public function place_bid(
-        string $post_id,
+        int $post_id,
         Request $request,
         PostService $post_service
     ) {
@@ -118,7 +118,7 @@ class PostController extends Controller
     }
     
     public function post_like(
-        string $post_id,
+        int $post_id,
         Request $request,
         PostService $post_service,
     ) {
@@ -131,7 +131,7 @@ class PostController extends Controller
     }
 
     public function post_unlike(
-        string $post_id,
+        int $post_id,
         Request $request,
         PostService $post_service,
     ){
@@ -145,7 +145,7 @@ class PostController extends Controller
 
     public function get_post_details(
         Request $request,
-        string $post_id,
+        int $post_id,
         PostService $post_service,
     ) {
         $response = $post_service->get_post_details(
@@ -170,7 +170,7 @@ class PostController extends Controller
     }
 
     public function get_post_reviews(
-        string $post_id, 
+        int $post_id, 
         PostService $post_service
     ) {
         $response = $post_service->get_post_reviews($post_id);
@@ -179,7 +179,7 @@ class PostController extends Controller
     }
 
     public function get_post_comments(
-        string $post_id,
+        int $post_id,
         Request $request,
         PostService $post_service
     ) {

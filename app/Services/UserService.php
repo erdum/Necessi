@@ -362,7 +362,7 @@ class UserService
         ];
     }
 
-    public function user_remove(User $user, $user_id)
+    public function user_remove(User $user, int $user_id)
     {
         if (! $user->connections->contains('id', $user_id)) {
             throw new Exceptions\UserNotConnected;
