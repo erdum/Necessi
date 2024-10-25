@@ -174,12 +174,15 @@ class PostService
     {
         $posts = $user->posts()->orderBy('created_at', 'desc')->paginate(10);
 
-        return $posts->map(function ($post) use ($user) {
+        return $posts->map(function ($post) use ($user) 
+        {
+            $current_user_like = PostLike::where('user_id', $user->id)
+                       ->where('post_id', $post->id)->exists();
             return [
+                'post_id' => $post->id,
                 'first_name' => $user->first_name,
                 'last_name' => $user->last_name,
                 'avatar' => $user->avatar,
-                'post_id' => $post->id,
                 'user_id' => $post->user_id,
                 'type' => $post->type,
                 'title' => $post->title,
@@ -193,6 +196,7 @@ class PostService
                 'created_at' => $post->created_at->diffForHumans(),
                 'delivery_requested' => $post->delivery_requested,
                 'bids' => $post->bids->count(),
+                'current_user_like' => $current_user_like,
                 'likes' => $post->likes->count(),
                 'images' => $post->images->map(function ($image) {
                     return [
@@ -207,7 +211,11 @@ class PostService
     {
         $posts = Post::orderBy('created_at', 'desc')->paginate(10);
 
-        return $posts->map(function ($post) use ($current_user) {
+        return $posts->map(function ($post) use ($current_user) 
+        {
+            $current_user_like = PostLike::where('user_id', $current_user->id)
+                              ->where('post_id', $post->id)->exists();
+            
             $distance = $this->calculateDistance(
                 $current_user->lat,
                 $current_user->long,
@@ -215,11 +223,11 @@ class PostService
             );
 
             return [
+                'post_id' => $post->id,
+                'user_id' => $post->user_id,
                 'first_name' => $post->user->first_name,
                 'last_name' => $post->user->last_name,
                 'avatar' => $post->user->avatar,
-                'post_id' => $post->id,
-                'user_id' => $post->user_id,
                 'type' => $post->type,
                 'title' => $post->title,
                 'description' => $post->description,
@@ -232,6 +240,7 @@ class PostService
                               Carbon::parse($post->end_date)->format('d M y'),
                 'delivery_requested' => $post->delivery_requested,
                 'created_at' => $post->created_at->diffForHumans(),
+                'current_user_like' => $current_user_like,
                 'likes' => $post->likes->count(),
                 'bids' => $post->bids->count(),
                 'images' => $post->images->map(function ($image) {

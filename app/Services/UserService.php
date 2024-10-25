@@ -7,6 +7,7 @@ use App\Jobs\StoreImages;
 use App\Models\ConnectionRequest;
 use App\Models\Review;
 use App\Models\User;
+use App\Models\PostLike;
 use App\Models\UserPreference;
 use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
@@ -101,6 +102,8 @@ class UserService
         $post_reviews = Review::whereIn('post_id', $post_ids)->get();
         $average_rating = round($post_reviews->avg('rating'), 1);
         $recent_post = $user->posts()->latest()->first();
+        $current_user_like = PostLike::where('user_id', $user->id)
+                          ->where('post_id', $recent_post->id)->exists();
         $reviews = [];
         $connections = [];
         $distance = null;
@@ -141,7 +144,7 @@ class UserService
         }
 
         return [
-            'id' => $user->id,
+            'user_id' => $user->id,
             'first_name' => $user->first_name,
             'last_name' => $user->last_name,
             'uid' => $user->uid,
@@ -160,7 +163,7 @@ class UserService
             'connection_count' => $user->connections->count(),
             'connections' => $connections,
             'recent_post' => $recent_post ? [[
-                'id' => $recent_post->id,
+                'post_id' => $recent_post->id,
                 'user_id' => $recent_post->user_id,
                 'type' => $recent_post->type,
                 'title' => $recent_post->title,
@@ -172,6 +175,7 @@ class UserService
                               Carbon::parse($recent_post->end_date)->format('d M y'),
                 'created_at' => $recent_post->created_at->diffForHumans(),
                 'bids' => $recent_post->bids->count(),
+                'current_user_like' => $current_user_like,
                 'likes' => $recent_post->likes->count(),
             ]] : [],
             'reviews' => $reviews,
