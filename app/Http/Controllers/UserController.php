@@ -157,6 +157,22 @@ class UserController extends Controller
         return response()->json($response);
     }
 
+    public function cancel_connection_request(
+        Request $request,
+        UserService $user_service
+    ) {
+        $request->validate([
+            'receiver_id' => 'required|exists:users,id',
+        ]);
+
+        $response = $user_service->cancel_connection_request(
+            $request->user(),
+            $request->receiver_id
+        );
+
+        return response()->json($response);
+    }
+
     public function update_user_fcm(Request $request, UserService $user_service)
     {
         $request->validate([

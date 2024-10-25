@@ -126,10 +126,16 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [UserController::class, 'get_nearby_users']
     );
 
-    // Make user connections
+    // Send connections request
     Route::post(
         '/user/send-connection-request',
         [UserController::class, 'send_connection_request']
+    );
+
+    // cancel connection request
+    Route::post(
+        '/user/cancel-connection-request',
+        [UserController::class, 'cancel_connection_request']
     );
 
     // Get connection requests

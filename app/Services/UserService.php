@@ -443,6 +443,22 @@ class UserService
         ];
     }
 
+    public function cancel_connection_request(User $user, int $user_id)
+    {
+        $connection_request = ConnectionRequest::where('sender_id', $user->id)
+                            ->where('receiver_id', $user_id)->first();
+
+        if(!$connection_request){
+            throw new Exceptions\ConnectionRequestNotFound;
+        }
+
+        $connection_request->delete();
+
+        return [
+            'message' => 'Canceled Connection request',
+        ];
+    }
+
     public function store_fcm(string $fcm_token, User $user)
     {
         $user->notification_device()->updateOrCreate(
