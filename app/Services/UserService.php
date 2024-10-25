@@ -96,7 +96,7 @@ class UserService
 
     public function get_profile(User $user)
     {
-        $user = User::where('id', $user->id)->first();
+        $current_user = \Auth::user();
 
         $post_ids = $user->posts->pluck('id');
         $post_reviews = Review::whereIn('post_id', $post_ids)->get();
@@ -104,6 +104,8 @@ class UserService
         $recent_post = $user->posts()->latest()->first();
         $current_user_like = PostLike::where('user_id', $user->id)
                           ->where('post_id', $recent_post->id)->exists();
+        $is_connection = $current_user->connections()->where(
+            'connection_id', $user->id)->exists();
         $reviews = [];
         $connections = [];
         $distance = null;
@@ -160,6 +162,7 @@ class UserService
             'location' => $user->city,
             'lat' => $user->lat,
             'long' => $user->long,
+            'is_connection' => $is_connection,
             'connection_count' => $user->connections->count(),
             'connections' => $connections,
             'recent_post' => $recent_post ? [[
