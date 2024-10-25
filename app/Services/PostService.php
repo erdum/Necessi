@@ -177,7 +177,8 @@ class PostService
         return $posts->map(function ($post) use ($user) 
         {
             $current_user_like = PostLike::where('user_id', $user->id)
-                       ->where('post_id', $post->id)->exists();
+               ->where('post_id', $post->id)->exists();
+
             return [
                 'post_id' => $post->id,
                 'first_name' => $user->first_name,
@@ -191,8 +192,7 @@ class PostService
                 'lat' => $post->lat,
                 'long' => $post->long,
                 'budget' => $post->budget,
-                'duration' => Carbon::parse($post->start_date)->format('d M').' - '.
-                              Carbon::parse($post->end_date)->format('d M y'),
+                'duration' => Carbon::parse($post->start_date)->format('d M') . ' - ' . Carbon::parse($post->end_date)->format('d M y'),
                 'created_at' => $post->created_at->diffForHumans(),
                 'delivery_requested' => $post->delivery_requested,
                 'bids' => $post->bids->count(),
@@ -214,7 +214,7 @@ class PostService
         return $posts->map(function ($post) use ($current_user) 
         {
             $current_user_like = PostLike::where('user_id', $current_user->id)
-                              ->where('post_id', $post->id)->exists();
+              ->where('post_id', $post->id)->exists();
             
             $distance = $this->calculateDistance(
                 $current_user->lat,
@@ -236,8 +236,7 @@ class PostService
                 'long' => $post->long,
                 'distance' => round($distance, 2).' miles away',
                 'budget' => $post->budget,
-                'duration' => Carbon::parse($post->start_date)->format('d M').' - '.
-                              Carbon::parse($post->end_date)->format('d M y'),
+                'duration' => Carbon::parse($post->start_date)->format('d M') . ' - ' . Carbon::parse($post->end_date)->format('d M y'),
                 'delivery_requested' => $post->delivery_requested,
                 'created_at' => $post->created_at->diffForHumans(),
                 'current_user_like' => $current_user_like,
@@ -255,7 +254,8 @@ class PostService
     public function post_like(User $user, int $post_id)
     {
         $post = Post::find($post_id);
-        $post_like = PostLike::where('post_id', $post_id)->where('user_id', $user->id)->first();
+        $post_like = PostLike::where('post_id', $post_id)
+            ->where('user_id', $user->id)->first();
 
         if (! $post) {
             throw new Exceptions\InvalidPostId;
@@ -279,51 +279,27 @@ class PostService
 
     public function get_post_details(User $current_user, int $post_id)
     {
-        $post_details = Post::find($post_id);
+        $post_details = Post::with('user')->find($post_id);
+        $comment_list = [];
+        $bid_list = [];
+        $images = [];
 
         if (!$post_details) {
             throw new Exceptions\InvalidPostId;
         }
 
-        $user = User::find($post_details->user_id);
+        $bids = PostBid::where('post_id', $post_id)
+            ->with('user')
+            ->limit(4)
+            ->get();
 
-        if (!$user) {
-            throw new Exceptions\UserNotFound;
-        }
-
-        $bids_ref = $this->db->collection('bids');
-        $bids_snapshot = $bids_ref->where('post_id', '=', $post_id)
-                  ->orderBy('amount', 'ASC')->limit(4)->documents();
-
-        $comments = PostComment::where('post_id', $post_id)
-                   ->orderBy('created_at', 'DESC')
-                   ->get();
-
-        $current_user_like = PostLike::where('user_id', $current_user->id)
-                          ->where('post_id', $post_details->id)->exists();
-        $comment_list = [];
-        $images = [];
-        $bids = [];
-
-        foreach ($comments->take(2) as $comment) {
-            $comment_list[] = [
-                'avatar' => $comment->user->avatar,
-                'user_name' => $comment->user->first_name.' '.$comment->user->last_name,
-                'comment' => $comment->data,
-                'created_at' => $comment->created_at->diffForHumans(),
-            ];
-        }
-
-        foreach ($bids_snapshot as $bid_doc) {
-            $bid_data = $bid_doc->data();
-            $bid_user = User::find($bid_data['user_id']);
-
-            $bids[] = [
-                'user_name' => $bid_user->first_name.' '.$bid_user->last_name,
-                'avatar' => $bid_user->avatar,
-                'amount' => $bid_data['amount'],
-                'created_at' => Carbon::parse($bid_data['created_at'])->diffForHumans(),
-                'status' => $bid_data['status'],
+        foreach ($bids as $bid) {
+            $bid_list[] = [
+                'user_name' => $bid->user->first_name . ' ' . $bid->user->last_name,
+                'avatar' => $bid->user->avatar,
+                'amount' => $bid->amount,
+                'created_at' => Carbon::parse($bid->created_at)->diffForHumans(),
+                'status' => $bid->status,
             ];
         }
 
@@ -332,6 +308,24 @@ class PostService
                 'image' => $image->url,
             ];
         }
+
+        $comments = PostComment::where('post_id', $post_id)
+            ->with('user')
+           ->orderBy('created_at', 'DESC')
+           ->limit(2)
+           ->get();
+
+        foreach ($comments as $comment) {
+            $comment_list[] = [
+                'avatar' => $comment->user->avatar,
+                'user_name' => $comment->user->first_name . ' ' . $comment->user->last_name,
+                'comment' => $comment->data,
+                'created_at' => $comment->created_at->diffForHumans(),
+            ];
+        }
+
+        $current_user_like = PostLike::where('user_id', $current_user->id)
+          ->where('post_id', $post_details->id)->exists();
 
         $distance = $this->calculateDistance(
             $current_user->lat,
@@ -342,21 +336,20 @@ class PostService
 
         return [
             'post_id' => $post_details->id,
-            'first_name' => $user->first_name,
-            'last_name' => $user->last_name,
+            'first_name' => $post_details->user->first_name,
+            'last_name' => $post_details->user->last_name,
             'type' => $post_details->type,
             'created_at' => $post_details->created_at->diffForHumans(),
             'budget' => $post_details->budget,
-            'duration' => Carbon::parse($post_details->start_date)->format('d M').' - '.
-                          Carbon::parse($post_details->end_date)->format('d M y'),
+            'duration' => Carbon::parse($post_details->start_date)->format('d M') . ' - ' . Carbon::parse($post_details->end_date)->format('d M y'),
             'location' => $post_details->location,
-            'distance' => round($distance, 2).' miles away',
+            'distance' => round($distance, 2) . ' miles away',
             'title' => $post_details->title,
             'description' => $post_details->description,
             'current_user_like' => $current_user_like,
             'likes' => $post_details->likes->count(),
             'images' => $images,
-            'bids' => $bids,
+            'bids' => $bid_list,
             'comments' => $comment_list,
         ];
     }
