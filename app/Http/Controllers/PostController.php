@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\PostService;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class PostController extends Controller
@@ -74,11 +75,19 @@ class PostController extends Controller
         Request $request,
         PostService $post_service,
     ) {
-        $user = $request->user();
+        $user = $post_service->get_user_posts(
+            $request->user(),
+        );
 
-        $response = $post_service->get_user_posts($user);
+        if ($request->user_id)
+        {
+            $user_model = User::findOrFail($request->user_id);
+            $user = $post_service->get_user_posts(
+                $user_model
+            );
+        }
 
-        return response()->json($response);
+        return response()->json($user);
     }
 
     public function get_all_posts(
