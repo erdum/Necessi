@@ -35,21 +35,6 @@ class UserService
         $this->post_service = $post_service;
     }
 
-    public function update_firestore_profile(User $user)
-    {
-        $user_ref = $this->db->collection('users')->document($user->uid);
-
-        $user_ref->set([
-            'first_name' => $user->first_name,
-            'uid' => $user->uid,
-            'last_name' => $user->last_name,
-            'email' => $user->email,
-            'email_verified_at' => $user->email_verified_at,
-            'phone_number' => $user->phone_number,
-            'is_online' => true,
-        ]);
-    }
-
     public function update_profile(
         User $user,
         ?string $about,
@@ -99,16 +84,22 @@ class UserService
         $current_user = \Auth::user();
 
         $post_ids = $user->posts->pluck('id');
-        $post_reviews = Review::whereIn('post_id', $post_ids)->get();
+        $post_reviews = Review::whereIn('post_id', $post_ids)->with('user')->get();
         $average_rating = round($post_reviews->avg('rating'), 1);
         $recent_post = $user->posts()->latest()->first();
         $current_user_like = PostLike::where('user_id', $user->id)
                           ->where('post_id', $recent_post->id)->exists();
+        $connection_request = ConnectionRequest::where('sender_id', $current_user->id)->first();
         $is_connection = $current_user->connections()->where(
             'connection_id', $user->id)->exists();
         $reviews = [];
         $connections = [];
         $distance = null;
+        $connection_request_status = 'not send';
+
+        if($connection_request){
+            $connection_request_status = $connection_request->status;
+        }
 
         if (! is_null($user->lat) && ! is_null($user->long)) {
             if ($recent_post) {
@@ -132,12 +123,12 @@ class UserService
             ];
         }
 
-        foreach ($post_reviews->take(3) as $review) {
-            $users = User::find($review->user_id);
+        foreach ($post_reviews->take(3) as $review) 
+        {
             $reviews[] = [
-                'user_id' => $users->id,
-                'user_name' => $users->first_name.' '.$users->last_name,
-                'avatar' => $users->avatar,
+                'user_id' => $review->user->id,
+                'user_name' => $review->user->first_name.' '.$review->user->last_name,
+                'avatar' => $review->user->avatar,
                 'post_id' => $review->post_id,
                 'rating' => $review->rating,
                 'description' => $review->data,
@@ -163,6 +154,7 @@ class UserService
             'lat' => $user->lat,
             'long' => $user->long,
             'is_connection' => $is_connection,
+            'connection_request_status' => $connection_request_status,
             'connection_count' => $user->connections->count(),
             'connections' => $connections,
             'recent_post' => $recent_post ? [[
@@ -217,15 +209,6 @@ class UserService
             'city',
             'state',
         ]);
-    }
-
-    public function connect_users_mutually(int $user1_id, int $user2_id)
-    {
-        $user1 = User::findOrFail($user1_id);
-        $user2 = User::findOrFail($user2_id);
-
-        $user1->connections()->syncWithoutDetaching([$user2->id]);
-        $user2->connections()->syncWithoutDetaching([$user1->id]);
     }
 
     public function are_connected(User $user1_id, User $user2_id)
@@ -336,12 +319,14 @@ class UserService
         $connection_request = ConnectionRequest::where('receiver_id', $user->id)
             ->where('sender_id', $user_id)->first();
 
-        $this->connect_users_mutually(
-            $user->id,
-            $user_id
-        );
+        $user1 = User::findOrFail($user->id);
+        $user2 = User::findOrFail($user_id);
 
-        $connection_request->delete();
+        $user1->connections()->syncWithoutDetaching([$user2->id]);
+        $user2->connections()->syncWithoutDetaching([$user1->id]);
+
+        $connection_request->status = 'accepted';
+        $connection_request->save();
 
         return ['message' => 'Connections successfully created'];
     }
@@ -354,8 +339,16 @@ class UserService
             throw new Exceptions\UserNotFound;
         }
 
-        $connection_request = ConnectionRequest::where(
-            'sender_id', $user_id)->where('receiver_id', $current_user->id)->first();
+        $connection_request = ConnectionRequest::where(function($query) use ($user_id, $current_user) {
+            $query->where('sender_id', $user_id)
+                  ->where('receiver_id', $current_user->id);
+        })
+        ->orWhere(function($query) use ($user_id, $current_user) {
+            $query->where('sender_id', $current_user->id)
+                  ->where('receiver_id', $user_id);
+        })
+        ->first();
+    
         
         if(!$connection_request){
             throw new Exceptions\ConnectionRequestNotFound;
@@ -380,6 +373,20 @@ class UserService
 
         $user1->connections()->detach($user2->id);
         $user2->connections()->detach($user1->id);
+
+        $connection_request = ConnectionRequest::where(function($query) use ($user_id, $user) {
+            $query->where('sender_id', $user_id)
+                  ->where('receiver_id', $user->id);
+        })
+        ->orWhere(function($query) use ($user_id, $user) {
+            $query->where('sender_id', $user->id)
+                  ->where('receiver_id', $user_id);
+        })
+        ->first();
+
+        if($connection_request){
+            $connection_request->delete();
+        }
 
         return [
             'message' => 'user Disconnected Successfully',
