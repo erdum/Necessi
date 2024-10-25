@@ -148,7 +148,7 @@ class PostController extends Controller
     }
 
     public function get_post_bids(
-        string $post_id,
+        int $post_id,
         Request $request, 
         PostService $post_service
     ) {
