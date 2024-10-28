@@ -29,6 +29,7 @@ return new class extends Migration
             $table->string('city')->nullable();
             $table->string('state')->nullable();
             $table->string('location')->nullable();
+            $table->uuid('stripe_customer_id')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
