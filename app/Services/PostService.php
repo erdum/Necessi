@@ -226,10 +226,13 @@ class PostService
         ];
 
         foreach ($reviews as $review) {
-            $stats[(string)$review->rating] += 1;
-            $rating_sum += $review->rating;
+            $rating = (string)$review->rating;
+            if (array_key_exists($rating, $stats)) {
+                $stats[$rating] += 1;
+                $rating_sum += $review->rating;
+            }
         }
-
+        
         return [
             'average_rating' => $rating_sum / $reviews->count(),
             'rating_count' => $reviews->count(),
