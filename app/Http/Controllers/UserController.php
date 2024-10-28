@@ -47,7 +47,7 @@ class UserController extends Controller
             $request->receive_message_notification,
             $request->who_can_see_connection,
         );
-        
+
         return response()->json($response);
     }
 
@@ -58,7 +58,7 @@ class UserController extends Controller
         $user = $user_service->get_profile(
             $request->user(),
         );
-
+        
         if ($request->user_id) {
             $user_model = User::findOrFail($request->user_id);
             $user = $user_service->get_profile(

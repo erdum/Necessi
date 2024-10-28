@@ -136,12 +136,13 @@ class UserService
         $current_user = \Auth::user();
 
         $post_ids = $user->posts->pluck('id');
-        $post_reviews = Review::whereIn('post_id', $post_ids)->with('user')->get();
+        $post_reviews = Review::where('user_id', $user->id)->with('user')->get();
         $average_rating = round($post_reviews->avg('rating'), 1);
         $recent_post = $user->posts()->latest()->first();
         $current_user_like = PostLike::where('user_id', $user->id)
             ->where('post_id', $recent_post->id)->exists();
-        $connection_request = ConnectionRequest::where('sender_id', $current_user->id)->first();
+        $connection_request = ConnectionRequest::where('sender_id', $current_user->id)
+                ->where('receiver_id', $user->id)->first();
         $is_connection = $current_user->connections()->where(
             'connection_id', $user->id)->exists();
         $reviews = [];
