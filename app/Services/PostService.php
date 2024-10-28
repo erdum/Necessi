@@ -414,16 +414,6 @@ class PostService
             throw new Exceptions\InvalidPostId;
         }
     
-        $total_reviews = $post->reviews->count();
-        $average_rating = $total_reviews > 0 ? round($post->reviews->avg('rating'), 1) : 0;
-        $rating_counts = [
-            '5 stars' => $post->reviews->where('rating', 5)->count(),
-            '4 stars' => $post->reviews->where('rating', 4)->count(),
-            '3 stars' => $post->reviews->where('rating', 3)->count(),
-            '2 stars' => $post->reviews->where('rating', 2)->count(), 
-            '1 stars' => $post->reviews->where('rating', 1)->count(),
-        ];
-    
         $reviews = [];
     
         foreach ($post->reviews as $review) {
@@ -436,13 +426,8 @@ class PostService
                 'created_at' => $review->created_at->format('d M'),
             ];
         }
-    
-        return [
-            'average_rating' => $average_rating,
-            'total_reviews' => $total_reviews,
-            'ratings_breakdown' => $rating_counts,
-            'reviews' => $reviews,
-        ];
+
+        return $reviews;
     }
     
 
