@@ -73,7 +73,7 @@ class User extends Authenticatable
 
     public function preferences()
     {
-        return $this->hasMany(UserPreference::class);
+        return $this->hasOne(UserPreference::class);
     }
 
     public function likes()

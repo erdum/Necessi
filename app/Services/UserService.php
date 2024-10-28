@@ -7,6 +7,7 @@ use App\Jobs\StoreImages;
 use App\Models\ConnectionRequest;
 use App\Models\PostLike;
 use App\Models\Review;
+use App\Models\UserPreference;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
@@ -76,6 +77,58 @@ class UserService
             'lat',
             'long',
         ]);
+    }
+
+    public function update_preferences(
+        User $user,
+        ?bool $general_notification,
+        ?bool $biding_notification,
+        ?bool $transaction_notification,
+        ?bool $activity_notification,
+        ?bool $receive_message_notification,
+        ?string $who_can_see_connection,    
+    ) {
+
+        if (! $user->preferences) 
+        {
+            $preferences = new UserPreference;
+            $preferences->user_id = $user->id;
+            $preferences->general_notifications = $general_notification
+            ?? true;
+            $preferences->biding_notifications = $biding_notification
+            ?? true;
+            $preferences->transaction_notifications =
+            $transaction_notification
+            ?? true;
+            $preferences->activity_notifications = $activity_notification
+            ?? true;
+            $preferences->messages_notifications = $receive_message_notification
+            ?? true;
+            $preferences->who_can_see_connections = $who_can_see_connection
+                ?? 'public';
+
+            $user->preferences()->save($preferences);
+
+            return $preferences;
+        }
+
+        $user->preferences->general_notifications = $general_notification
+            ?? $user->preferences->general_notifications;
+        $user->preferences->biding_notifications = $biding_notification
+            ?? $user->preferences->biding_notifications;
+        $user->preferences->transaction_notifications =
+            $transaction_notification
+            ?? $user->preferences->transaction_notifications;
+        $user->preferences->activity_notifications = $activity_notification
+            ?? $user->preferences->activity_notifications;
+        $user->preferences->messages_notifications = $receive_message_notification
+            ?? $user->preferences->messages_notifications;
+        $user->preferences->who_can_see_connections = $who_can_see_connection
+            ?? $user->preferences->who_can_see_connections;
+
+        $user->preferences->save();
+
+        return $user->preferences;
     }
 
     public function get_profile(User $user)
