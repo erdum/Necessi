@@ -34,6 +34,23 @@ class UserController extends Controller
         return response()->json($response);
     }
 
+    public function update_preferences(
+        Request $request,
+        UserService $user_service
+    ) {
+        $response = $user_service->update_preferences(
+            $request->user(),
+            $request->general_notification,
+            $request->biding_notification,
+            $request->transaction_notification,
+            $request->activity_notification,
+            $request->receive_message_notification,
+            $request->who_can_see_connection,
+        );
+        
+        return response()->json($response);
+    }
+
     public function get_user(
         Request $request,
         UserService $user_service
