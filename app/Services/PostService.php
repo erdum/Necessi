@@ -211,7 +211,10 @@ class PostService
 
     public function get_user_reviews(User $user)
     {
-        return $user->posts()->reviews;
+        return $user->posts()->with([
+            'reviews',
+            'reviews.user:id,first_name,last_name,avatar'
+        ])->select('id')->get();
     }
 
     public function get_all_posts(User $current_user)
