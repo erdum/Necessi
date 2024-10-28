@@ -209,6 +209,11 @@ class PostService
         });
     }
 
+    public function get_user_reviews(User $user)
+    {
+        return $user->posts()->reviews;
+    }
+
     public function get_all_posts(User $current_user)
     {
         $posts = Post::orderBy('created_at', 'desc')->paginate(10);
