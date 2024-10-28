@@ -8,6 +8,7 @@ use App\Models\Post;
 use App\Models\PostBid;
 use App\Models\PostImage;
 use App\Models\PostLike;
+use App\Models\Review;
 use App\Models\User;
 use Carbon\Carbon;
 use Google\Cloud\Firestore\FieldValue;
@@ -211,10 +212,31 @@ class PostService
 
     public function get_user_reviews(User $user)
     {
-        return $user->posts()->with([
-            'reviews',
-            'reviews.user:id,first_name,last_name,avatar'
-        ])->select('id')->get();
+        $reviews = Review::where('user_id', $user->id)
+            ->with('user:id,first_name,last_name,avatar')
+            ->get();
+
+        $rating_sum = 0;
+        $stats = [
+            '1' => 0,
+            '2' => 0,
+            '3' => 0,
+            '4' => 0,
+            '5' => 0,
+        ];
+
+        foreach ($reviews as $review) {
+            $stats[(string)$review->rating]
+                = ($stats[$review->rating] ?? 0) + 1;
+            $rating_sum += $review->rating;
+        }
+
+        return [
+            'average_rating' => $rating_sum / $reviews->count(),
+            'rating_count' => $reviews->count(),
+            'stats' => $stats,
+            'reviews' => $reviews,
+        ];
     }
 
     public function get_all_posts(User $current_user)
