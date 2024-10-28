@@ -55,16 +55,16 @@ class UserController extends Controller
         Request $request,
         UserService $user_service
     ) {
-        $user = $user_service->get_profile(
-            $request->user(),
-        );
-        
         if ($request->user_id) {
             $user_model = User::findOrFail($request->user_id);
             $user = $user_service->get_profile(
                 $user_model
             );
         }
+        
+        $user = $user_service->get_profile(
+            $request->user(),
+        );
 
         return response()->json($user);
     }
