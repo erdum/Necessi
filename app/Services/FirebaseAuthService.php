@@ -91,6 +91,16 @@ class FirebaseAuthService
             $user->save();
         }
 
+        $this->user_service->update_preferences(
+            $user,
+            true,
+            true,
+            true,
+            true,
+            true,
+            null,
+        );
+
         $token = $this->generate_token($user);
 
         return [
