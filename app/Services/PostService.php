@@ -226,8 +226,7 @@ class PostService
         ];
 
         foreach ($reviews as $review) {
-            $stats[(string)$review->rating]
-                = ($stats[$review->rating] ?? 0) + 1;
+            $stats[(string)$review->rating] += 1;
             $rating_sum += $review->rating;
         }
 
