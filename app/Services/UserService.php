@@ -5,13 +5,13 @@ namespace App\Services;
 use App\Exceptions;
 use App\Jobs\StoreImages;
 use App\Models\ConnectionRequest;
-use Illuminate\Support\Facades\Hash;
 use App\Models\PostLike;
 use App\Models\Review;
-use App\Models\UserPreference;
 use App\Models\User;
+use App\Models\UserPreference;
 use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Hash;
 use Kreait\Firebase\Factory;
 
 class UserService
@@ -87,11 +87,10 @@ class UserService
         ?bool $transaction_notification,
         ?bool $activity_notification,
         ?bool $receive_message_notification,
-        ?string $who_can_see_connection,    
+        ?string $who_can_see_connection,
     ) {
 
-        if (! $user->preferences) 
-        {
+        if (! $user->preferences) {
             $preferences = new UserPreference;
             $preferences->user_id = $user->id;
             $preferences->general_notifications = $general_notification
@@ -143,7 +142,7 @@ class UserService
         $current_user_like = PostLike::where('user_id', $user->id)
             ->where('post_id', $recent_post->id)->exists();
         $connection_request = ConnectionRequest::where('sender_id', $current_user->id)
-                ->where('receiver_id', $user->id)->first();
+            ->where('receiver_id', $user->id)->first();
         $is_connection = $current_user->connections()->where(
             'connection_id', $user->id)->exists();
         $reviews = [];
@@ -372,8 +371,9 @@ class UserService
         $connection_request = ConnectionRequest::where('receiver_id', $user->id)
             ->where('sender_id', $user_id)->first();
 
-        if (!$connection_request)
+        if (! $connection_request) {
             throw new Exceptions\ConnectionRequestNotFound;
+        }
 
         $connection_request->status = 'accepted';
         $connection_request->save();
@@ -386,8 +386,9 @@ class UserService
         $connection_request = ConnectionRequest::where('receiver_id', $user->id)
             ->where('sender_id', $user_id)->first();
 
-        if (!$connection_request)
+        if (! $connection_request) {
             throw new Exceptions\ConnectionRequestNotFound;
+        }
 
         $connection_request->status = 'rejected';
         $connection_request->save();
@@ -401,16 +402,18 @@ class UserService
     {
         $connection = ConnectionRequest::where([
             ['sender_id', '=', $user->id],
-            ['receiver_id', '=', $user_id]
+            ['receiver_id', '=', $user_id],
         ])
-        ->orWhere([
-            ['sender_id', '=', $user_id],
-            ['receiver_id', '=', $user->id]
-        ])
-        ->where('status', 'accepted')
-        ->first();
+            ->orWhere([
+                ['sender_id', '=', $user_id],
+                ['receiver_id', '=', $user->id],
+            ])
+            ->where('status', 'accepted')
+            ->first();
 
-        if (!$connection) throw new Exceptions\UserNotConnected;
+        if (! $connection) {
+            throw new Exceptions\UserNotConnected;
+        }
 
         $connection->delete();
 
@@ -426,11 +429,11 @@ class UserService
             ->where('status', 'accepted')
             ->with([
                 'sender',
-                'receiver'
+                'receiver',
             ])
             ->get();
 
-        return $connections;        
+        return $connections;
     }
 
     private function send_request(int $sender_id, int $receiver_id)
@@ -469,8 +472,9 @@ class UserService
         $connection_request = ConnectionRequest::where('receiver_id', $user->id)
             ->where('sender_id', $user_id)->first();
 
-        if (!$connection_request)
+        if (! $connection_request) {
             throw new Exceptions\ConnectionRequestNotFound;
+        }
 
         $connection_request->delete();
 
@@ -495,17 +499,16 @@ class UserService
             'receiver_id',
             $user->id
         )
-        ->whereNot('status', 'rejected')
-        ->with('sender:id,first_name,last_name,avatar')
-        ->get();
+            ->whereNot('status', 'rejected')
+            ->with('sender:id,first_name,last_name,avatar')
+            ->get();
 
         $requests = [];
 
         foreach ($connection_requests as $req) {
             $requests[] = [
                 'user_id' => $req->sender->id,
-                'user_name' =>
-                    $req->sender->first_name . ' ' . $req->sender->last_name,
+                'user_name' => $req->sender->first_name.' '.$req->sender->last_name,
                 'avatar' => $req->sender->avatar,
                 'status' => $req->status,
                 'request_id' => $req->id,
@@ -516,18 +519,18 @@ class UserService
     }
 
     public function update_password(
-        User $user, 
-        string $old_password, 
+        User $user,
+        string $old_password,
         string $new_password
     ) {
         if (! $user) {
             throw new Exceptions\UserNotFound;
         }
-        
+
         if (! Hash::check($old_password, $user->password)) {
             throw new Exceptions\WrongPassword;
         }
-        
+
         if (Hash::check($new_password, $user->password)) {
             throw new Exceptions\SameAsOldPassword;
         }

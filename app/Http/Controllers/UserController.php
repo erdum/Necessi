@@ -54,7 +54,7 @@ class UserController extends Controller
     public function get_user(
         Request $request,
         UserService $user_service
-    ) { 
+    ) {
         $user = $user_service->get_profile(
             $request->user(),
         );
@@ -216,9 +216,9 @@ class UserController extends Controller
     }
 
     public function update_password(
-        Request $request, 
+        Request $request,
         UserService $user_service
-    ){
+    ) {
         $request->validate([
             'old_password' => 'required|string',
             'new_password' => 'required',
