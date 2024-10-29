@@ -130,25 +130,12 @@ class PostController extends Controller
         return response()->json($response);
     }
 
-    public function post_like(
+    public function toggle_like(
         int $post_id,
         Request $request,
         PostService $post_service,
     ) {
-        $response = $post_service->post_like(
-            $request->user(),
-            $post_id,
-        );
-
-        return response()->json($response);
-    }
-
-    public function post_unlike(
-        int $post_id,
-        Request $request,
-        PostService $post_service,
-    ) {
-        $response = $post_service->post_unlike(
+        $response = $post_service->toggle_like(
             $request->user(),
             $post_id,
         );
