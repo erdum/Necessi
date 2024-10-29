@@ -469,8 +469,8 @@ class UserService
 
     public function cancel_connection_request(User $user, int $user_id)
     {
-        $connection_request = ConnectionRequest::where('receiver_id', $user->id)
-            ->where('sender_id', $user_id)->first();
+        $connection_request = ConnectionRequest::where('receiver_id', $user_id)
+            ->where('sender_id', $user->id)->first();
 
         if (! $connection_request) {
             throw new Exceptions\ConnectionRequestNotFound;
