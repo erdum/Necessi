@@ -213,4 +213,22 @@ class UserController extends Controller
 
         return response()->json($response);
     }
+
+    public function update_password(
+        Request $request, 
+        UserService $user_service
+    ){
+        $request->validate([
+            'old_password' => 'required|string',
+            'new_password' => 'required',
+        ]);
+
+        $response = $user_service->update_password(
+            $request->user(),
+            $request->old_password,
+            $request->new_password,
+        );
+
+        return response()->json($response);
+    }
 }
