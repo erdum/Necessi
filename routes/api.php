@@ -42,6 +42,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [UserController::class, 'update_preferences']
     );
 
+    // update user Password
+    Route::post(
+        '/user/update-password',
+        [UserController::class, 'update_password']
+    );
+
     // Get all posts
     Route::get(
         '/posts',

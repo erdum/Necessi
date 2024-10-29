@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Exceptions;
 use App\Jobs\StoreImages;
 use App\Models\ConnectionRequest;
+use Illuminate\Support\Facades\Hash;
 use App\Models\PostLike;
 use App\Models\Review;
 use App\Models\UserPreference;
@@ -538,5 +539,30 @@ class UserService
         }
 
         return $requests;
+    }
+
+    public function update_password(
+        User $user, 
+        string $old_password, 
+        string $new_password
+    ) {
+        if (! $user) {
+            throw new Exceptions\UserNotFound;
+        }
+        
+        if (! Hash::check($old_password, $user->password)) {
+            throw new Exceptions\WrongPassword;
+        }
+        
+        if (Hash::check($new_password, $user->password)) {
+            throw new Exceptions\SameAsOldPassword;
+        }
+
+        $user->password = Hash::make($new_password);
+        $user->save();
+
+        return [
+            'message' => 'Password Update Succesfully',
+        ];
     }
 }
