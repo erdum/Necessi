@@ -411,7 +411,7 @@ class UserService
 
     public function decline_connection_request(User $current_user, int $user_id)
     {
-        $connection_request = ConnectionRequest::where('receiver_id', $user->id)
+        $connection_request = ConnectionRequest::where('receiver_id', $current_user->id)
             ->where('sender_id', $user_id)->first();
 
         if (! $connection_request) {
