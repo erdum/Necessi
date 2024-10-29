@@ -102,39 +102,7 @@ class UserController extends Controller
         return response()->json($response);
     }
 
-    public function make_connection(
-        Request $request,
-        UserService $user_service
-    ) {
-        $request->validate([
-            'user_id' => 'exists:users,id',
-        ]);
-
-        $response = $user_service->make_connection(
-            $request->user(),
-            $request->user_id
-        );
-
-        return response()->json($response);
-    }
-
-    public function request_decline(
-        Request $request,
-        UserService $user_service
-    ) {
-        $request->validate([
-            'user_id' => 'required|integer',
-        ]);
-
-        $response = $user_service->request_decline(
-            $request->user(),
-            $request->user_id,
-        );
-
-        return response()->json($response);
-    }
-
-    public function user_remove(
+    public function accept_connection_request(
         Request $request,
         UserService $user_service
     ) {
@@ -142,7 +110,39 @@ class UserController extends Controller
             'user_id' => 'required|exists:users,id',
         ]);
 
-        $response = $user_service->user_remove(
+        $response = $user_service->accept_connection_request(
+            $request->user(),
+            $request->user_id
+        );
+
+        return response()->json($response);
+    }
+
+    public function decline_connection_request(
+        Request $request,
+        UserService $user_service
+    ) {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        $response = $user_service->decline_connection_request(
+            $request->user(),
+            $request->user_id,
+        );
+
+        return response()->json($response);
+    }
+
+    public function remove_connection(
+        Request $request,
+        UserService $user_service
+    ) {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        $response = $user_service->remove_connection(
             $request->user(),
             $request->user_id
         );
@@ -157,17 +157,18 @@ class UserController extends Controller
         return response()->json($response);
     }
 
-    public function send_connection_request(
+    public function send_connection_requests(
         Request $request,
         UserService $user_service
     ) {
         $request->validate([
-            'receiver_ids.*' => 'required|exists:users,id',
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'exists:users,id',
         ]);
 
-        $response = $user_service->send_connection_request(
+        $response = $user_service->send_connection_requests(
             $request->user(),
-            $request->receiver_ids
+            $request->user_ids
         );
 
         return response()->json($response);
@@ -178,12 +179,12 @@ class UserController extends Controller
         UserService $user_service
     ) {
         $request->validate([
-            'receiver_id' => 'required|exists:users,id',
+            'user_id' => 'required|exists:users,id',
         ]);
 
         $response = $user_service->cancel_connection_request(
             $request->user(),
-            $request->receiver_id
+            $request->user_id
         );
 
         return response()->json($response);

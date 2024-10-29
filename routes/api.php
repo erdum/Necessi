@@ -144,16 +144,28 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [UserController::class, 'get_nearby_users']
     );
 
-    // Send connections request
+    // Send connections requests
     Route::post(
-        '/user/send-connection-request',
-        [UserController::class, 'send_connection_request']
+        '/user/send-connection-requests',
+        [UserController::class, 'send_connection_requests']
     );
 
-    // cancel connection request
+    // Cancel connection request
     Route::post(
         '/user/cancel-connection-request',
         [UserController::class, 'cancel_connection_request']
+    );
+
+    // Accept connection request
+    Route::post(
+        '/users/accept-connection-request',
+        [UserController::class, 'accept_connection_request']
+    );
+
+    // Decline connection request
+    Route::post(
+        '/user/decline-connection-request',
+        [UserController::class, 'decline_connection_request']
     );
 
     // Get connection requests
@@ -162,22 +174,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [UserController::class, 'get_connection_requests']
     );
 
-    // Accept connection request
-    Route::post(
-        '/users/request-accept',
-        [UserController::class, 'make_connection']
-    );
-
-    // Decline connection request
-    Route::post(
-        '/user/request-decline',
-        [UserController::class, 'request_decline']
-    );
-
-    // Remove user connections
+    // Remove user connection
     Route::delete(
-        '/user/remove',
-        [UserController::class, 'user_remove']
+        '/user/remove-connection',
+        [UserController::class, 'remove_connection']
     );
 
     // Get user connections

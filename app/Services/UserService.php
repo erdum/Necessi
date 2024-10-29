@@ -367,16 +367,13 @@ class UserService
         return $distance;
     }
 
-    public function make_connection(User $user, int $user_id)
+    public function accept_connection_request(User $user, int $user_id)
     {
         $connection_request = ConnectionRequest::where('receiver_id', $user->id)
             ->where('sender_id', $user_id)->first();
 
-        $user1 = User::findOrFail($user->id);
-        $user2 = User::findOrFail($user_id);
-
-        $user1->connections()->syncWithoutDetaching([$user2->id]);
-        $user2->connections()->syncWithoutDetaching([$user1->id]);
+        if (!$connection_request)
+            throw new Exceptions\ConnectionRequestNotFound;
 
         $connection_request->status = 'accepted';
         $connection_request->save();
@@ -384,27 +381,13 @@ class UserService
         return ['message' => 'Connections successfully created'];
     }
 
-    public function request_decline(User $current_user, int $user_id)
+    public function decline_connection_request(User $current_user, int $user_id)
     {
-        $user = User::find($user_id);
+        $connection_request = ConnectionRequest::where('receiver_id', $user->id)
+            ->where('sender_id', $user_id)->first();
 
-        if (! $user) {
-            throw new Exceptions\UserNotFound;
-        }
-
-        $connection_request = ConnectionRequest::where(function ($query) use ($user_id, $current_user) {
-            $query->where('sender_id', $user_id)
-                ->where('receiver_id', $current_user->id);
-        })
-            ->orWhere(function ($query) use ($user_id, $current_user) {
-                $query->where('sender_id', $current_user->id)
-                    ->where('receiver_id', $user_id);
-            })
-            ->first();
-
-        if (! $connection_request) {
+        if (!$connection_request)
             throw new Exceptions\ConnectionRequestNotFound;
-        }
 
         $connection_request->status = 'rejected';
         $connection_request->save();
@@ -414,31 +397,22 @@ class UserService
         ];
     }
 
-    public function user_remove(User $user, int $user_id)
+    public function remove_connection(User $user, int $user_id)
     {
-        if (! $user->connections->contains('id', $user_id)) {
-            throw new Exceptions\UserNotConnected;
-        }
+        $connection = ConnectionRequest::where([
+            ['sender_id', '=', $user->id],
+            ['receiver_id', '=', $user_id]
+        ])
+        ->orWhere([
+            ['sender_id', '=', $user_id],
+            ['receiver_id', '=', $user->id]
+        ])
+        ->where('status', 'accepted')
+        ->first();
 
-        $user1 = User::findOrFail($user->id);
-        $user2 = User::findOrFail($user_id);
+        if (!$connection) throw new Exceptions\UserNotConnected;
 
-        $user1->connections()->detach($user2->id);
-        $user2->connections()->detach($user1->id);
-
-        $connection_request = ConnectionRequest::where(function ($query) use ($user_id, $user) {
-            $query->where('sender_id', $user_id)
-                ->where('receiver_id', $user->id);
-        })
-            ->orWhere(function ($query) use ($user_id, $user) {
-                $query->where('sender_id', $user->id)
-                    ->where('receiver_id', $user_id);
-            })
-            ->first();
-
-        if ($connection_request) {
-            $connection_request->delete();
-        }
+        $connection->delete();
 
         return [
             'message' => 'user Disconnected Successfully',
@@ -447,27 +421,22 @@ class UserService
 
     public function get_connections(User $user)
     {
-        return $user->connections()->select(
-            'users.id',
-            'users.first_name',
-            'users.last_name',
-            'users.uid',
-            'users.email',
-            'users.phone_number',
-            'users.avatar',
-            'users.age',
-            'users.about',
-            'users.city',
-            'users.state',
-            'users.lat',
-            'users.long',
-        )->get();
+        $connections = ConnectionRequest::where('receiver_id', $user->id)
+            ->orWhere('sender_id', $user->id)
+            ->where('status', 'accepted')
+            ->with([
+                'sender',
+                'receiver'
+            ])
+            ->get();
+
+        return $connections;        
     }
 
-    public function send_requests(int $user1_id, int $user2_id)
+    private function send_request(int $sender_id, int $receiver_id)
     {
-        $existing_request = ConnectionRequest::where('sender_id', $user1_id)
-            ->where('receiver_id', $user2_id)->first();
+        $existing_request = ConnectionRequest::where('sender_id', $sender_id)
+            ->where('receiver_id', $receiver_id)->first();
 
         if ($existing_request) {
             return [
@@ -476,15 +445,15 @@ class UserService
         }
 
         $connection_request = new ConnectionRequest;
-        $connection_request->sender_id = $user1_id;
-        $connection_request->receiver_id = $user2_id;
+        $connection_request->sender_id = $sender_id;
+        $connection_request->receiver_id = $receiver_id;
         $connection_request->save();
     }
 
-    public function send_connection_request(User $user, array $user_ids)
+    public function send_connection_requests(User $user, array $user_ids)
     {
         foreach ($user_ids as $id) {
-            $response = $this->send_requests(
+            $response = $this->send_request(
                 $user->id,
                 $id
             );
@@ -497,12 +466,11 @@ class UserService
 
     public function cancel_connection_request(User $user, int $user_id)
     {
-        $connection_request = ConnectionRequest::where('sender_id', $user->id)
-            ->where('receiver_id', $user_id)->first();
+        $connection_request = ConnectionRequest::where('receiver_id', $user->id)
+            ->where('sender_id', $user_id)->first();
 
-        if (! $connection_request) {
+        if (!$connection_request)
             throw new Exceptions\ConnectionRequestNotFound;
-        }
 
         $connection_request->delete();
 
@@ -523,18 +491,24 @@ class UserService
 
     public function get_connection_requests(User $user)
     {
-        $connection_requests = ConnectionRequest::where('receiver_id', $user->id)
-            ->where('status', '!=', 'rejected')->get();
+        $connection_requests = ConnectionRequest::where(
+            'receiver_id',
+            $user->id
+        )
+        ->whereNot('status', 'rejected')
+        ->with('sender:id,first_name,last_name,avatar')
+        ->get();
+
         $requests = [];
 
-        foreach ($connection_requests as $connection_request) {
-            $user = User::find($connection_request->sender_id);
+        foreach ($connection_requests as $req) {
             $requests[] = [
-                'user_id' => $user->id,
-                'user_name' => $user->first_name.' '.$user->last_name,
-                'avatar' => $user->avatar,
-                'status' => $connection_request->status,
-                'request_id' => $connection_request->id,
+                'user_id' => $req->sender->id,
+                'user_name' =>
+                    $req->sender->first_name . ' ' . $req->sender->last_name,
+                'avatar' => $req->sender->avatar,
+                'status' => $req->status,
+                'request_id' => $req->id,
             ];
         }
 
