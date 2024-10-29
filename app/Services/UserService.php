@@ -139,16 +139,36 @@ class UserService
         $post_reviews = Review::where('user_id', $user->id)->with('user')->get();
         $average_rating = round($post_reviews->avg('rating'), 1);
         $recent_post = $user->posts()->latest()->first();
-        $current_user_like = PostLike::where('user_id', $user->id)
+
+        if($recent_post)
+        {
+            $current_user_like = PostLike::where('user_id', $user->id)
             ->where('post_id', $recent_post->id)->exists();
+        }
+
         $connection_request = ConnectionRequest::where('sender_id', $current_user->id)
-            ->where('receiver_id', $user->id)->first();
-        $is_connection = $current_user->connections()->where(
-            'connection_id', $user->id)->exists();
+                ->where('receiver_id', $user->id)->first();
+
+        $is_connection = ConnectionRequest::where([
+            ['sender_id', '=', $user->id],
+            ['receiver_id', '=', $current_user->id]
+        ])
+        ->orWhere([
+            ['sender_id', '=', $current_user->id],
+            ['receiver_id', '=', $user->id]
+        ])
+        ->where('status', 'accepted')
+        ->exists();
+
         $reviews = [];
-        $connections = [];
+        $connections_data = [];
         $distance = null;
         $connection_request_status = 'not send';
+
+        $connections = ConnectionRequest::where('sender_id', $user->id)
+           ->orWhere('receiver_id', $user->id)->get();
+
+        // dd($connection);
 
         if ($connection_request) {
             $connection_request_status = $connection_request->status;
@@ -167,15 +187,6 @@ class UserService
             }
         }
 
-        foreach ($user->connections->take(3) as $connection) {
-            $user_connection = User::find($connection->id);
-            $connections[] = [
-                'id' => $connection->id,
-                'user_name' => $user_connection->first_name.' '.$user_connection->last_name,
-                'avatar' => $user_connection->avatar,
-            ];
-        }
-
         foreach ($post_reviews->take(3) as $review) {
             $reviews[] = [
                 'user_id' => $review->user->id,
@@ -187,6 +198,23 @@ class UserService
                 'created_at' => $review->created_at->diffForHumans(),
             ];
         }
+
+        foreach ($connections->take(3) as $connection) 
+        {
+            $connected_user_id = $connection->sender_id == $user->id ? 
+                 $connection->receiver_id : $connection->sender_id;
+        
+            $user_connection = User::find($connected_user_id);
+        
+            if ($user_connection) {
+                $connections_data[] = [
+                    'id' => $user_connection->id,
+                    'user_name' => $user_connection->first_name . ' ' . $user_connection->last_name,
+                    'avatar' => $user_connection->avatar,
+                ];
+            }
+        }
+        
 
         return [
             'user_id' => $user->id,
@@ -207,8 +235,8 @@ class UserService
             'long' => $user->long,
             'is_connection' => $is_connection,
             'connection_request_status' => $connection_request_status,
-            'connection_count' => $user->connections->count(),
-            'connections' => $connections,
+            'connection_count' => $connections->count(),
+            'connections' => $connections_data,
             'recent_post' => $recent_post ? [[
                 'post_id' => $recent_post->id,
                 'user_id' => $recent_post->user_id,
