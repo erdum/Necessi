@@ -433,7 +433,21 @@ class UserService
             ])
             ->get();
 
-        return $connections;
+        $connection_list = [];
+
+        foreach ($connections as $con) {
+            $sender_user = $con->sender['id'] == $user->id
+                ? $con->receiver : $con->sender;
+
+            $connection_list[] = [
+                'id' => $con->id,
+                'status' => $con->status,
+                'created_at' => $con->created_at,
+                'user' => $sender_user,
+            ];
+        }
+
+        return $connection_list;
     }
 
     private function send_request(int $sender_id, int $receiver_id)
