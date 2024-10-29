@@ -210,11 +210,23 @@ class PostService
         });
     }
 
-    public function get_user_reviews(User $user)
+    public function get_user_posts_reviews(
+        User $user,
+        ?int $user_id,
+        ?int $filter_rating
+    )
     {
-        $reviews = Review::where('user_id', $user->id)
-            ->with('user:id,first_name,last_name,avatar')
-            ->get();
+        $reviews = Review::whereHas(
+            'post',
+            function ($query) use ($user_id, $user) {
+                $query->where('user_id', $user_id ?: $user->id);
+            }
+        )
+        ->when($filter_rating, function ($query) use ($filter_rating) {
+            $query->where('rating', $filter_rating);
+        })
+        ->with('user:id,first_name,last_name,avatar')
+        ->get();
 
         $rating_sum = 0;
         $stats = [
@@ -234,7 +246,8 @@ class PostService
         }
         
         return [
-            'average_rating' => $rating_sum / $reviews->count(),
+            'average_rating' =>
+                $reviews->count() > 0 ? $rating_sum / $reviews->count() : 0,
             'rating_count' => $reviews->count(),
             'stats' => $stats,
             'reviews' => $reviews,

@@ -63,7 +63,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Get user posts reviews
     Route::get(
         '/user/posts/reviews',
-        [PostController::class, 'get_user_reviews']
+        [PostController::class, 'get_user_posts_reviews']
     );
 
     // Create post
