@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('location');
             $table->double('lat')->nullable();
             $table->double('long')->nullable();
+            $table->string('city')->nullable();
+            $table->string('state')->nullable();
             $table->integer('budget');
             $table->timestamp('start_date');
             $table->timestamp('end_date');
