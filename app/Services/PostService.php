@@ -13,6 +13,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Google\Cloud\Firestore\FieldValue;
 use Kreait\Firebase\Factory;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class PostService
 {
@@ -258,18 +259,26 @@ class PostService
         ];
     }
 
-    public function get_all_posts(User $current_user)
+    public function get_all_posts(User $user)
     {
-        $posts = Post::orderBy('created_at', 'desc')->paginate(10);
+        $page = LengthAwarePaginator::resolveCurrentPage();
+        $per_page = 3;
 
-        return $posts->map(function ($post) use ($current_user) {
-            $current_user_like = PostLike::where('user_id', $current_user->id)
-                ->where('post_id', $post->id)->exists();
+        $data_count = Post::all()->count(); 
+        $posts = Post::orderBy('created_at', 'desc')
+        ->with('user:id,first_name,last_name,avatar')
+        ->offset($per_page * $page)
+        ->limit($per_page)
+        ->get();
+
+        $posts = $posts->map(function ($post) use ($user) {
+            $self_liked = $post->likes()->where('user_id', $user->id)->exists();
 
             $distance = $this->calculateDistance(
-                $current_user->lat,
-                $current_user->long,
-                $post->lat, $post->long
+                $user->lat,
+                $user->long,
+                $post->lat,
+                $post->long
             );
 
             return [
@@ -284,21 +293,28 @@ class PostService
                 'location' => $post->city,
                 'lat' => $post->lat,
                 'long' => $post->long,
-                'distance' => round($distance, 2).' miles away',
+                'distance' => round($distance, 2) . ' miles away',
                 'budget' => $post->budget,
-                'duration' => Carbon::parse($post->start_date)->format('d M').' - '.Carbon::parse($post->end_date)->format('d M y'),
+                'duration' => Carbon::parse($post->start_date)->format('d M') . ' - ' . Carbon::parse($post->end_date)->format('d M y'),
                 'delivery_requested' => $post->delivery_requested,
                 'created_at' => $post->created_at->diffForHumans(),
-                'current_user_like' => $current_user_like,
+                'current_user_like' => $self_liked,
                 'likes' => $post->likes->count(),
                 'bids' => $post->bids->count(),
-                'images' => $post->images->map(function ($image) {
-                    return [
-                        'url' => $image->url,
-                    ];
-                }),
+                'images' => $post->images,
             ];
+
         });
+
+        $paginator = new LengthAwarePaginator(
+            $posts,
+            $data_count,
+            $per_page,
+            $page
+        );
+        $paginator = $paginator->withPath(request()->fullUrl());
+
+        return $paginator;
     }
 
     public function toggle_like(User $user, int $post_id)
