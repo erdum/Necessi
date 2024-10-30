@@ -258,4 +258,15 @@ class PostController extends Controller
 
         return response()->json($response);
     }
+
+    public function get_placed_bids(
+        Request $request, 
+        PostService $post_service
+    ) {
+        $response = $post_service->get_placed_bids(
+            $request->user(),
+        );
+
+        return response()->json($response);
+    }
 }

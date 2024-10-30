@@ -656,4 +656,39 @@ class PostService
             'people' => $searched_users,
         ];
     }
+
+    public function get_placed_bids(User $user)
+    {
+        if (!$user) {
+            throw new Exceptions\UserNotFound;
+        }
+    
+        $user_bids = PostBid::where('user_id', $user->id)->get();
+        $placed_bids = [];
+    
+        if ($user_bids->isNotEmpty()) 
+        {
+            $post_ids = $user_bids->pluck('post_id')->toArray();
+            $posts = Post::whereIn('id', $post_ids)->with('user')->get();
+    
+            foreach ($user_bids as $bid) {
+                $post = $posts->get($bid->post_id);
+    
+                if ($post) {
+                    $placed_bids[] = [
+                        'bid_status' => $bid->status,
+                        'bid_placed_amount' => $bid->amount,
+                        'duration' => Carbon::parse($post->start_date)->format('d M') . ' - ' .
+                                      Carbon::parse($post->end_date)->format('d M y'),
+                        'title' => $post->title,
+                        'description' => $post->description,
+                        'user_name' => $post->user->first_name . ' ' . $post->user->last_name,
+                        'avatar' => $post->user->avatar,
+                    ];
+                }
+            }
+        }
+    
+        return $placed_bids;
+    }    
 }

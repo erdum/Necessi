@@ -102,6 +102,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [PostController::class, 'get_post_bids']
     );
 
+    // Get user palced bids on a post
+    Route::get(
+        '/user/placed-bids',
+        [PostController::class, 'get_placed_bids']
+    );
+
     // Get reviews on a post
     Route::get(
         '/posts/{post_id}/reviews',
