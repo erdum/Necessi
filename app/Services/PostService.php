@@ -312,7 +312,6 @@ class PostService
             $per_page,
             $page
         );
-        $paginator = $paginator->withPath(request()->fullUrl());
 
         return $paginator;
     }
