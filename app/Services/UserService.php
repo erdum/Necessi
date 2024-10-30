@@ -143,8 +143,7 @@ class UserService
         )
         ->with('user:id,first_name,last_name,avatar')
         ->get();
-        dd($reviews);
-
+        
         $average_rating = round($reviews->avg('rating'), 1);
 
         $recent_post = $user->posts()->latest()->first();
