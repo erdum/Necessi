@@ -234,6 +234,7 @@ class PostService
         ->get();
 
         $rating_sum = 0;
+        $reviews_data = [];
         $stats = [
             '1' => 0,
             '2' => 0,
@@ -249,13 +250,25 @@ class PostService
                 $rating_sum += $review->rating;
             }
         }
+
+        foreach($reviews as $review){
+            $reviews_data[] = [
+                'post_id' => $review->post_id,
+                'description'=> $review->data,
+                'rating' => $review->rating,
+                'created_at' => $review->created_at->format('d M'),
+                'user_id' => $review->user->id,
+                'user_name' => $review->user->first_name . ' ' . $review->user->last_name,
+                'avatar' => $review->user->avatar,
+            ];
+        }
         
         return [
             'average_rating' =>
                 $reviews->count() > 0 ? $rating_sum / $reviews->count() : 0,
             'rating_count' => $reviews->count(),
             'stats' => $stats,
-            'reviews' => $reviews,
+            'reviews' => $reviews_data,
         ];
     }
 
