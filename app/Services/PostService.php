@@ -66,6 +66,8 @@ class PostService
         string $description,
         float $lat,
         float $long,
+        ?string $city,
+        ?string $state,
         string $location,
         int $budget,
         string $start_date,
@@ -82,6 +84,8 @@ class PostService
         $post->description = $description;
         $post->lat = $lat;
         $post->long = $long;
+        $post->city = $city ?? null;
+        $post->state = $state ?? null;
         $post->location = $location ?? null;
         $post->budget = $budget;
         $post->start_date = $start_date;
@@ -191,7 +195,7 @@ class PostService
                 'type' => $post->type,
                 'title' => $post->title,
                 'description' => $post->description,
-                'location' => $post->location,
+                'location' => $post->city,
                 'lat' => $post->lat,
                 'long' => $post->long,
                 'budget' => $post->budget,
@@ -277,7 +281,7 @@ class PostService
                 'type' => $post->type,
                 'title' => $post->title,
                 'description' => $post->description,
-                'location' => $post->location,
+                'location' => $post->city,
                 'lat' => $post->lat,
                 'long' => $post->long,
                 'distance' => round($distance, 2).' miles away',
@@ -398,7 +402,7 @@ class PostService
             'created_at' => $post_details->created_at->diffForHumans(),
             'budget' => $post_details->budget,
             'duration' => Carbon::parse($post_details->start_date)->format('d M').' - '.Carbon::parse($post_details->end_date)->format('d M y'),
-            'location' => $post_details->location,
+            'location' => $post_details->city,
             'distance' => round($distance, 2).' miles away',
             'title' => $post_details->title,
             'description' => $post_details->description,
