@@ -267,7 +267,7 @@ class PostService
         $data_count = Post::all()->count(); 
         $posts = Post::orderBy('created_at', 'desc')
         ->with('user:id,first_name,last_name,avatar')
-        ->offset($per_page * $page)
+        ->offset($per_page * ($page - 1))
         ->limit($per_page)
         ->get();
 
