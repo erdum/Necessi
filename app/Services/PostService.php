@@ -492,6 +492,10 @@ class PostService
         int $post_id,
         ?string $title,
         ?string $description,
+        ?string $lat,
+        ?string $long,
+        ?string $city,
+        ?string $state,
         ?string $location,
         ?int $budget,
         ?string $start_date,
@@ -513,6 +517,10 @@ class PostService
 
         $post->title = $title ?? $post->title ?? null;
         $post->description = $description ?? $post->description ?? null;
+        $post->lat = $lat ?? $post->lat ?? null;
+        $post->long = $long ?? $post->long ?? null;
+        $post->city = $city ?? $post->city ?? null;
+        $post->state = $state ?? $post->state ?? null;
         $post->location = $location ?? $post->location ?? null;
         $post->budget = $budget ?? $post->budget ?? null;
         $post->start_date = $start_date ?? $post->start_date ?? null;
