@@ -143,7 +143,7 @@ class UserService
         )
         ->with('user:id,first_name,last_name,avatar')
         ->get();
-        
+
         $average_rating = round($reviews->avg('rating'), 1);
 
         $recent_post = $user->posts()->latest()->first();
@@ -153,10 +153,14 @@ class UserService
             ->where('post_id', $recent_post->id)->exists();
         }
 
-        $connection_request = ConnectionRequest::where(
-            'sender_id',
-            $current_user->id
-        )->where('receiver_id', $user->id)->first();
+        $connection_request = ConnectionRequest::where([
+            ['sender_id', '=', $user->id],
+            ['receiver_id', '=', $current_user->id]
+        ])
+        ->orWhere([
+            ['sender_id', '=', $current_user->id],
+            ['receiver_id', '=', $user->id]
+        ])->first();
 
         $is_connection = ConnectionRequest::where([
             ['sender_id', '=', $user->id],
@@ -170,6 +174,7 @@ class UserService
         ->exists();
 
         $connections_data = [];
+        $reviews_data = [];
         $distance = null;
         $connection_request_status = 'not send';
 
@@ -206,6 +211,18 @@ class UserService
                     'avatar' => $user_connection->avatar,
                 ];
             }
+        }
+
+        foreach($reviews as $review){
+            $reviews_data[] = [
+                'post_id' => $review->post_id,
+                'data'=> $review->data,
+                'rating' => $review->rating,
+                'created_at' => $review->created_at->format('d M'),
+                'user_id' => $review->user->id,
+                'user_name' => $review->user->first_name . ' ' . $review->user->last_name,
+                'avatar' => $review->user->avatar,
+            ];   
         }
         
 
@@ -246,7 +263,7 @@ class UserService
                 'current_user_like' => $current_user_like,
                 'likes' => $recent_post->likes->count(),
             ]] : [],
-            'reviews' => $reviews,
+            'reviews' => $reviews_data,
         ];
     }
 
