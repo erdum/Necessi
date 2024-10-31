@@ -681,13 +681,14 @@ class PostService
         if ($user_bids->isNotEmpty()) 
         {
             $post_ids = $user_bids->pluck('post_id')->toArray();
-            $posts = Post::whereIn('id', $post_ids)->with('user')->get();
+            $posts = Post::whereIn('id', $post_ids)->with('user')->get()->keyBy('id');
     
             foreach ($user_bids as $bid) {
                 $post = $posts->get($bid->post_id);
     
                 if ($post) {
                     $placed_bids[] = [
+                        'post_id' => $bid->post_id,
                         'bid_status' => $bid->status,
                         'bid_placed_amount' => $bid->amount,
                         'duration' => Carbon::parse($post->start_date)->format('d M') . ' - ' .
