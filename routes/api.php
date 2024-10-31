@@ -36,6 +36,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [UserController::class, 'update_user_fcm']
     );
 
+    // Get user preferences
+    Route::get(
+        '/user/preferences',
+        [UserController::class, 'get_user_preferences']
+    );
+
     // update user preferences
     Route::post(
         '/user/preferences',

@@ -80,6 +80,23 @@ class UserService
         ]);
     }
 
+    public function get_user_preferences(User $user)
+    {
+        $preferences = $user->preferences;
+    
+        return [
+            'id' => $preferences->id,
+            'user_id' => $preferences->user_id,
+            'general_notifications' => (bool) $preferences->general_notifications,
+            'biding_notifications' => (bool) $preferences->biding_notifications,
+            'transaction_notifications' => (bool) $preferences->transaction_notifications,
+            'activity_notifications' => (bool) $preferences->activity_notifications,
+            'messages_notifications' => (bool) $preferences->messages_notifications,
+            'who_can_see_connections' => $preferences->who_can_see_connections
+        ];
+    }
+    
+
     public function update_preferences(
         User $user,
         ?bool $general_notification,
