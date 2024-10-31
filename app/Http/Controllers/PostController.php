@@ -197,10 +197,10 @@ class PostController extends Controller
 
     public function edit_post(
         Request $request,
-        PostService $post_service
+        PostService $post_service,
+        $post_id,
     ) {
         $request->validate([
-            'post_id' => 'required|integer',
             'title' => 'nullable|string',
             'description' => 'nullable|string',
             'lat' => 'nullable|numeric',
@@ -225,7 +225,7 @@ class PostController extends Controller
 
         $response = $post_service->edit_post(
             $request->user(),
-            $request->post_id,
+            $post_id,
             $request->title,
             $request->description,
             $request->lat,
