@@ -24,6 +24,11 @@ return new class extends Migration
                 'connections',
                 'only_me',
             ]);
+            $table->enum('who_can_send_messages', [
+                'public',
+                'connections',
+                'only_me',
+            ]);
             $table->timestamps();
         });
     }

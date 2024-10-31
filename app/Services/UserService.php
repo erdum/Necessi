@@ -92,7 +92,8 @@ class UserService
             'transaction_notifications' => (bool) $preferences->transaction_notifications,
             'activity_notifications' => (bool) $preferences->activity_notifications,
             'messages_notifications' => (bool) $preferences->messages_notifications,
-            'who_can_see_connections' => $preferences->who_can_see_connections
+            'who_can_see_connections' => $preferences->who_can_see_connections,
+            'who_can_send_messages' => $preferences->who_can_send_messages,
         ];
     }
     
@@ -105,6 +106,7 @@ class UserService
         ?bool $activity_notification,
         ?bool $receive_message_notification,
         ?string $who_can_see_connection,
+        ?string $who_can_send_messsage,
     ) {
 
         if (! $user->preferences) {
@@ -123,6 +125,8 @@ class UserService
             ?? true;
             $preferences->who_can_see_connections = $who_can_see_connection
                 ?? 'public';
+            $preferences->who_can_send_messsages = $who_can_send_messsage
+            ?? 'public';
 
             $user->preferences()->save($preferences);
 
@@ -142,6 +146,8 @@ class UserService
             ?? $user->preferences->messages_notifications;
         $user->preferences->who_can_see_connections = $who_can_see_connection
             ?? $user->preferences->who_can_see_connections;
+        $user->preferences->who_can_see_connections = $who_can_send_messsage
+        ?? $user->preferences->who_can_see_connections;
 
         $user->preferences->save();
 

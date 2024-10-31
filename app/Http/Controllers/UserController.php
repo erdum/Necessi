@@ -57,6 +57,7 @@ class UserController extends Controller
             $request->activity_notification,
             $request->receive_message_notification,
             $request->who_can_see_connection,
+            $request->who_can_send_messsage,
         );
 
         return response()->json($response);
