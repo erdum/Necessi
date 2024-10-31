@@ -106,7 +106,7 @@ class UserService
         ?bool $activity_notification,
         ?bool $receive_message_notification,
         ?string $who_can_see_connection,
-        ?string $who_can_send_messsage,
+        ?string $who_can_send_message,
     ) {
 
         if (! $user->preferences) {
@@ -125,7 +125,7 @@ class UserService
             ?? true;
             $preferences->who_can_see_connections = $who_can_see_connection
                 ?? 'public';
-            $preferences->who_can_send_messsages = $who_can_send_messsage
+            $preferences->who_can_send_messages = $who_can_send_message
             ?? 'public';
 
             $user->preferences()->save($preferences);
@@ -146,8 +146,8 @@ class UserService
             ?? $user->preferences->messages_notifications;
         $user->preferences->who_can_see_connections = $who_can_see_connection
             ?? $user->preferences->who_can_see_connections;
-        $user->preferences->who_can_see_connections = $who_can_send_messsage
-        ?? $user->preferences->who_can_see_connections;
+        $user->preferences->who_can_send_messages = $who_can_send_message
+        ?? $user->preferences->who_can_send_messages;
 
         $user->preferences->save();
 
