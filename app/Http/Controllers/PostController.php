@@ -282,4 +282,17 @@ class PostController extends Controller
 
         return response()->json($response);
     }
+
+    public function cancel_placed_bid(
+        Request $request, 
+        PostService $post_service,
+        $post_id
+    ){ 
+        $response = $post_service->cancel_placed_bid(
+            $request->user(),
+            $post_id
+        );
+
+        return response()->json($response);
+    }
 }

@@ -760,4 +760,38 @@ class PostService
             'bids' => $bids_data,
         ];
     }
+
+    public function cancel_placed_bid(User $user, int $post_id)
+    {
+        $post = Post::where('id', $post_id)->with('user:id,first_name,last_name,avatar')
+        ->first();
+
+        if(! $post){
+            throw new Exeptions\InvalidPostId;
+        }
+
+        $user_bid = PostBid::where('user_id', $user->id)->where('post_id', $post_id)->first();
+
+        if(! $user_bid){
+            throw new Exceptions\BidNotFound;
+        }
+
+        $firestore_bid = $this->db->collection('bids')->document($user->uid)->snapshot();
+
+        if ($firestore_bid->exists()) 
+        {
+            $bid_data = $firestore_bid->data();
+        
+            if (isset($bid_data['post_id']) && $bid_data['post_id'] == $post_id) 
+            {
+                $firestore_bid->reference()->delete();
+            }
+        }
+
+        $user_bid->delete();
+
+        return [
+            'message' => 'Your bid has been canceled',
+        ];
+    }
 }
