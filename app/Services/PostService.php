@@ -426,6 +426,7 @@ class PostService
             'post_id' => $post_details->id,
             'first_name' => $post_details->user->first_name,
             'last_name' => $post_details->user->last_name,
+            'avatar' => $post_details->user->avatar,
             'type' => $post_details->type,
             'created_at' => $post_details->created_at->diffForHumans(),
             'budget' => $post_details->budget,
