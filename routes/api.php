@@ -108,6 +108,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [PostController::class, 'get_placed_bids']
     );
 
+    // Get user palced bid status on a post
+    Route::get(
+        '/user/placed-bid-status/{post_id}',
+        [PostController::class, 'get_placed_bid_status']
+    );
+
     // Get reviews on a post
     Route::get(
         '/posts/{post_id}/reviews',

@@ -703,5 +703,61 @@ class PostService
         }
     
         return $placed_bids;
-    }    
+    }  
+    
+    public function get_placed_bid_status(User $user, int $post_id)
+    {
+        $post = Post::where('id', $post_id)->with('user:id,first_name,last_name,avatar')
+            ->first();
+
+        if(! $post){
+            throw new Exeptions\InvalidPostId;
+        }
+
+        $user_bid = PostBid::where('user_id', $user->id)->where('post_id', $post_id)->first();
+
+        if(! $user_bid){
+            throw new Exceptions\BidNotFound;
+        }
+
+        $bids_data = [];
+        $post_bids = PostBid::where('post_id', $post_id)
+            ->with('user:id,first_name,last_name,avatar')
+            ->orderBy('amount', 'asc')
+            ->get();
+        
+        $distance = $this->calculateDistance(
+            $user->lat,
+            $user->long,
+            $post->lat,
+            $post->long,
+        );
+
+        foreach($post_bids as $post_bid)
+        {
+            $bids_data[] = [
+                'post-id' => $post_bid->post_id,
+                'user_id' => $post_bid->user->id,
+                'user_name' => $post_bid->user->first_name . ' ' . $post_bid->user->last_name,
+                'avatar' => $post->user->avatar,
+                'bid_amount' => $post_bid->amount,
+                'bid_status' => $post_bid->status,
+            ];
+        }
+
+        return [
+            'post_id' => $post->id,
+            'user_name' => $post->user->first_name . ' ' . $post->user->last_name,
+            'avatar' => $post->user->avatar,
+            'post_type' => $post->type,
+            'location' => $post->city,
+            'distance' => round($distance, 2).' miles away',
+            'title' => $post->title,
+            'description' => $post->description,
+            'duration' => Carbon::parse($post->start_date)->format('d M') . ' - ' .
+                          Carbon::parse($post->end_date)->format('d M y'),
+            'user_bid_amount' => $user_bid->amount,
+            'bids' => $bids_data,
+        ];
+    }
 }
