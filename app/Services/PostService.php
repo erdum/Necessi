@@ -440,6 +440,7 @@ class PostService
             'images' => $images,
             'bids' => $bids,
             'comments' => $comments,
+            'current_user_avatar' => $current_user->avatar,
         ];
     }
 
