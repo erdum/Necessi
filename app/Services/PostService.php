@@ -433,6 +433,7 @@ class PostService
 
         return [
             'post_id' => $post_details->id,
+            'user_id' => $post_details->user->id,
             'first_name' => $post_details->user->first_name,
             'last_name' => $post_details->user->last_name,
             'avatar' => $post_details->user->avatar,
