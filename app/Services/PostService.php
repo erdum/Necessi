@@ -775,7 +775,7 @@ class PostService
     public function cancel_placed_bid(User $user, int $post_id)
     {
         $post = Post::where('id', $post_id)->with('user:id,first_name,last_name,avatar')
-        ->first();
+           ->first();
 
         if(! $post){
             throw new Exeptions\InvalidPostId;
@@ -787,15 +787,14 @@ class PostService
             throw new Exceptions\BidNotFound;
         }
 
-        $firestore_bid = $this->db->collection('bids')->document($user->uid)->snapshot();
+        $bid_ref = $this->db->collection('bids')->document($user->uid);
+        $bid = $bid_ref->collection('post_bid')->document($post_id)->snapshot(); 
 
-        if ($firestore_bid->exists()) 
-        {
-            $bid_data = $firestore_bid->data();
-        
+        if ($bid->exists()) {
+            $bid_data = $bid->data();
             if (isset($bid_data['post_id']) && $bid_data['post_id'] == $post_id) 
             {
-                $firestore_bid->reference()->delete();
+                $bid->reference()->delete();
             }
         }
 
