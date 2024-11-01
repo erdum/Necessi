@@ -131,35 +131,44 @@ class PostService
             throw new Exceptions\InvalidPostId;
         }
 
-        $bids = $this->db->collection('bids')->document($user->uid);
+        if ($user->posts->contains('id', $post_id)) {
+            throw new Exceptions\CannotBidOnOwnPost;
+        }
+        
         $existing_bid = PostBid::where('user_id', $user->id)
             ->where('post_id', $post_id)->first();
 
-        if ($existing_bid) {
-            if ($amount < $existing_bid->amount) {
-                $bids->update([
+        $bid_ref = $this->db->collection('bids')->document($user->uid);
+        $bid = $bid_ref->collection('post_bid')->document($post_id); 
+
+        if ($existing_bid) 
+        {
+            if ($amount >= $existing_bid->amount) {
+                throw new Exceptions\BidAmountTooHigh;
+            }
+
+            $bid_snapshot = $bid->snapshot();   
+            if ($bid_snapshot->exists()) 
+            {
+                $bid->update([
                     ['path' => 'user_id', 'value' => $user->id],
                     ['path' => 'post_id', 'value' => $post_id],
                     ['path' => 'amount', 'value' => $amount],
                     ['path' => 'status', 'value' => 'pending'],
                     ['path' => 'created_at', 'value' => FieldValue::serverTimestamp()],
                 ]);
-
+        
                 $existing_bid->amount = $amount;
                 $existing_bid->status = 'pending';
                 $existing_bid->save();
-
+        
                 return [
-                    'message' => 'Your bid has been updated successfully',
+                        'message' => 'Your bid has been updated successfully',
                 ];
-            }
-
-            return [
-                'message' => 'New bid amount must be less than the previous bid',
-            ];
+            } 
         }
 
-        $bids->set([
+        $bid->set([
             'user_id' => $user->id,
             'post_id' => $post_id,
             'amount' => $amount,
