@@ -99,6 +99,7 @@ class FirebaseAuthService
             true,
             true,
             null,
+            null
         );
 
         $token = $this->generate_token($user);
