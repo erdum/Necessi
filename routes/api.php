@@ -128,7 +128,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Get user Received bids on a post
     Route::get(
-        '/user/received-bids',
+        '/user/bids/received',
         [PostController::class, 'get_received_bids']
     );
 
