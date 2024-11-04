@@ -12,8 +12,8 @@ use App\Models\Review;
 use App\Models\User;
 use Carbon\Carbon;
 use Google\Cloud\Firestore\FieldValue;
-use Kreait\Firebase\Factory;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Kreait\Firebase\Factory;
 
 class PostService
 {
@@ -134,22 +134,20 @@ class PostService
         if ($user->posts->contains('id', $post_id)) {
             throw new Exceptions\CannotBidOnOwnPost;
         }
-        
+
         $existing_bid = PostBid::where('user_id', $user->id)
             ->where('post_id', $post_id)->first();
 
         $bid_ref = $this->db->collection('bids')->document($user->uid);
-        $bid = $bid_ref->collection('post_bid')->document($post_id); 
+        $bid = $bid_ref->collection('post_bid')->document($post_id);
 
-        if ($existing_bid) 
-        {
+        if ($existing_bid) {
             if ($amount >= $existing_bid->amount) {
                 throw new Exceptions\BidAmountTooHigh;
             }
 
-            $bid_snapshot = $bid->snapshot();   
-            if ($bid_snapshot->exists()) 
-            {
+            $bid_snapshot = $bid->snapshot();
+            if ($bid_snapshot->exists()) {
                 $bid->update([
                     ['path' => 'user_id', 'value' => $user->id],
                     ['path' => 'post_id', 'value' => $post_id],
@@ -157,15 +155,15 @@ class PostService
                     ['path' => 'status', 'value' => 'pending'],
                     ['path' => 'created_at', 'value' => FieldValue::serverTimestamp()],
                 ]);
-        
+
                 $existing_bid->amount = $amount;
                 $existing_bid->status = 'pending';
                 $existing_bid->save();
-        
+
                 return [
-                        'message' => 'Your bid has been updated successfully',
+                    'message' => 'Your bid has been updated successfully',
                 ];
-            } 
+            }
         }
 
         $bid->set([
@@ -203,11 +201,11 @@ class PostService
         $bid = $bid_ref->collection('post_bid')->document($bid->post->id);
 
         $bid->update([
-            ['path' => 'status', 'value' => 'accepted']
+            ['path' => 'status', 'value' => 'accepted'],
         ]);
 
         return [
-            'message' => 'You have successfully accepted the bid'
+            'message' => 'You have successfully accepted the bid',
         ];
     }
 
@@ -251,19 +249,18 @@ class PostService
         User $user,
         ?int $user_id,
         ?int $filter_rating
-    )
-    {
+    ) {
         $reviews = Review::whereHas(
             'post',
             function ($query) use ($user_id, $user) {
                 $query->where('user_id', $user_id ?: $user->id);
             }
         )
-        ->when($filter_rating, function ($query) use ($filter_rating) {
-            $query->where('rating', $filter_rating);
-        })
-        ->with('user:id,first_name,last_name,avatar')
-        ->get();
+            ->when($filter_rating, function ($query) use ($filter_rating) {
+                $query->where('rating', $filter_rating);
+            })
+            ->with('user:id,first_name,last_name,avatar')
+            ->get();
 
         $rating_sum = 0;
         $reviews_data = [];
@@ -276,28 +273,27 @@ class PostService
         ];
 
         foreach ($reviews as $review) {
-            $rating = (string)$review->rating;
+            $rating = (string) $review->rating;
             if (array_key_exists($rating, $stats)) {
                 $stats[$rating] += 1;
                 $rating_sum += $review->rating;
             }
         }
 
-        foreach($reviews as $review){
+        foreach ($reviews as $review) {
             $reviews_data[] = [
                 'post_id' => $review->post_id,
-                'description'=> $review->data,
+                'description' => $review->data,
                 'rating' => $review->rating,
                 'created_at' => $review->created_at->format('d M'),
                 'user_id' => $review->user->id,
-                'user_name' => $review->user->first_name . ' ' . $review->user->last_name,
+                'user_name' => $review->user->first_name.' '.$review->user->last_name,
                 'avatar' => $review->user->avatar,
             ];
         }
-        
+
         return [
-            'average_rating' =>
-                $reviews->count() > 0 ? $rating_sum / $reviews->count() : 0,
+            'average_rating' => $reviews->count() > 0 ? $rating_sum / $reviews->count() : 0,
             'rating_count' => $reviews->count(),
             'stats' => $stats,
             'reviews' => $reviews_data,
@@ -309,12 +305,12 @@ class PostService
         $page = LengthAwarePaginator::resolveCurrentPage();
         $per_page = 3;
 
-        $data_count = Post::all()->count(); 
+        $data_count = Post::all()->count();
         $posts = Post::orderBy('created_at', 'desc')
-        ->with('user:id,first_name,last_name,avatar')
-        ->offset($per_page * ($page - 1))
-        ->limit($per_page)
-        ->get();
+            ->with('user:id,first_name,last_name,avatar')
+            ->offset($per_page * ($page - 1))
+            ->limit($per_page)
+            ->get();
 
         $posts = $posts->map(function ($post) use ($user) {
             $self_liked = $post->likes()->where('user_id', $user->id)->exists();
@@ -338,9 +334,9 @@ class PostService
                 'location' => $post->city,
                 'lat' => $post->lat,
                 'long' => $post->long,
-                'distance' => round($distance, 2) . ' miles away',
+                'distance' => round($distance, 2).' miles away',
                 'budget' => $post->budget,
-                'duration' => Carbon::parse($post->start_date)->format('d M') . ' - ' . Carbon::parse($post->end_date)->format('d M y'),
+                'duration' => Carbon::parse($post->start_date)->format('d M').' - '.Carbon::parse($post->end_date)->format('d M y'),
                 'delivery_requested' => $post->delivery_requested,
                 'created_at' => $post->created_at->diffForHumans(),
                 'current_user_like' => $self_liked,
@@ -506,17 +502,17 @@ class PostService
     public function get_post_reviews(int $post_id)
     {
         $post = Post::with(['reviews', 'reviews.user'])->find($post_id);
-    
+
         if (! $post) {
             throw new Exceptions\InvalidPostId;
         }
-    
+
         $reviews = [];
-    
+
         foreach ($post->reviews as $review) {
             $reviews[] = [
                 'user_id' => $review->user->id,
-                'user_name' => $review->user->first_name . ' ' . $review->user->last_name,
+                'user_name' => $review->user->first_name.' '.$review->user->last_name,
                 'avatar' => $review->user->avatar,
                 'rating' => $review->rating,
                 'description' => $review->data,
@@ -526,7 +522,6 @@ class PostService
 
         return $reviews;
     }
-    
 
     public function get_post_comments(User $user, int $post_id)
     {
@@ -706,52 +701,51 @@ class PostService
 
     public function get_placed_bids(User $user)
     {
-        if (!$user) {
+        if (! $user) {
             throw new Exceptions\UserNotFound;
         }
-    
+
         $user_bids = PostBid::where('user_id', $user->id)->get();
         $placed_bids = [];
-    
-        if ($user_bids->isNotEmpty()) 
-        {
+
+        if ($user_bids->isNotEmpty()) {
             $post_ids = $user_bids->pluck('post_id')->toArray();
             $posts = Post::whereIn('id', $post_ids)->with('user')->get()->keyBy('id');
-    
+
             foreach ($user_bids as $bid) {
                 $post = $posts->get($bid->post_id);
-    
+
                 if ($post) {
                     $placed_bids[] = [
                         'post_id' => $bid->post_id,
                         'bid_status' => $bid->status,
                         'bid_placed_amount' => $bid->amount,
-                        'duration' => Carbon::parse($post->start_date)->format('d M') . ' - ' .
+                        'duration' => Carbon::parse($post->start_date)->format('d M').' - '.
                                       Carbon::parse($post->end_date)->format('d M y'),
                         'title' => $post->title,
                         'description' => $post->description,
-                        'user_name' => $post->user->first_name . ' ' . $post->user->last_name,
+                        'user_name' => $post->user->first_name.' '.$post->user->last_name,
                         'avatar' => $post->user->avatar,
                     ];
                 }
             }
         }
-    
+
         return $placed_bids;
-    }  
-    
+    }
+
     public function get_placed_bid_status(User $user, int $post_id)
     {
         $post = Post::where('id', $post_id)->with('user:id,first_name,last_name,avatar')
             ->first();
 
-        if(! $post){
+        if (! $post) {
             throw new Exeptions\InvalidPostId;
         }
 
         $user_bid = PostBid::where('user_id', $user->id)->where('post_id', $post_id)->first();
 
-        if(! $user_bid){
+        if (! $user_bid) {
             throw new Exceptions\BidNotFound;
         }
 
@@ -760,7 +754,7 @@ class PostService
             ->with('user:id,first_name,last_name,avatar')
             ->orderBy('amount', 'asc')
             ->get();
-        
+
         $distance = $this->calculateDistance(
             $user->lat,
             $user->long,
@@ -768,12 +762,11 @@ class PostService
             $post->long,
         );
 
-        foreach($post_bids as $post_bid)
-        {
+        foreach ($post_bids as $post_bid) {
             $bids_data[] = [
                 'post-id' => $post_bid->post_id,
                 'user_id' => $post_bid->user->id,
-                'user_name' => $post_bid->user->first_name . ' ' . $post_bid->user->last_name,
+                'user_name' => $post_bid->user->first_name.' '.$post_bid->user->last_name,
                 'avatar' => $post->user->avatar,
                 'bid_amount' => $post_bid->amount,
                 'bid_status' => $post_bid->status,
@@ -782,14 +775,14 @@ class PostService
 
         return [
             'post_id' => $post->id,
-            'user_name' => $post->user->first_name . ' ' . $post->user->last_name,
+            'user_name' => $post->user->first_name.' '.$post->user->last_name,
             'avatar' => $post->user->avatar,
             'post_type' => $post->type,
             'location' => $post->city,
             'distance' => round($distance, 2).' miles away',
             'title' => $post->title,
             'description' => $post->description,
-            'duration' => Carbon::parse($post->start_date)->format('d M') . ' - ' .
+            'duration' => Carbon::parse($post->start_date)->format('d M').' - '.
                           Carbon::parse($post->end_date)->format('d M y'),
             'user_bid_amount' => $user_bid->amount,
             'bids' => $bids_data,
@@ -799,25 +792,24 @@ class PostService
     public function cancel_placed_bid(User $user, int $post_id)
     {
         $post = Post::where('id', $post_id)->with('user:id,first_name,last_name,avatar')
-           ->first();
+            ->first();
 
-        if(! $post){
+        if (! $post) {
             throw new Exeptions\InvalidPostId;
         }
 
         $user_bid = PostBid::where('user_id', $user->id)->where('post_id', $post_id)->first();
 
-        if(! $user_bid){
+        if (! $user_bid) {
             throw new Exceptions\BidNotFound;
         }
 
         $bid_ref = $this->db->collection('bids')->document($user->uid);
-        $bid = $bid_ref->collection('post_bid')->document($post_id)->snapshot(); 
+        $bid = $bid_ref->collection('post_bid')->document($post_id)->snapshot();
 
         if ($bid->exists()) {
             $bid_data = $bid->data();
-            if (isset($bid_data['post_id']) && $bid_data['post_id'] == $post_id) 
-            {
+            if (isset($bid_data['post_id']) && $bid_data['post_id'] == $post_id) {
                 $bid->reference()->delete();
             }
         }

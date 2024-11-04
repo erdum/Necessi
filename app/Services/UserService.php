@@ -83,7 +83,7 @@ class UserService
     public function get_user_preferences(User $user)
     {
         $preferences = $user->preferences;
-    
+
         return [
             'id' => $preferences->id,
             'user_id' => $preferences->user_id,
@@ -96,7 +96,6 @@ class UserService
             'who_can_send_messages' => $preferences->who_can_send_messages,
         ];
     }
-    
 
     public function update_preferences(
         User $user,
@@ -164,8 +163,8 @@ class UserService
                 $query->where('user_id', $user->id);
             }
         )
-        ->with('user:id,first_name,last_name,avatar')
-        ->get();
+            ->with('user:id,first_name,last_name,avatar')
+            ->get();
 
         $average_rating = round($reviews->avg('rating'), 1);
 
@@ -173,28 +172,28 @@ class UserService
 
         if ($recent_post) {
             $current_user_like = PostLike::where('user_id', $user->id)
-            ->where('post_id', $recent_post->id)->exists();
+                ->where('post_id', $recent_post->id)->exists();
         }
 
         $connection_request = ConnectionRequest::where([
             ['sender_id', '=', $user->id],
-            ['receiver_id', '=', $current_user->id]
+            ['receiver_id', '=', $current_user->id],
         ])
-        ->orWhere([
-            ['sender_id', '=', $current_user->id],
-            ['receiver_id', '=', $user->id]
-        ])->first();
+            ->orWhere([
+                ['sender_id', '=', $current_user->id],
+                ['receiver_id', '=', $user->id],
+            ])->first();
 
         $is_connection = ConnectionRequest::where([
             ['sender_id', '=', $user->id],
-            ['receiver_id', '=', $current_user->id]
+            ['receiver_id', '=', $current_user->id],
         ])
-        ->orWhere([
-            ['sender_id', '=', $current_user->id],
-            ['receiver_id', '=', $user->id]
-        ])
-        ->where('status', 'accepted')
-        ->exists();
+            ->orWhere([
+                ['sender_id', '=', $current_user->id],
+                ['receiver_id', '=', $user->id],
+            ])
+            ->where('status', 'accepted')
+            ->exists();
 
         $connections_data = [];
         $reviews_data = [];
@@ -202,7 +201,7 @@ class UserService
         $connection_request_status = 'not send';
 
         $connections = ConnectionRequest::where('sender_id', $user->id)
-           ->orWhere('receiver_id', $user->id)->limit(3)->get();
+            ->orWhere('receiver_id', $user->id)->limit(3)->get();
 
         if ($connection_request) {
             $connection_request_status = $connection_request->status;
@@ -224,30 +223,29 @@ class UserService
         foreach ($connections as $connection) {
             $connected_user_id = $connection->sender_id == $user->id
                 ? $connection->receiver_id : $connection->sender_id;
-        
+
             $user_connection = User::find($connected_user_id);
-        
+
             if ($user_connection) {
                 $connections_data[] = [
                     'id' => $user_connection->id,
-                    'user_name' => $user_connection->first_name . ' ' . $user_connection->last_name,
+                    'user_name' => $user_connection->first_name.' '.$user_connection->last_name,
                     'avatar' => $user_connection->avatar,
                 ];
             }
         }
 
-        foreach($reviews as $review){
+        foreach ($reviews as $review) {
             $reviews_data[] = [
                 'post_id' => $review->post_id,
-                'data'=> $review->data,
+                'data' => $review->data,
                 'rating' => $review->rating,
                 'created_at' => $review->created_at->format('d M'),
                 'user_id' => $review->user->id,
-                'user_name' => $review->user->first_name . ' ' . $review->user->last_name,
+                'user_name' => $review->user->first_name.' '.$review->user->last_name,
                 'avatar' => $review->user->avatar,
-            ];   
+            ];
         }
-        
 
         return [
             'user_id' => $user->id,
