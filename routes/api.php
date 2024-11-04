@@ -124,6 +124,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::delete(
         '/user/cancel-placed-bid/{post_id}',
         [PostController::class, 'cancel_placed_bid']
+
+    // Accept bid on a post
+    Route::get(
+        '/posts/bid/{bid_id}/accept',
+        [PostController::class, 'accept_post_bid']
     );
 
     // Get reviews on a post

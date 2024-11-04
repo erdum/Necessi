@@ -188,6 +188,29 @@ class PostService
         ];
     }
 
+    public function accept_post_bid(User $user, int $bid_id)
+    {
+        $bid = PostBid::find($bid_id);
+
+        if ($bid->post->user_id != $user->id) {
+            throw new Exceptions\PostOwnership;
+        }
+
+        $bid->status = 'accepted';
+        $bid->save();
+
+        $bid_ref = $this->db->collection('bids')->document($user->uid);
+        $bid = $bid_ref->collection('post_bid')->document($bid->post->id);
+
+        $bid->update([
+            ['path' => 'status', 'value' => 'accepted']
+        ]);
+
+        return [
+            'message' => 'You have successfully accepted the bid'
+        ];
+    }
+
     public function get_user_posts(User $user)
     {
         $posts = $user->posts()->orderBy('created_at', 'desc')->paginate(10);
