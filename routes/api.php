@@ -102,6 +102,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [PostController::class, 'place_bid']
     );
 
+    // cancel user palced bid on a post
+    Route::delete(
+        '/posts/{post_id}/bid',
+        [PostController::class, 'cancel_placed_bid']
+    );
+
     // Get bids on a post
     Route::get(
         '/posts/{post_id}/bids',
@@ -110,26 +116,20 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Get user palced bids on a post
     Route::get(
-        '/user/placed-bids',
+        '/user/bids/placed',
         [PostController::class, 'get_placed_bids']
-    );
-
-    // Get user palced bid status on a post
-    Route::get(
-        '/user/placed-bid-status/{post_id}',
-        [PostController::class, 'get_placed_bid_status']
-    );
-
-    // cancel user palced bid on a post
-    Route::delete(
-        '/user/cancel-placed-bid/{post_id}',
-        [PostController::class, 'cancel_placed_bid']
     );
 
     // Get user Received bids on a post
     Route::get(
         '/user/bids/received',
         [PostController::class, 'get_received_bids']
+    );
+
+    // Get user palced bid status on a post
+    Route::get(
+        '/posts/{post_id}/user/bid/status',
+        [PostController::class, 'get_placed_bid_status']
     );
 
     // Accept bid on a post
