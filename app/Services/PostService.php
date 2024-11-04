@@ -843,4 +843,35 @@ class PostService
             'message' => 'Your bid has been canceled',
         ];
     }
+
+    public function get_received_bids(User $user)
+    {
+        $user_posts = $user->posts->pluck('id');
+
+        if ($user_posts->isEmpty()) {
+            throw new Exceptions\PostNotFound;
+        }
+
+        $received_bids = PostBid::whereIn('post_id', $user_posts)
+           ->with(['user:id,first_name,last_name,avatar', 'post'])->get();
+
+        return $received_bids->map(function ($received_bid)
+        {
+            return [
+                'bid_id' => $received_bid->id,
+                'post_id' => $received_bid->post_id,
+                'bid_amount' => $received_bid->amount,
+                'status' => $received_bid->status,
+                'user_id' => $received_bid->user->id,
+                'user_name' => $received_bid->user->first_name . ' ' . $received_bid->user->last_name,
+                'avatar' => $received_bid->user->avatar,
+                'budget' => $received_bid->post->budget,
+                'duration' => Carbon::parse($received_bid->post->start_date)->format('d M').' - '.
+                              Carbon::parse($received_bid->post->end_date)->format('d M y'),
+                'title' => $received_bid->post->title,
+                'description' => $received_bid->post->description,
+                'created_at' => $received_bid->post->created_at->diffForHumans(),
+            ];
+        });
+    }
 }

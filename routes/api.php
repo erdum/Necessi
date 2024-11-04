@@ -126,6 +126,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [PostController::class, 'cancel_placed_bid']
     );
 
+    // Get user Received bids on a post
+    Route::get(
+        '/user/received-bids',
+        [PostController::class, 'get_received_bids']
+    );
+
     // Accept bid on a post
     Route::get(
         '/posts/bid/{bid_id}/accept',
