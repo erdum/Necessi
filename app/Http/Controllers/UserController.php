@@ -35,9 +35,9 @@ class UserController extends Controller
     }
 
     public function get_user_preferences(
-        Request $request, 
+        Request $request,
         UserService $user_service
-    ){
+    ) {
         $response = $user_service->get_user_preferences(
             $request->user()
         );
@@ -74,7 +74,7 @@ class UserController extends Controller
         if ($request->user_id) {
             $user_model = User::findOrFail($request->user_id);
             $user = $user_service->get_profile(
-                $user_model
+                $user_model,
             );
         }
 

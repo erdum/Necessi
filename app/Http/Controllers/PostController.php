@@ -109,8 +109,7 @@ class PostController extends Controller
     public function get_user_posts_reviews(
         Request $request,
         PostService $post_service
-    )
-    {
+    ) {
         $response = $post_service->get_user_posts_reviews(
             $request->user(),
             $request?->user_id,
@@ -273,7 +272,7 @@ class PostController extends Controller
     }
 
     public function get_placed_bids(
-        Request $request, 
+        Request $request,
         PostService $post_service
     ) {
         $response = $post_service->get_placed_bids(
@@ -284,7 +283,7 @@ class PostController extends Controller
     }
 
     public function get_placed_bid_status(
-        Request $request, 
+        Request $request,
         PostService $post_service,
         $post_id,
     ) {
@@ -297,10 +296,10 @@ class PostController extends Controller
     }
 
     public function cancel_placed_bid(
-        Request $request, 
+        Request $request,
         PostService $post_service,
         $post_id
-    ){ 
+    ) {
         $response = $post_service->cancel_placed_bid(
             $request->user(),
             $post_id
