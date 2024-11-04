@@ -132,6 +132,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [PostController::class, 'accept_post_bid']
     );
 
+    // Decline bid on a post
+    Route::get(
+        '/posts/bid/{bid_id}/decline',
+        [PostController::class, 'decline_post_bid']
+    );
+
     // Get reviews on a post
     Route::get(
         '/posts/{post_id}/reviews',

@@ -88,6 +88,17 @@ class PostController extends Controller
         return response()->json($response);
     }
 
+    public function decline_post_bid(
+        int $bid_id,
+        Request $request,
+        PostService $post_service
+    ) {
+        $response = $post_service->decline_post_bid(
+            $request->user(),
+            $bid_id
+        );
+    }
+
     public function get_user_posts(
         Request $request,
         PostService $post_service,
