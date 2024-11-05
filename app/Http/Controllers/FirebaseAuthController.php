@@ -20,7 +20,7 @@ class FirebaseAuthController extends Controller
         $request->validate([
             'first_name' => 'required',
             'last_name' => 'required',
-            'phone_number' => 'required|string',
+            'phone_number' => 'nullable|min:10|max:15',
             'email' => 'required|email',
             'password' => 'required|min:6',
         ]);

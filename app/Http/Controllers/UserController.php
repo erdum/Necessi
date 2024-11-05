@@ -16,7 +16,7 @@ class UserController extends Controller
             'avatar' => 'nullable|image',
             'about' => 'nullable|string|max:500',
             'age' => 'nullable|integer|between:10,110',
-            'phone_number' => 'nullable',
+            'phone_number' => 'nullable|min:10|max:15',
             'lat' => 'nullable|numeric',
             'long' => 'nullable|numeric',
         ]);
