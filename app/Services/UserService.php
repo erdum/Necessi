@@ -9,6 +9,7 @@ use App\Models\PostLike;
 use App\Models\Review;
 use App\Models\User;
 use App\Models\UserPreference;
+use App\Models\Notification;
 use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
@@ -598,6 +599,19 @@ class UserService
         );
 
         return ['message' => 'FCM token successfully stored'];
+    }
+
+    public function get_notifications(User $user)
+    {
+        $notifications = Notification::select(
+            'title',
+            'body',
+            'image',
+            'created_at'
+        )->where('user_id', $user->id)->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return $notifications;
     }
 
     public function get_connection_requests(User $user)

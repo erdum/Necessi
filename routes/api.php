@@ -36,6 +36,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [UserController::class, 'update_user_fcm']
     );
 
+    // Get uses notifications list
+    Route::get(
+        '/user/notifications',
+        [UserController::class, 'get_notifications']
+    );
+
     // Get user preferences
     Route::get(
         '/user/preferences',
