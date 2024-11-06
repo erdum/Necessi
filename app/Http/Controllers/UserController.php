@@ -244,4 +244,46 @@ class UserController extends Controller
 
         return response()->json($response);
     }
+
+    public function block_user(
+        string $uid,
+        Request $request,
+        UserService $user_service
+    ) {
+        $request->validate([
+            'reason_type' => 'required|in:harassment,spam,scam,privacy violation,inappropriate content,unwanted content,uncomfortable interaction,other',
+            'other_reason' => 'required_if:reason_type,other'
+        ]);
+
+        $response = $user_service->block_user(
+            $request->user(),
+            $uid,
+            $request->reason_type,
+            $request->other_reason
+        );
+
+        return response()->json($response);
+    }
+
+    public function unblock_user(
+        string $uid,
+        Request $request,
+        UserService $user_service
+    ) {
+        $response = $user_service->unblock_user(
+            $request->user(),
+            $uid
+        );
+
+        return response()->json($response);
+    }
+
+    public function get_blocked_users(
+        Request $request,
+        UserService $user_service
+    ) {
+        $response = $user_service->get_blocked_users($request->user());
+
+        return response()->json($response);
+    }
 }

@@ -120,4 +120,34 @@ class User extends Authenticatable
             'user_id'
         )->withTimestamps();
     }
+
+    public function blocked_users()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'blocked_users',
+            'blocker_id',
+            'blocked_id'
+        )->withTimestamps();
+    }
+
+    public function blocker_users()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'blocked_users',
+            'blocked_id',
+            'blocker_id'
+        )->withTimestamps();
+    }
+
+    public function is_blocked($user_id)
+    {
+        return $this->blocked_users()->where('blocked_id', $user_id)->exists();
+    }
+
+    public function is_blocker($user_id)
+    {
+        return $this->blocker_users()->where('blocker_id', $user_id)->exists();
+    }
 }

@@ -222,6 +222,24 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [UserController::class, 'get_connections']
     );
 
+    // Block user from chat
+    Route::post(
+        '/user/block/{uid}',
+        [UserController::class, 'block_user']
+    );
+
+    // Unblock user from chat
+    Route::get(
+        '/user/unblock/{uid}',
+        [UserController::class, 'unblock_user']
+    );
+
+    // Get blocked users list
+    Route::get(
+        '/user/blocked/users',
+        [UserController::class, 'get_blocked_users']
+    );
+
     // Logout user
     Route::get(
         '/user/logout',

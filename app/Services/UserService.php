@@ -615,4 +615,56 @@ class UserService
             'message' => 'Password Update Succesfully',
         ];
     }
+
+    public function block_user(
+        User $user,
+        string $uid,
+        string $reason_type,
+        ?string $other_reason
+    ) {
+        $other_user = User::where('uid', $uid)->first();
+
+        if (!$other_user) throw new Exceptions\UserNotFound;
+
+        if ($user->is_blocked($other_user->id)) {
+            return [
+                'message' => 'User is already blocked'
+            ];
+        } else {
+            $user->blocked_users()->attach($other_user->id, [
+                'reason_type' => $reason_type,
+                'other_reason' => $other_reason ?: null,
+            ]);
+
+            return [
+                'message' => 'User successfully blocked'
+            ];
+        }
+    }
+
+    public function unblock_user(
+        User $user,
+        string $uid
+    ) {
+        $other_user = User::where('uid', $uid)->first();
+
+        if (!$other_user) throw new Exceptions\UserNotFound;
+
+        if ($user->is_blocked($other_user->id)) {
+            $user->blocked_users()->detach($other_user->id);
+
+            return [
+                'message' => 'User successfully unblocked'
+            ];
+        } else {
+            return [
+                'message' => 'User is not blocked'
+            ];
+        }
+    }
+
+    public function get_blocked_users(User $user)
+    {
+        return $user->blocked_users;
+    }
 }
