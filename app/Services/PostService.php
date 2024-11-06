@@ -34,6 +34,33 @@ class PostService
         $this->notification_service = $notification_service;
     }
 
+    private function push_new_message_notification(
+        string $title,
+        string $image,
+        ?User $receiver_user,
+        string $type,
+        ?string $content,
+        ?array $additional_data = null
+    ) {
+        if (!$receiver_user) {
+            return;
+        }
+
+        if (! ($receiver_user->preferences?->receive_message_notification ?? true)
+        ) {
+            return;
+        }
+
+        $body = $type == 'post_biding' ? 'Post Bidding' : $body;
+        $this->notification_service->push_notification(
+            $receiver_user,
+            $title,
+            $body,
+            $image,
+            $additional_data
+        );
+    }
+
     public function calculateDistance(
         float $lat1,
         float $lon1,
@@ -180,6 +207,25 @@ class PostService
         $post_bid->amount = $amount;
         $post_bid->status = 'pending';
         $post_bid->save();
+
+        $receiver_user = User::find($post->user_id);
+        $type = 'post_biding';
+        $content = $user->name . ' has bid on your post';
+        $user_name = $user->first_name . ' ' . $user->last_name;
+
+
+        $this->push_new_message_notification(
+            $user_name,
+            $user->avatar ?? '',
+            $receiver_user,
+            $type,
+            $content,
+            [
+                'user_name' => $user->first_name . ' ' . $user->last_name,
+                'user_avatar' => $user->avatar,
+                'description' => $user->about,
+            ]
+        );
 
         return [
             'message' => 'Your bid has been placed successfully',
