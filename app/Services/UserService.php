@@ -437,6 +437,22 @@ class UserService
         $connection_request->status = 'accepted';
         $connection_request->save();
 
+        $receiver_user = User::find($user_id);
+        $type = 'accept_connection_request';
+        $user_name = $user->first_name . ' ' . $user->last_name;
+
+        $this->post_service->push_new_message_notification(
+            $user_name,
+            $user->avatar ?? '',
+            $receiver_user,
+            $type,
+            [
+                'user_name' => $user->first_name . ' ' . $user->last_name,
+                'user_avatar' => $user->avatar,
+                'description' => $user->about,
+            ]
+        );
+
         return ['message' => 'Connections successfully created'];
     }
 
@@ -524,6 +540,24 @@ class UserService
         $connection_request->sender_id = $sender_id;
         $connection_request->receiver_id = $receiver_id;
         $connection_request->save();
+
+        $receiver_user = User::find($receiver_id);
+        $user = User::find($sender_id);
+        $type = 'send_connection_request';
+        $user_name = $user->first_name . ' ' . $user->last_name;
+
+
+        $this->post_service->push_new_message_notification(
+            $user_name,
+            $user->avatar ?? '',
+            $receiver_user,
+            $type,
+            [
+                'user_name' => $user->first_name . ' ' . $user->last_name,
+                'user_avatar' => $user->avatar,
+                'description' => $user->about,
+            ]
+        );
     }
 
     public function send_connection_requests(User $user, array $user_ids)

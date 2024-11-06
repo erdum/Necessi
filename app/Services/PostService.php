@@ -34,24 +34,48 @@ class PostService
         $this->notification_service = $notification_service;
     }
 
-    private function push_new_message_notification(
+    public function push_new_message_notification(
         string $title,
         string $image,
         ?User $receiver_user,
         string $type,
-        ?string $content,
         ?array $additional_data = null
     ) {
         if (!$receiver_user) {
             return;
         }
 
-        if (! ($receiver_user->preferences?->receive_message_notification ?? true)
-        ) {
-            return;
+        $body = '';
+
+        switch ($type) {
+            case 'post_bidding':
+                if (!($receiver_user->preferences?->biding_notifications ?? true)) {
+                    return;
+                }
+                $body = $title . ' has bid on your post';
+                $title = 'Post Bidding';
+                break;
+
+            case 'send_connection_request':
+                if (!($receiver_user->preferences?->activity_notifications ?? true)) {
+                    return;
+                }
+                $body = $title . ' has sent you a connection request';
+                $title = 'Connention';
+                break;
+            
+            case 'accept_connection_request':
+                if (!($receiver_user->preferences?->activity_notifications ?? true)) {
+                    return;
+                }
+                $body = $title . ' has accept your connection request';
+                $title = 'Connention';
+                break;
+
+            default:
+                return; 
         }
 
-        $body = $type == 'post_biding' ? 'Post Bidding' : $body;
         $this->notification_service->push_notification(
             $receiver_user,
             $title,
@@ -209,8 +233,7 @@ class PostService
         $post_bid->save();
 
         $receiver_user = User::find($post->user_id);
-        $type = 'post_biding';
-        $content = $user->name . ' has bid on your post';
+        $type = 'post_bidding';
         $user_name = $user->first_name . ' ' . $user->last_name;
 
 
@@ -219,7 +242,6 @@ class PostService
             $user->avatar ?? '',
             $receiver_user,
             $type,
-            $content,
             [
                 'user_name' => $user->first_name . ' ' . $user->last_name,
                 'user_avatar' => $user->avatar,
