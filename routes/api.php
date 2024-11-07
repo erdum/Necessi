@@ -168,6 +168,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [PostController::class, 'toggle_like']
     );
 
+    // Place comment on a post
+    Route::post(
+        '/posts/place/comment',
+        [PostController::class, 'place_comment']
+    );
+
     // Search all posts
     Route::post(
         '/search',

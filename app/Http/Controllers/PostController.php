@@ -170,6 +170,23 @@ class PostController extends Controller
         return response()->json($response);
     }
 
+    public function place_comment(
+        Request $request,
+        PostService $post_service,
+    ) {
+        $request->validate([
+            'post_id' => 'required|integer',
+            'post_comment' => 'required|string',
+        ]);
+        $response = $post_service->place_comment(
+            $request->user(),
+            $request->post_id,
+            $request->post_comment,
+        );
+
+        return response()->json($response);
+    }
+
     public function get_post_details(
         Request $request,
         int $post_id,

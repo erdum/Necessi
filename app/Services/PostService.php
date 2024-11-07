@@ -8,6 +8,7 @@ use App\Models\Post;
 use App\Models\PostBid;
 use App\Models\PostImage;
 use App\Models\PostLike;
+use App\Models\PostComment;
 use App\Models\Review;
 use App\Models\User;
 use Carbon\Carbon;
@@ -465,6 +466,26 @@ class PostService
         $like->save();
 
         return ['message' => 'Post successfully liked'];
+    }
+
+    public function place_comment(
+        User $user, 
+        int $post_id, 
+        string $post_comment
+    ) {
+        $post = Post::find($post_id);
+
+        if (! $post) {
+            throw new Exceptions\InvalidPostId;
+        }
+
+        $comment = new PostComment;
+        $comment->user_id = $user->id;
+        $comment->post_id = $post_id;
+        $comment->data = $post_comment;
+        $comment->save();
+
+        return ['message' => 'Comment has been successfully posted'];
     }
 
     public function post_unlike(User $user, int $post_id)
