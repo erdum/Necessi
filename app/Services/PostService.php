@@ -54,7 +54,6 @@ class PostService
                     return;
                 }
                 $body = $title . ' has bid on your post';
-                $title = 'Post Bidding';
                 break;
 
             case 'send_connection_request':
@@ -62,7 +61,6 @@ class PostService
                     return;
                 }
                 $body = $title . ' has sent you a connection request';
-                $title = 'Connention';
                 break;
             
             case 'accept_connection_request':
@@ -70,7 +68,6 @@ class PostService
                     return;
                 }
                 $body = $title . ' has accept your connection request';
-                $title = 'Connention';
                 break;
 
             default:
