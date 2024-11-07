@@ -56,6 +56,27 @@ class PostService
                 $body = $title . ' has bid on your post';
                 break;
 
+            case 'post_accepted':
+                if (!($receiver_user->preferences?->biding_notifications ?? true)) {
+                    return;
+                }
+                $body = $title . ' has accepted your bid request';
+                break;
+
+            case 'post_rejected':
+                if (!($receiver_user->preferences?->biding_notifications ?? true)) {
+                        return;
+                }
+                $body = $title . ' has rejected your bid request';
+                break;
+
+            case 'placed_comment':
+                if (!($receiver_user->preferences?->activity_notifications ?? true)) {
+                        return;
+                }
+                $body = $title . ' has commented on your post';
+                break;
+
             case 'send_connection_request':
                 if (!($receiver_user->preferences?->activity_notifications ?? true)) {
                     return;
@@ -263,12 +284,29 @@ class PostService
         $bid->status = 'accepted';
         $bid->save();
 
-        $bid_ref = $this->db->collection('bids')->document($user->uid)
-            ->collection('post_bid')->document($bid->post->id);
+        $bid_ref = $this->db->collection('bids')->document($bid->user->uid)
+            ->collection('post_bid')->document($bid->post_id);
 
-        $bid->update([
+        $bid_ref->update([
             ['path' => 'status', 'value' => 'accepted'],
         ]);
+
+        $receiver_user = User::find($bid->user_id);
+        $type = 'post_accepted';
+        $user_name = $user->first_name . ' ' . $user->last_name;
+
+
+        $this->push_new_message_notification(
+            $user_name,
+            $user->avatar ?? '',
+            $receiver_user,
+            $type,
+            [
+                'user_name' => $user->first_name . ' ' . $user->last_name,
+                'user_avatar' => $user->avatar,
+                'description' => $user->about,
+            ]
+        );
 
         return [
             'message' => 'You have successfully accepted the bid',
@@ -286,12 +324,29 @@ class PostService
         $bid->status = 'rejected';
         $bid->save();
 
-        $bid_ref = $this->db->collection('bids')->document($user->uid)
-            ->collection('post_bid')->document($bid->post->id);
+        $bid_ref = $this->db->collection('bids')->document($bid->user->uid)
+            ->collection('post_bid')->document($bid->post_id);
 
-        $bid->update([
+        $bid_ref->update([
             ['path' => 'status', 'value' => 'rejected'],
         ]);
+
+        $receiver_user = User::find($bid->user_id);
+        $type = 'post_rejected';
+        $user_name = $user->first_name . ' ' . $user->last_name;
+
+
+        $this->push_new_message_notification(
+            $user_name,
+            $user->avatar ?? '',
+            $receiver_user,
+            $type,
+            [
+                'user_name' => $user->first_name . ' ' . $user->last_name,
+                'user_avatar' => $user->avatar,
+                'description' => $user->about,
+            ]
+        );
 
         return [
             'message' => 'You have successfully declined the bid',
@@ -481,6 +536,23 @@ class PostService
         $comment->post_id = $post_id;
         $comment->data = $post_comment;
         $comment->save();
+
+        $receiver_user = User::find($post->user_id);
+        $type = 'placed_comment';
+        $user_name = $user->first_name . ' ' . $user->last_name;
+
+
+        $this->push_new_message_notification(
+            $user_name,
+            $user->avatar ?? '',
+            $receiver_user,
+            $type,
+            [
+                'user_name' => $user->first_name . ' ' . $user->last_name,
+                'user_avatar' => $user->avatar,
+                'description' => $user->about,
+            ]
+        );
 
         return ['message' => 'Comment has been successfully posted'];
     }
