@@ -37,6 +37,20 @@ class UserService
         $this->post_service = $post_service;
     }
 
+    private function is_connected(User $current_user, User $target_user)
+    {
+        return ConnectionRequest::where([
+            ['sender_id', '=', $current_user->id],
+            ['receiver_id', '=', $target_user->id],
+        ])
+            ->orWhere([
+                ['sender_id', '=', $target_user->id],
+                ['receiver_id', '=', $current_user->id],
+            ])
+            ->where('status', 'accepted')
+            ->exists();
+    } 
+
     public function update_profile(
         User $user,
         ?string $about,
@@ -157,7 +171,6 @@ class UserService
     public function get_profile(User $user)
     {
         $current_user = auth()->user();
-
         $reviews = Review::whereHas(
             'post',
             function ($query) use ($user) {
@@ -168,7 +181,6 @@ class UserService
             ->get();
 
         $average_rating = round($reviews->avg('rating'), 1);
-
         $recent_post = $user->posts()->latest()->first();
 
         if ($recent_post) {
@@ -185,24 +197,14 @@ class UserService
                 ['receiver_id', '=', $user->id],
             ])->first();
 
-        $is_connection = ConnectionRequest::where([
-            ['sender_id', '=', $user->id],
-            ['receiver_id', '=', $current_user->id],
-        ])
-            ->orWhere([
-                ['sender_id', '=', $current_user->id],
-                ['receiver_id', '=', $user->id],
-            ])
-            ->where('status', 'accepted')
-            ->exists();
-
-        $connections_data = [];
         $reviews_data = [];
+        $connections_data = [];
+        $connection_count = 0;
         $distance = null;
         $connection_request_status = 'not send';
 
-        $connections = ConnectionRequest::where('sender_id', $user->id)
-            ->orWhere('receiver_id', $user->id)->limit(3)->get();
+        $connection_visibility = $user->preferences->who_can_see_connections;
+        $is_own_profile = $user->id === $current_user->id;
 
         if ($connection_request) {
             $connection_request_status = $connection_request->status;
@@ -221,21 +223,31 @@ class UserService
             }
         }
 
-        foreach ($connections as $connection) {
-            $connected_user_id = $connection->sender_id == $user->id
-                ? $connection->receiver_id : $connection->sender_id;
-
-            $user_connection = User::find($connected_user_id);
-
-            if ($user_connection) {
-                $connections_data[] = [
-                    'id' => $user_connection->id,
-                    'user_name' => $user_connection->first_name.' '.$user_connection->last_name,
-                    'avatar' => $user_connection->avatar,
-                ];
+        if ($is_own_profile || $connection_visibility === 'public' ||
+           ($connection_visibility === 'connections' && $this->is_connected($current_user, $user))
+        ) {
+            $connections = ConnectionRequest::where('sender_id', $user->id)
+                ->orWhere('receiver_id', $user->id)
+                ->limit(3)
+                ->get();
+    
+            foreach ($connections as $connection) {
+                $connected_user_id = $connection->sender_id == $user->id
+                    ? $connection->receiver_id : $connection->sender_id;
+    
+                $user_connection = User::find($connected_user_id);
+    
+                if ($user_connection) {
+                    $connections_data[] = [
+                        'id' => $user_connection->id,
+                        'user_name' => $user_connection->first_name . ' ' . $user_connection->last_name,
+                        'avatar' => $user_connection->avatar,
+                    ];
+                }
             }
+            $connection_count = $connections->count();
         }
-
+ 
         foreach ($reviews as $review) {
             $reviews_data[] = [
                 'post_id' => $review->post_id,
@@ -265,9 +277,9 @@ class UserService
             'location' => $user->city,
             'lat' => $user->lat,
             'long' => $user->long,
-            'is_connection' => $is_connection,
+            'is_connection' => $this->is_connected($current_user, $user),
             'connection_request_status' => $connection_request_status,
-            'connection_count' => $connections->count(),
+            'connection_count' => $connection_count,
             'connections' => $connections_data,
             'recent_post' => $recent_post ? [[
                 'post_id' => $recent_post->id,
@@ -287,7 +299,7 @@ class UserService
             ]] : [],
             'reviews' => $reviews_data,
         ];
-    }
+    }  
 
     public function set_location(
         User $user,
