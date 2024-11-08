@@ -9,7 +9,7 @@ class Notification extends Model
 {
     use HasFactory;
 
-    $casts = [
+    protected $casts = [
         'additional_data' => 'array',
     ];
 
