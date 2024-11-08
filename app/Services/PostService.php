@@ -446,17 +446,11 @@ class PostService
 
     public function get_all_posts(User $user)
     {
-        $page = LengthAwarePaginator::resolveCurrentPage();
-        $per_page = 3;
-
-        $data_count = Post::all()->count();
         $posts = Post::orderBy('created_at', 'desc')
             ->with('user:id,first_name,last_name,avatar')
-            ->offset($per_page * ($page - 1))
-            ->limit($per_page)
-            ->get();
+            ->paginate(3);
 
-        $posts = $posts->map(function ($post) use ($user) {
+        $posts = $posts->getCollection()->map(function ($post) use ($user) {
             $self_liked = $post->likes()->where('user_id', $user->id)->exists();
 
             $distance = $this->calculateDistance(
@@ -488,17 +482,9 @@ class PostService
                 'bids' => $post->bids->count(),
                 'images' => $post->images,
             ];
-
         });
 
-        $paginator = new LengthAwarePaginator(
-            $posts,
-            $data_count,
-            $per_page,
-            $page
-        );
-
-        return $paginator;
+        return $posts;
     }
 
     public function toggle_like(User $user, int $post_id)
