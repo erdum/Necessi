@@ -917,8 +917,7 @@ class PostService
         if (! $post) {
             throw new Exeptions\InvalidPostId;
         }
-
-        $user_bid = PostBid::where('user_id', $user->id)->where('post_id', $post_id)->first();
+        $user_bid = $user->bids()->where('post_id', $post_id)->first();
 
         if (! $user_bid) {
             throw new Exceptions\BidNotFound;
@@ -936,6 +935,8 @@ class PostService
             $post->lat,
             $post->long,
         );
+        $is_first = true;
+
 
         foreach ($post_bids as $post_bid) {
             $bids_data[] = [
@@ -945,7 +946,9 @@ class PostService
                 'avatar' => $post->user->avatar,
                 'bid_amount' => $post_bid->amount,
                 'bid_status' => $post_bid->status,
+                'is_lowest' => $is_first,
             ];
+            $is_first = false;
         }
 
         return [
