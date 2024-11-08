@@ -887,7 +887,11 @@ class PostService
         }
 
         $user_bids = PostBid::where('user_id', $user->id)->get();
-        $placed_bids = [];
+        $placed_bids = [
+            'pending' => [],
+            'accepted' => [],
+            'rejected' => [],
+        ];
 
         if ($user_bids->isNotEmpty()) {
             $post_ids = $user_bids->pluck('post_id')->toArray();
@@ -897,7 +901,7 @@ class PostService
                 $post = $posts->get($bid->post_id);
 
                 if ($post) {
-                    $placed_bids[] = [
+                    $bid_data = [
                         'post_id' => $bid->post_id,
                         'bid_status' => $bid->status,
                         'bid_placed_amount' => $bid->amount,
@@ -908,6 +912,14 @@ class PostService
                         'user_name' => $post->user->first_name.' '.$post->user->last_name,
                         'avatar' => $post->user->avatar,
                     ];
+
+                    if ($bid->status === 'pending') {
+                        $placed_bids['pending'][] = $bid_data;
+                    } elseif ($bid->status === 'accepted') {
+                        $placed_bids['accepted'][] = $bid_data;
+                    } elseif ($bid->status === 'rejected') {
+                        $placed_bids['rejected'][] = $bid_data;
+                    }
                 }
             }
         }
