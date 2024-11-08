@@ -631,6 +631,7 @@ class PostService
             'images' => $images,
             'bids' => $bids,
             'comments' => $comments,
+            'current_user_name' => $current_user->first_name . ' ' . $current_user->last_name,
             'current_user_avatar' => $current_user->avatar,
         ];
     }
