@@ -45,7 +45,10 @@ class FirebaseNotificationService
         ?string $image = null,
         array $additional_data = []
     ) {
-        $notification_device = UserNotificationDevice::where('user_id', $user->id)->first();
+        $notification_device = UserNotificationDevice::where(
+            'user_id',
+            $user->id
+        )->first();
     
         if (!$notification_device) {
             throw new Exceptions\FcmTokenNotFound;
@@ -57,7 +60,11 @@ class FirebaseNotificationService
         $notification->image = $image;
         $user->notifications()->save($notification);
 
-        $firebaseNotification = FirebaseNotification::create($title, $body, $image);
+        $firebaseNotification = FirebaseNotification::create(
+            $title,
+            $body,
+            $image
+        );
 
         $message = CloudMessage::new()
             ->withNotification($firebaseNotification)

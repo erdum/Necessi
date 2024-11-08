@@ -570,6 +570,7 @@ class UserService
                 'user_name' => $user->first_name . ' ' . $user->last_name,
                 'user_avatar' => $user->avatar,
                 'description' => $user->about,
+                'is_connection_request' => true,
             ]
         );
     }
