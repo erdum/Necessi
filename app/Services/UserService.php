@@ -439,7 +439,11 @@ class UserService
         return $distance;
     }
 
-    public function accept_connection_request(User $user, int $user_id)
+    public function accept_connection_request(
+        User $user,
+        int $user_id,
+        NotificationService $notification_service
+    )
     {
         $connection_request = ConnectionRequest::where('receiver_id', $user->id)
             ->where('sender_id', $user_id)->first();
@@ -541,7 +545,11 @@ class UserService
         return $connection_list;
     }
 
-    private function send_request(int $sender_id, int $receiver_id)
+    private function send_request(
+        int $sender_id,
+        int $receiver_id,
+        NotificationService $notification_service
+    )
     {
         $existing_request = ConnectionRequest::where('sender_id', $sender_id)
             ->where('receiver_id', $receiver_id)->first();
