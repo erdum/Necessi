@@ -627,6 +627,12 @@ class UserService
         return $notifications;
     }
 
+    public function clear_user_notifications(User $user) {
+        Notification::where('user_id', $user->id)->delete();
+
+        return ['message' => 'User notifications has successfully deleted'];
+    }
+
     public function get_connection_requests(User $user)
     {
         $connection_requests = ConnectionRequest::where(

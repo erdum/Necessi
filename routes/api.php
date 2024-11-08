@@ -42,6 +42,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [UserController::class, 'get_notifications']
     );
 
+    // Clear user notifications
+    Route::get(
+        '/user/notifications/clear',
+        [UserController::class, 'clear_user_notifications']
+    );
+
     // Get user preferences
     Route::get(
         '/user/preferences',
