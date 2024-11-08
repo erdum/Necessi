@@ -446,7 +446,7 @@ class PostService
             ->with('user:id,first_name,last_name,avatar')
             ->paginate(3);
 
-        $posts = $posts->getCollection()->map(function ($post) use ($user) {
+        $posts->getCollection()->transform(function ($post) use ($user) {
             $self_liked = $post->likes()->where('user_id', $user->id)->exists();
 
             $distance = $this->calculateDistance(
