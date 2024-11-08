@@ -34,75 +34,6 @@ class PostService
         $this->notification_service = $notification_service;
     }
 
-    public function push_new_message_notification(
-        string $title,
-        string $image,
-        ?User $receiver_user,
-        string $type,
-        ?array $additional_data = null
-    ) {
-        if (! $receiver_user) {
-            return;
-        }
-
-        $body = '';
-
-        switch ($type) {
-            case 'post_bidding':
-                if (! ($receiver_user->preferences?->biding_notifications ?? true)) {
-                    return;
-                }
-                $body = ' has bid on your post';
-                break;
-
-            case 'bid_accepted':
-                if (! ($receiver_user->preferences?->biding_notifications ?? true)) {
-                    return;
-                }
-                $body = ' has accepted your bid request';
-                break;
-
-            case 'bid_rejected':
-                if (! ($receiver_user->preferences?->biding_notifications ?? true)) {
-                    return;
-                }
-                $body = ' has rejected your bid request';
-                break;
-
-            case 'placed_comment':
-                if (! ($receiver_user->preferences?->activity_notifications ?? true)) {
-                    return;
-                }
-                $body = ' has commented on your post';
-                break;
-
-            case 'send_connection_request':
-                if (! ($receiver_user->preferences?->activity_notifications ?? true)) {
-                    return;
-                }
-                $body = ' has sent you a connection request';
-                break;
-
-            case 'accept_connection_request':
-                if (! ($receiver_user->preferences?->activity_notifications ?? true)) {
-                    return;
-                }
-                $body = ' has accept your connection request';
-                break;
-
-            default:
-                return;
-        }
-
-        $this->notification_service->push_notification(
-            $receiver_user,
-            $title,
-            $body,
-            $image,
-            $additional_data
-        );
-    }
-
     public function calculateDistance(
         float $lat1,
         float $lon1,
@@ -254,15 +185,17 @@ class PostService
         $type = 'post_bidding';
         $user_name = $user->first_name.' '.$user->last_name;
 
-        $this->push_new_message_notification(
-            $user_name,
-            $user->avatar ?? '',
+        $this->notification_service->push_notification(
             $receiver_user,
-            $type,
+            $user_name,
+            ' has placed bid on your post',
+            $user->avatar ?? '',
             [
                 'user_name' => $user->first_name.' '.$user->last_name,
                 'user_avatar' => $user->avatar,
                 'description' => $user->about,
+                'sender_id' => $receiver_user->id,
+                'post_id' => $post->id,
             ]
         );
 
@@ -293,15 +226,17 @@ class PostService
         $type = 'bid_accepted';
         $user_name = $user->first_name.' '.$user->last_name;
 
-        $this->push_new_message_notification(
-            $user_name,
-            $user->avatar ?? '',
+        $this->notification_service->push_notification(
             $receiver_user,
-            $type,
+            $user_name,
+            ' has accepted your bid request',
+            $user->avatar ?? '',
             [
                 'user_name' => $user->first_name.' '.$user->last_name,
                 'user_avatar' => $user->avatar,
                 'description' => $user->about,
+                'sender_id' => $receiver_user->id,
+                'post_id' => $post->id,
             ]
         );
 
@@ -332,15 +267,17 @@ class PostService
         $type = 'bid_rejected';
         $user_name = $user->first_name.' '.$user->last_name;
 
-        $this->push_new_message_notification(
-            $user_name,
-            $user->avatar ?? '',
+        $this->notification_service->push_notification(
             $receiver_user,
-            $type,
+            $user_name,
+            ' has rejected your bid request',
+            $user->avatar ?? '',
             [
                 'user_name' => $user->first_name.' '.$user->last_name,
                 'user_avatar' => $user->avatar,
                 'description' => $user->about,
+                'sender_id' => $receiver_user->id,
+                'post_id' => $post->id,
             ]
         );
 
@@ -523,15 +460,17 @@ class PostService
         $type = 'placed_comment';
         $user_name = $user->first_name.' '.$user->last_name;
 
-        $this->push_new_message_notification(
-            $user_name,
-            $user->avatar ?? '',
+        $this->notification_service->push_notification(
             $receiver_user,
-            $type,
+            $user_name,
+            ' has commented on your post',
+            $user->avatar ?? '',
             [
                 'user_name' => $user->first_name.' '.$user->last_name,
                 'user_avatar' => $user->avatar,
                 'description' => $user->about,
+                'sender_id' => $receiver_user->id,
+                'post_id' => $post->id,
             ]
         );
 

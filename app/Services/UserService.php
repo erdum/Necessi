@@ -455,15 +455,17 @@ class UserService
         $type = 'accept_connection_request';
         $user_name = $user->first_name.' '.$user->last_name;
 
-        $this->post_service->push_new_message_notification(
-            $user_name,
-            $user->avatar ?? '',
+        $this->notification_service->push_notification(
             $receiver_user,
-            $type,
+            $user_name,
+            ' has accept your connection request',
+            $user->avatar ?? '',
             [
                 'user_name' => $user->first_name.' '.$user->last_name,
                 'user_avatar' => $user->avatar,
                 'description' => $user->about,
+                'sender_id' => $receiver_user->id,
+                'connection_request_id' => $connection_request->id,
             ]
         );
 
@@ -560,18 +562,23 @@ class UserService
         $type = 'send_connection_request';
         $user_name = $user->first_name.' '.$user->last_name;
 
-        $this->post_service->push_new_message_notification(
-            $user_name,
-            $user->avatar ?? '',
+        $this->notification_service->push_notification(
             $receiver_user,
-            $type,
+            $user_name,
+            ' has sent you a connection request',
+            $user->avatar ?? '',
             [
                 'user_name' => $user->first_name.' '.$user->last_name,
                 'user_avatar' => $user->avatar,
                 'description' => $user->about,
+                'sender_id' => $receiver_user->id,
+                'connection_request_id' => $connection_request->id,
                 'is_connection_request' => true,
             ]
         );
+
+        return ['message' => 'Connection request successfully sent'];
+
     }
 
     public function send_connection_requests(User $user, array $user_ids)
@@ -622,12 +629,31 @@ class UserService
 
         $notifications->getCollection()->transform(
             function ($notif) {
+
+                if (str_contains(
+                    $notif->body,
+                    'has sent you a connection request'
+                )) {
+                    $connection_request = ConnectionRequest::find(
+                        $notif->additional_data['connection_request_id']
+                    );
+
+                    return [
+                        'title' => $notif->title,
+                        'body' => $notif->body,
+                        'image' => $notif->image,
+                        'created_at' => $notif->created_at,
+                        'is_connection_request' => true,
+                        'is_connection_request_accepted' => $connection_request->status == 'accepted',
+                        'is_connection_request_rejected' => $connection_request->status == 'rejected',
+                    ];
+                }
+
                 return [
-                    ...($notif->toArray()),
-                    'is_connection_request' => str_contains(
-                        $notif->body,
-                        'has sent you a connection request'
-                    ),
+                    'title' => $notif->title,
+                    'body' => $notif->body,
+                    'image' => $notif->image,
+                    'created_at' => $notif->created_at,
                 ];
             }
         );

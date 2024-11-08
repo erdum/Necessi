@@ -31,6 +31,7 @@ class NotificationFactory extends Factory
                 'has commented on your post',
             ]),
            'image' => $user->avatar,
+           // 'additional_data' => ['receiver_id' => $user->id],
         ];
     }
 }

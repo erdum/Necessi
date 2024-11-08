@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('title');
             $table->string('body');
             $table->string('image');
+            $table->json('additional_data')->nullable();
             $table->timestamps();
         });
     }

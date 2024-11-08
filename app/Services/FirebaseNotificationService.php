@@ -58,6 +58,7 @@ class FirebaseNotificationService
         $notification->title = $title;
         $notification->body = $body;
         $notification->image = $image;
+        $notification->additional_data = $additional_data;
         $user->notifications()->save($notification);
 
         $firebaseNotification = FirebaseNotification::create(
