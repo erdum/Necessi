@@ -23,9 +23,12 @@ class UserService
 
     protected $post_service;
 
+    protected $notification_service;
+
     public function __construct(
         Factory $factory,
         PostService $post_service,
+        NotificationService $notification_service
     ) {
         $firebase = $factory->withServiceAccount(
             base_path()
@@ -35,6 +38,7 @@ class UserService
         $this->db = $firebase->createFirestore()->database();
         $this->auth = $firebase->createAuth();
         $this->post_service = $post_service;
+        $this->notification_service = $notification_service;
     }
 
     private function is_connected(User $current_user, User $target_user)
@@ -442,7 +446,6 @@ class UserService
     public function accept_connection_request(
         User $user,
         int $user_id,
-        NotificationService $notification_service
     )
     {
         $connection_request = ConnectionRequest::where('receiver_id', $user->id)
@@ -548,7 +551,6 @@ class UserService
     private function send_request(
         int $sender_id,
         int $receiver_id,
-        NotificationService $notification_service
     )
     {
         $existing_request = ConnectionRequest::where('sender_id', $sender_id)
