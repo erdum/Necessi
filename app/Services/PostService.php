@@ -56,14 +56,14 @@ class PostService
                 $body = $title . ' has bid on your post';
                 break;
 
-            case 'post_accepted':
+            case 'bid_accepted':
                 if (!($receiver_user->preferences?->biding_notifications ?? true)) {
                     return;
                 }
                 $body = $title . ' has accepted your bid request';
                 break;
 
-            case 'post_rejected':
+            case 'bid_rejected':
                 if (!($receiver_user->preferences?->biding_notifications ?? true)) {
                         return;
                 }
@@ -292,7 +292,7 @@ class PostService
         ]);
 
         $receiver_user = User::find($bid->user_id);
-        $type = 'post_accepted';
+        $type = 'bid_accepted';
         $user_name = $user->first_name . ' ' . $user->last_name;
 
 
@@ -332,7 +332,7 @@ class PostService
         ]);
 
         $receiver_user = User::find($bid->user_id);
-        $type = 'post_rejected';
+        $type = 'bid_rejected';
         $user_name = $user->first_name . ' ' . $user->last_name;
 
 
