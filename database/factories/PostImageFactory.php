@@ -20,7 +20,15 @@ class PostImageFactory extends Factory
 
         return [
             'post_id' => fake()->randomElement($post_ids),
-            'url' => fake()->imageUrl(),
+            'url' => fake()->randomElement([
+                'avatars/0Nue4XZJ3Go7zCB.webp',
+                'avatars/yTsRcDF6FUetPkD.webp',
+                'avatars/tjha9ShkYsg86Qi.webp',
+                'avatars/t4mjGxPmVmO2lPh.webp',
+                'avatars/gz1ZD1PzDNOuIqZ.webp',
+                'avatars/mOHtO1CtiLptPJU.webp',
+                'avatars/D7dcQp2snyJbZkA.webp',
+            ]),
         ];
     }
 }

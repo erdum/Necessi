@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             'first_name' => 'Erdum',
             'last_name' => 'Adnan',
             'email' => 'erdumadnan@gmail.com',
+            'avatar' => 'avatars/m64z1YLnlynd1iB.webp',
             'lat' => 24.8599499,
             'long' => 67.0525505,
         ]);
@@ -51,6 +52,10 @@ class DatabaseSeeder extends Seeder
             \App\Models\Review::factory()->create([
                 'user_id' => $dev->id,
                 'post_id' => $post->id,
+            ]);
+
+            \App\Models\Notification::factory()->create([
+                'user_id' => $dev->id,
             ]);
         });
     }

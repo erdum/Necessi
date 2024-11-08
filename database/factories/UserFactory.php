@@ -20,7 +20,14 @@ class UserFactory extends Factory
                 '-1 month', 'now'
             ),
             'password' => Hash::make('123456'),
-            'avatar' => fake()->image(),
+            'avatar' => fake()->randomElement([
+                'avatars/0Nue4XZJ3Go7zCB.webp',
+                'avatars/yTsRcDF6FUetPkD.webp',
+                'avatars/tjha9ShkYsg86Qi.webp',
+                'avatars/t4mjGxPmVmO2lPh.webp',
+                'avatars/gz1ZD1PzDNOuIqZ.webp',
+                'avatars/mOHtO1CtiLptPJU.webp',
+            ]),
             'age' => fake()->numberBetween(18, 65),
             'about' => fake()->paragraph(),
             'lat' => fake()->latitude(),
