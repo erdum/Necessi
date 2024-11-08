@@ -53,42 +53,42 @@ class PostService
                 if (!($receiver_user->preferences?->biding_notifications ?? true)) {
                     return;
                 }
-                $body = $title . ' has bid on your post';
+                $body = ' has bid on your post';
                 break;
 
             case 'bid_accepted':
                 if (!($receiver_user->preferences?->biding_notifications ?? true)) {
                     return;
                 }
-                $body = $title . ' has accepted your bid request';
+                $body = ' has accepted your bid request';
                 break;
 
             case 'bid_rejected':
                 if (!($receiver_user->preferences?->biding_notifications ?? true)) {
                         return;
                 }
-                $body = $title . ' has rejected your bid request';
+                $body = ' has rejected your bid request';
                 break;
 
             case 'placed_comment':
                 if (!($receiver_user->preferences?->activity_notifications ?? true)) {
                         return;
                 }
-                $body = $title . ' has commented on your post';
+                $body = ' has commented on your post';
                 break;
 
             case 'send_connection_request':
                 if (!($receiver_user->preferences?->activity_notifications ?? true)) {
                     return;
                 }
-                $body = $title . ' has sent you a connection request';
+                $body = ' has sent you a connection request';
                 break;
             
             case 'accept_connection_request':
                 if (!($receiver_user->preferences?->activity_notifications ?? true)) {
                     return;
                 }
-                $body = $title . ' has accept your connection request';
+                $body = ' has accept your connection request';
                 break;
 
             default:
