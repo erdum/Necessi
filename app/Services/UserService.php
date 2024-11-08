@@ -617,13 +617,21 @@ class UserService
 
     public function get_notifications(User $user)
     {
-        $notifications = Notification::select(
-            'title',
-            'body',
-            'image',
-            'created_at'
-        )->where('user_id', $user->id)->orderBy('created_at', 'desc')
+        $notifications = Notification::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
             ->paginate(10);
+
+        $notifications->getCollection()->transform(
+            function ($notif) use ($user) {
+                return [
+                    ...($notif->toArray()),
+                    'is_connection_request' => str_contains(
+                        $notif->body,
+                        'has sent you a connection request'
+                    ),
+                ];
+            }
+        );
 
         return $notifications;
     }
