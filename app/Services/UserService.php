@@ -5,11 +5,11 @@ namespace App\Services;
 use App\Exceptions;
 use App\Jobs\StoreImages;
 use App\Models\ConnectionRequest;
+use App\Models\Notification;
 use App\Models\PostLike;
 use App\Models\Review;
 use App\Models\User;
 use App\Models\UserPreference;
-use App\Models\Notification;
 use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
@@ -49,7 +49,7 @@ class UserService
             ])
             ->where('status', 'accepted')
             ->exists();
-    } 
+    }
 
     public function update_profile(
         User $user,
@@ -230,24 +230,24 @@ class UserService
                 ->orWhere('receiver_id', $user->id)
                 ->limit(3)
                 ->get();
-    
+
             foreach ($connections as $connection) {
                 $connected_user_id = $connection->sender_id == $user->id
                     ? $connection->receiver_id : $connection->sender_id;
-    
+
                 $user_connection = User::find($connected_user_id);
-    
+
                 if ($user_connection) {
                     $connections_data[] = [
                         'id' => $user_connection->id,
-                        'user_name' => $user_connection->first_name . ' ' . $user_connection->last_name,
+                        'user_name' => $user_connection->first_name.' '.$user_connection->last_name,
                         'avatar' => $user_connection->avatar,
                     ];
                 }
             }
             $connection_count = $connections->count();
         }
- 
+
         foreach ($reviews as $review) {
             $reviews_data[] = [
                 'post_id' => $review->post_id,
@@ -300,7 +300,7 @@ class UserService
             ]] : [],
             'reviews' => $reviews_data,
         ];
-    }  
+    }
 
     public function set_location(
         User $user,
@@ -453,7 +453,7 @@ class UserService
 
         $receiver_user = User::find($user_id);
         $type = 'accept_connection_request';
-        $user_name = $user->first_name . ' ' . $user->last_name;
+        $user_name = $user->first_name.' '.$user->last_name;
 
         $this->post_service->push_new_message_notification(
             $user_name,
@@ -461,7 +461,7 @@ class UserService
             $receiver_user,
             $type,
             [
-                'user_name' => $user->first_name . ' ' . $user->last_name,
+                'user_name' => $user->first_name.' '.$user->last_name,
                 'user_avatar' => $user->avatar,
                 'description' => $user->about,
             ]
@@ -558,8 +558,7 @@ class UserService
         $receiver_user = User::find($receiver_id);
         $user = User::find($sender_id);
         $type = 'send_connection_request';
-        $user_name = $user->first_name . ' ' . $user->last_name;
-
+        $user_name = $user->first_name.' '.$user->last_name;
 
         $this->post_service->push_new_message_notification(
             $user_name,
@@ -567,7 +566,7 @@ class UserService
             $receiver_user,
             $type,
             [
-                'user_name' => $user->first_name . ' ' . $user->last_name,
+                'user_name' => $user->first_name.' '.$user->last_name,
                 'user_avatar' => $user->avatar,
                 'description' => $user->about,
                 'is_connection_request' => true,
@@ -622,7 +621,7 @@ class UserService
             ->paginate(10);
 
         $notifications->getCollection()->transform(
-            function ($notif) use ($user) {
+            function ($notif) {
                 return [
                     ...($notif->toArray()),
                     'is_connection_request' => str_contains(
@@ -636,7 +635,8 @@ class UserService
         return $notifications;
     }
 
-    public function clear_user_notifications(User $user) {
+    public function clear_user_notifications(User $user)
+    {
         Notification::where('user_id', $user->id)->delete();
 
         return ['message' => 'User notifications has successfully deleted'];
@@ -700,11 +700,13 @@ class UserService
     ) {
         $other_user = User::where('uid', $uid)->first();
 
-        if (!$other_user) throw new Exceptions\UserNotFound;
+        if (! $other_user) {
+            throw new Exceptions\UserNotFound;
+        }
 
         if ($user->is_blocked($other_user->id)) {
             return [
-                'message' => 'User is already blocked'
+                'message' => 'User is already blocked',
             ];
         } else {
             $user->blocked_users()->attach($other_user->id, [
@@ -713,7 +715,7 @@ class UserService
             ]);
 
             return [
-                'message' => 'User successfully blocked'
+                'message' => 'User successfully blocked',
             ];
         }
     }
@@ -724,17 +726,19 @@ class UserService
     ) {
         $other_user = User::where('uid', $uid)->first();
 
-        if (!$other_user) throw new Exceptions\UserNotFound;
+        if (! $other_user) {
+            throw new Exceptions\UserNotFound;
+        }
 
         if ($user->is_blocked($other_user->id)) {
             $user->blocked_users()->detach($other_user->id);
 
             return [
-                'message' => 'User successfully unblocked'
+                'message' => 'User successfully unblocked',
             ];
         } else {
             return [
-                'message' => 'User is not blocked'
+                'message' => 'User is not blocked',
             ];
         }
     }

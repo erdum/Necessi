@@ -272,7 +272,7 @@ class UserController extends Controller
     ) {
         $request->validate([
             'reason_type' => 'required|in:harassment,spam,scam,privacy violation,inappropriate content,unwanted content,uncomfortable interaction,other',
-            'other_reason' => 'required_if:reason_type,other'
+            'other_reason' => 'required_if:reason_type,other',
         ]);
 
         $response = $user_service->block_user(

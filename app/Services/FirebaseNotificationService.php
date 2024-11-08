@@ -3,10 +3,10 @@
 namespace App\Services;
 
 use App\Exceptions;
-use App\Models\User;
-use Kreait\Firebase\Factory;
 use App\Models\Notification;
+use App\Models\User;
 use App\Models\UserNotificationDevice;
+use Kreait\Firebase\Factory;
 use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Messaging\Notification as FirebaseNotification;
 
@@ -49,11 +49,11 @@ class FirebaseNotificationService
             'user_id',
             $user->id
         )->first();
-    
-        if (!$notification_device) {
+
+        if (! $notification_device) {
             throw new Exceptions\FcmTokenNotFound;
         }
-        
+
         $notification = new Notification;
         $notification->title = $title;
         $notification->body = $body;
@@ -70,12 +70,12 @@ class FirebaseNotificationService
             ->withNotification($firebaseNotification)
             ->withData($additional_data)
             ->withDefaultSounds();
-    
+
         $send_report = $this->messaging->sendMulticast(
             $message,
             [$notification_device->fcm_token]
         );
-    
+
         if ($send_report->hasFailures()) {
             $messages = [];
             foreach ($send_report->failures()->getItems() as $failure) {
@@ -83,7 +83,7 @@ class FirebaseNotificationService
             }
             Log::warning('Failed to send notifications: ', $messages);
         }
-    
+
         return [
             'message' => 'Notifications successfully sent',
             'send_report' => $send_report ?? null,

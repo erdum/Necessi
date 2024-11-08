@@ -337,7 +337,7 @@ class PostController extends Controller
     }
 
     public function get_received_bids(
-        Request $request, 
+        Request $request,
         PostService $post_service
     ) {
         $response = $post_service->get_received_bids(

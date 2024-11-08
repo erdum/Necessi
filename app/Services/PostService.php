@@ -6,14 +6,13 @@ use App\Exceptions;
 use App\Jobs\StoreImages;
 use App\Models\Post;
 use App\Models\PostBid;
+use App\Models\PostComment;
 use App\Models\PostImage;
 use App\Models\PostLike;
-use App\Models\PostComment;
 use App\Models\Review;
 use App\Models\User;
 use Carbon\Carbon;
 use Google\Cloud\Firestore\FieldValue;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Kreait\Firebase\Factory;
 
 class PostService
@@ -42,7 +41,7 @@ class PostService
         string $type,
         ?array $additional_data = null
     ) {
-        if (!$receiver_user) {
+        if (! $receiver_user) {
             return;
         }
 
@@ -50,49 +49,49 @@ class PostService
 
         switch ($type) {
             case 'post_bidding':
-                if (!($receiver_user->preferences?->biding_notifications ?? true)) {
+                if (! ($receiver_user->preferences?->biding_notifications ?? true)) {
                     return;
                 }
                 $body = ' has bid on your post';
                 break;
 
             case 'bid_accepted':
-                if (!($receiver_user->preferences?->biding_notifications ?? true)) {
+                if (! ($receiver_user->preferences?->biding_notifications ?? true)) {
                     return;
                 }
                 $body = ' has accepted your bid request';
                 break;
 
             case 'bid_rejected':
-                if (!($receiver_user->preferences?->biding_notifications ?? true)) {
-                        return;
+                if (! ($receiver_user->preferences?->biding_notifications ?? true)) {
+                    return;
                 }
                 $body = ' has rejected your bid request';
                 break;
 
             case 'placed_comment':
-                if (!($receiver_user->preferences?->activity_notifications ?? true)) {
-                        return;
+                if (! ($receiver_user->preferences?->activity_notifications ?? true)) {
+                    return;
                 }
                 $body = ' has commented on your post';
                 break;
 
             case 'send_connection_request':
-                if (!($receiver_user->preferences?->activity_notifications ?? true)) {
+                if (! ($receiver_user->preferences?->activity_notifications ?? true)) {
                     return;
                 }
                 $body = ' has sent you a connection request';
                 break;
-            
+
             case 'accept_connection_request':
-                if (!($receiver_user->preferences?->activity_notifications ?? true)) {
+                if (! ($receiver_user->preferences?->activity_notifications ?? true)) {
                     return;
                 }
                 $body = ' has accept your connection request';
                 break;
 
             default:
-                return; 
+                return;
         }
 
         $this->notification_service->push_notification(
@@ -253,8 +252,7 @@ class PostService
 
         $receiver_user = User::find($post->user_id);
         $type = 'post_bidding';
-        $user_name = $user->first_name . ' ' . $user->last_name;
-
+        $user_name = $user->first_name.' '.$user->last_name;
 
         $this->push_new_message_notification(
             $user_name,
@@ -262,7 +260,7 @@ class PostService
             $receiver_user,
             $type,
             [
-                'user_name' => $user->first_name . ' ' . $user->last_name,
+                'user_name' => $user->first_name.' '.$user->last_name,
                 'user_avatar' => $user->avatar,
                 'description' => $user->about,
             ]
@@ -293,8 +291,7 @@ class PostService
 
         $receiver_user = User::find($bid->user_id);
         $type = 'bid_accepted';
-        $user_name = $user->first_name . ' ' . $user->last_name;
-
+        $user_name = $user->first_name.' '.$user->last_name;
 
         $this->push_new_message_notification(
             $user_name,
@@ -302,7 +299,7 @@ class PostService
             $receiver_user,
             $type,
             [
-                'user_name' => $user->first_name . ' ' . $user->last_name,
+                'user_name' => $user->first_name.' '.$user->last_name,
                 'user_avatar' => $user->avatar,
                 'description' => $user->about,
             ]
@@ -333,8 +330,7 @@ class PostService
 
         $receiver_user = User::find($bid->user_id);
         $type = 'bid_rejected';
-        $user_name = $user->first_name . ' ' . $user->last_name;
-
+        $user_name = $user->first_name.' '.$user->last_name;
 
         $this->push_new_message_notification(
             $user_name,
@@ -342,7 +338,7 @@ class PostService
             $receiver_user,
             $type,
             [
-                'user_name' => $user->first_name . ' ' . $user->last_name,
+                'user_name' => $user->first_name.' '.$user->last_name,
                 'user_avatar' => $user->avatar,
                 'description' => $user->about,
             ]
@@ -507,8 +503,8 @@ class PostService
     }
 
     public function place_comment(
-        User $user, 
-        int $post_id, 
+        User $user,
+        int $post_id,
         string $post_comment
     ) {
         $post = Post::find($post_id);
@@ -525,8 +521,7 @@ class PostService
 
         $receiver_user = User::find($post->user_id);
         $type = 'placed_comment';
-        $user_name = $user->first_name . ' ' . $user->last_name;
-
+        $user_name = $user->first_name.' '.$user->last_name;
 
         $this->push_new_message_notification(
             $user_name,
@@ -534,7 +529,7 @@ class PostService
             $receiver_user,
             $type,
             [
-                'user_name' => $user->first_name . ' ' . $user->last_name,
+                'user_name' => $user->first_name.' '.$user->last_name,
                 'user_avatar' => $user->avatar,
                 'description' => $user->about,
             ]
@@ -1009,17 +1004,16 @@ class PostService
         }
 
         $received_bids = PostBid::whereIn('post_id', $user_posts)
-           ->with(['user:id,first_name,last_name,avatar', 'post'])->get();
+            ->with(['user:id,first_name,last_name,avatar', 'post'])->get();
 
-        return $received_bids->map(function ($received_bid)
-        {
+        return $received_bids->map(function ($received_bid) {
             return [
                 'bid_id' => $received_bid->id,
                 'post_id' => $received_bid->post_id,
                 'bid_amount' => $received_bid->amount,
                 'status' => $received_bid->status,
                 'user_id' => $received_bid->user->id,
-                'user_name' => $received_bid->user->first_name . ' ' . $received_bid->user->last_name,
+                'user_name' => $received_bid->user->first_name.' '.$received_bid->user->last_name,
                 'avatar' => $received_bid->user->avatar,
                 'budget' => $received_bid->post->budget,
                 'duration' => Carbon::parse($received_bid->post->start_date)->format('d M').' - '.
