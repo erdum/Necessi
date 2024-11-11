@@ -648,7 +648,10 @@ class PostService
             ];
         }
 
-        return $comments;
+        return [
+            'current_user' => $user,
+            'comments' => $comments,
+        ];
     }
 
     public function edit_post(
