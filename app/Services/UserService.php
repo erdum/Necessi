@@ -28,7 +28,7 @@ class UserService
     public function __construct(
         Factory $factory,
         PostService $post_service,
-        NotificationService $notification_service
+        FirebaseNotificationService $notification_service
     ) {
         $firebase = $factory->withServiceAccount(
             base_path()
