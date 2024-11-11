@@ -63,6 +63,31 @@ class FirebaseNotificationService
             throw new Exceptions\FcmTokenNotFound;
         }
 
+        if (! (
+            $type == NotificationType::GENERAL
+            && $user->preferences->general_notifications
+        )) return;
+
+        if (! (
+            $type == NotificationType::BID
+            && $user->preferences->biding_notifications
+        )) return;
+
+        if (! (
+            $type == NotificationType::TRANSACTION
+            && $user->preferences->transaction_notifications
+        )) return;
+
+        if (! (
+            $type == NotificationType::ACTIVITY
+            && $user->preferences->activity_notifications
+        )) return;
+
+        if (! (
+            $type == NotificationType::MESSAGE
+            && $user->preferences->messages_notifications
+        )) return;
+
         $notification = new Notification;
         $notification->type = $type;
         $notification->title = $title;
