@@ -207,7 +207,7 @@ class UserService
         $distance = null;
         $connection_request_status = 'not send';
 
-        $connection_visibility = $user->preferences->who_can_see_connections;
+        $connection_visibility = $user->preferences?->who_can_see_connections;
         $is_own_profile = $user->id === $current_user->id;
 
         if ($connection_request) {
