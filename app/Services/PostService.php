@@ -879,7 +879,7 @@ class PostService
             ->first();
 
         if (! $post) {
-            throw new Exeptions\InvalidPostId;
+            throw new Exceptions\InvalidPostId;
         }
         $user_bid = $user->bids()->where('post_id', $post_id)->first();
 
@@ -937,7 +937,7 @@ class PostService
             ->first();
 
         if (! $post) {
-            throw new Exeptions\InvalidPostId;
+            throw new Exceptions\InvalidPostId;
         }
 
         $user_bid = PostBid::where('user_id', $user->id)->where('post_id', $post_id)->first();
