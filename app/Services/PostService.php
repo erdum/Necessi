@@ -645,6 +645,7 @@ class PostService
                 'user_name' => $comment->user->first_name.' '.$comment->user->last_name,
                 'avatar' => $comment->user->avatar,
                 'comment' => $comment->data,
+                'created_at' => $comment->created_at->diffForHumans(),
             ];
         }
 
