@@ -54,9 +54,6 @@ class DatabaseSeeder extends Seeder
                 'post_id' => $post->id,
             ]);
 
-            // \App\Models\Notification::factory()->create([
-            //     'user_id' => $dev->id,
-            // ]);
         });
     }
 }

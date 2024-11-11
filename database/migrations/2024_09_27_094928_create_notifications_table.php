@@ -15,6 +15,13 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained()
                 ->onDelete('cascade');
+            $table->enum('type', [
+                'general',
+                'bid',
+                'transaction',
+                'activity',
+                'message'
+            ])->default('activity');
             $table->string('title');
             $table->string('body');
             $table->string('image');

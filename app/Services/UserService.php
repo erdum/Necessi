@@ -464,6 +464,7 @@ class UserService
 
         $this->notification_service->push_notification(
             $receiver_user,
+            NotificationType::ACTIVITY,
             $user_name,
             ' has accept your connection request',
             $user->avatar ?? '',
@@ -574,6 +575,7 @@ class UserService
 
         $this->notification_service->push_notification(
             $receiver_user,
+            NotificationType::ACTIVITY,
             $user_name,
             ' has sent you a connection request',
             $user->avatar ?? '',

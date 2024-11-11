@@ -187,6 +187,7 @@ class PostService
 
         $this->notification_service->push_notification(
             $receiver_user,
+            NotificationType::BID,
             $user_name,
             ' has placed bid on your post',
             $user->avatar ?? '',
@@ -228,6 +229,7 @@ class PostService
 
         $this->notification_service->push_notification(
             $receiver_user,
+            NotificationType::BID,
             $user_name,
             ' has accepted your bid request',
             $user->avatar ?? '',
@@ -269,6 +271,7 @@ class PostService
 
         $this->notification_service->push_notification(
             $receiver_user,
+            NotificationType::BID,
             $user_name,
             ' has rejected your bid request',
             $user->avatar ?? '',
@@ -462,6 +465,7 @@ class PostService
 
         $this->notification_service->push_notification(
             $receiver_user,
+            NotificationType::ACTIVITY,
             $user_name,
             ' has commented on your post',
             $user->avatar ?? '',

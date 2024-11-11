@@ -10,6 +10,14 @@ use Kreait\Firebase\Factory;
 use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Messaging\Notification as FirebaseNotification;
 
+enum NotificationType:string {
+    case GENERAL = 'general';
+    case BID = 'bid';
+    case TRANSACTION = 'transaction';
+    case ACTIVITY = 'activity';
+    case MESSAGE = 'message';
+}
+
 class FirebaseNotificationService
 {
     protected $messaging;
@@ -40,6 +48,7 @@ class FirebaseNotificationService
 
     public function push_notification(
         User $user,
+        NotificationType $type,
         string $title,
         string $body,
         ?string $image = null,
@@ -55,6 +64,7 @@ class FirebaseNotificationService
         }
 
         $notification = new Notification;
+        $notification->type = $type;
         $notification->title = $title;
         $notification->body = $body;
         $notification->image = $image;
