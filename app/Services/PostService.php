@@ -914,6 +914,7 @@ class PostService
                 'avatar' => $post->user->avatar,
                 'bid_amount' => $post_bid->amount,
                 'bid_status' => $post_bid->status,
+                'created_at' => $post_bid->created_at->diffForHumans(),
                 'is_lowest' => $is_first,
             ];
             $is_first = false;
@@ -931,6 +932,7 @@ class PostService
             'duration' => Carbon::parse($post->start_date)->format('d M').' - '.
                           Carbon::parse($post->end_date)->format('d M y'),
             'user_bid_amount' => $user_bid->amount,
+            'payment_status' => 'pending',
             'bids' => $bids_data,
         ];
     }
