@@ -649,7 +649,8 @@ class PostService
         }
 
         return [
-            'current_user' => $user,
+            'current_user_name' => $user->first_name.' '.$user->last_name,
+            'current_user_avatar' => $user->avatar,
             'comments' => $comments,
         ];
     }
