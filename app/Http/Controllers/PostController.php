@@ -301,10 +301,12 @@ class PostController extends Controller
 
     public function get_placed_bids(
         Request $request,
-        PostService $post_service
+        PostService $post_service,
+        string $bid_id = null
     ) {
         $response = $post_service->get_placed_bids(
             $request->user(),
+            $bid_id,
         );
 
         return response()->json($response);

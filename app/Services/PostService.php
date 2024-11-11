@@ -810,10 +810,41 @@ class PostService
         ];
     }
 
-    public function get_placed_bids(User $user)
+    public function get_placed_bids(User $user, ?string $bid_id)
     {
         if (! $user) {
             throw new Exceptions\UserNotFound;
+        }
+
+        if($bid_id)
+        {
+            $user_bid = PostBid::where('id', $bid_id)->where('user_id', $user->id)->with('post')->first();
+            // return $user_bid;
+
+            $distance = $this->calculateDistance(
+                $user->lat,
+                $user->long,
+                $user_bid->post->lat,
+                $user_bid->post->long,
+            );
+
+            return [
+                'bid_id' => $user_bid->id,
+                'post_id' => $user_bid->post_id,
+                'user_name' => $user_bid->user->first_name . ' ' . $user_bid->user->last_name,
+                'avatar' => $user_bid->user->avatar,
+                'type' => $user_bid->post->type,
+                'location' => $user_bid->post->city,
+                'distance' => round($distance, 2).' miles away',
+                'title' => $user_bid->post->title,
+                'decscription' => $user_bid->post->description,
+                'budget' => $user_bid->post->budget,
+                'duration' => Carbon::parse($user_bid->post->start_date)->format('d M').' - '.
+                              Carbon::parse($user_bid->post->end_date)->format('d M y'),
+                'current_user_name' => $user->first_name . ' ' . $user->last_name,
+                'curretn_user_avatar' => $user->avatar,
+                'current_user_bid_amount' => $user_bid->amount,
+            ];
         }
 
         $user_bids = PostBid::where('user_id', $user->id)->get();

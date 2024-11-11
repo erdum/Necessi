@@ -128,7 +128,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Get user palced bids on a post
     Route::get(
-        '/user/bids/placed',
+        '/user/bids/placed/{bid_id?}',
         [PostController::class, 'get_placed_bids']
     );
 
