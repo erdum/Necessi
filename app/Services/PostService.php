@@ -827,6 +827,7 @@ class PostService
 
                 if ($post) {
                     $bid_data = [
+                        'bid_id' => $bid->id,
                         'post_id' => $bid->post_id,
                         'bid_status' => $bid->status,
                         'bid_placed_amount' => $bid->amount,
@@ -850,6 +851,26 @@ class PostService
         }
 
         return $placed_bids;
+    }
+
+    public function remove_rejected_bid(User $user, int $bid_id)
+    {
+        $user_bid = $user->bids()->where('id', $bid_id)->first();
+
+        if (! $user_bid) {
+            throw new Exceptions\BidNotFound;
+        }
+        
+        if($user_bid->status == 'rejected')
+        {
+            $user_bid->delete();
+
+            return [
+                'message' => 'Bid successfully removed'
+            ];
+        }else{
+            throw new Exceptions\BidNotFound;
+        }
     }
 
     public function get_placed_bid_status(User $user, int $post_id)

@@ -132,6 +132,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [PostController::class, 'get_placed_bids']
     );
 
+    // romove user rejected bid on a post
+    Route::delete(
+        '/user/bid/{bid_id}',
+        [PostController::class, 'remove_rejected_bid']
+    );
+
     // Get user Received bids on a post
     Route::get(
         '/user/bids/received',

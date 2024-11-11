@@ -310,6 +310,19 @@ class PostController extends Controller
         return response()->json($response);
     }
 
+    public function remove_rejected_bid(
+        Request $request, 
+        PostService $post_service,
+        string $bid_id,
+    ){
+        $response = $post_service->remove_rejected_bid(
+            $request->user(),
+            $bid_id,
+        );
+
+        return response()->json($response);
+    }
+
     public function get_placed_bid_status(
         Request $request,
         PostService $post_service,

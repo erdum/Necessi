@@ -27,6 +27,8 @@ class PostFactory extends Factory
             'location' => fake()->address(),
             'lat' => fake()->latitude(),
             'long' => fake()->longitude(),
+            'city' => 'Karachi',
+            'state' => 'Sindh',
             'budget' => fake()->numberBetween(10, 1000),
             'start_date' => $start_date,
             'end_date' => fake()->dateTimeBetween($start_date, '+1 month'),
