@@ -658,6 +658,7 @@ class UserService
                         'is_connection_request' => true,
                         'is_connection_request_accepted' => $connection_request->status == 'accepted',
                         'is_connection_request_rejected' => $connection_request->status == 'rejected',
+                        'sender_id' => $notif->additional_data['sender_id'],
                     ];
                 }
 
