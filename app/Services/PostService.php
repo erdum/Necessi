@@ -827,7 +827,8 @@ class PostService
 
         if($bid_id)
         {
-            $user_bid = PostBid::where('id', $bid_id)->where('user_id', $user->id)->with('post')->first();
+            $post_ids =  $user->posts()->pluck('id');
+            $user_bid = PostBid::where('id', $bid_id)->whereIn('post_id', $post_ids)->with('post')->first();
 
             if(! $user_bid){
                 return $user_bid;
@@ -856,6 +857,7 @@ class PostService
                 'current_user_name' => $user->first_name . ' ' . $user->last_name,
                 'curretn_user_avatar' => $user->avatar,
                 'current_user_bid_amount' => $user_bid->amount,
+                'bid_status' => $user_bid->status,
             ];
         }
 
