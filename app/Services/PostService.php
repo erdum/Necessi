@@ -238,7 +238,7 @@ class PostService
                 'user_avatar' => $user->avatar,
                 'description' => $user->about,
                 'sender_id' => $user->id,
-                'post_id' => $post->id,
+                'post_id' => $bid->post_id,
             ]
         );
 
@@ -280,7 +280,7 @@ class PostService
                 'user_avatar' => $user->avatar,
                 'description' => $user->about,
                 'sender_id' => $user->id,
-                'post_id' => $post->id,
+                'post_id' => $bid->post_id,
             ]
         );
 
