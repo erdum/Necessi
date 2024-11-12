@@ -97,6 +97,8 @@ class PostController extends Controller
             $request->user(),
             $bid_id
         );
+
+        return response()->json($response);
     }
 
     public function get_user_posts(
