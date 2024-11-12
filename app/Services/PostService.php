@@ -1009,7 +1009,7 @@ class PostService
             throw new Exceptions\PostNotFound;
         }
 
-        $received_bids = PostBid::whereIn('post_id', $user_posts)
+        $received_bids = PostBid::whereIn('post_id', $user_posts)->whereNot('status', 'rejected')
             ->with(['user:id,first_name,last_name,avatar', 'post'])->get();
 
         return $received_bids->map(function ($received_bid) {
