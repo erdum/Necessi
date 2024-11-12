@@ -260,10 +260,18 @@ class PostService
 
         $bid_ref = $this->db->collection('bids')->document($bid->user->uid)
             ->collection('post_bid')->document($bid->post_id);
+            
+        $snapshot = $bid_ref->snapshot();
 
-        $bid_ref->update([
-            ['path' => 'status', 'value' => 'rejected'],
-        ]);
+        if ($snapshot->exists()) {
+            $bid_ref->update([
+                ['path' => 'status', 'value' => 'rejected'],
+            ]);
+        }
+
+        // $bid_ref->update([
+        //     ['path' => 'status', 'value' => 'rejected'],
+        // ]);
 
         $receiver_user = User::find($bid->user_id);
         $type = 'bid_rejected';
