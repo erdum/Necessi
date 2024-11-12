@@ -1006,7 +1006,7 @@ class PostService
         $user_posts = $user->posts->pluck('id');
 
         if ($user_posts->isEmpty()) {
-            throw new Exceptions\PostNotFound;
+            return [];
         }
 
         $received_bids = PostBid::whereIn('post_id', $user_posts)->whereNot('status', 'rejected')
