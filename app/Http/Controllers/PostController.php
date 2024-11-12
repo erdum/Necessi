@@ -240,7 +240,7 @@ class PostController extends Controller
     public function edit_post(
         Request $request,
         PostService $post_service,
-        $post_id,
+        int $post_id,
     ) {
         $request->validate([
             'title' => 'nullable|string',
