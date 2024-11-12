@@ -9,6 +9,7 @@ use App\Models\UserNotificationDevice;
 use Kreait\Firebase\Factory;
 use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Messaging\Notification as FirebaseNotification;
+use Illuminate\Support\Facades\Log;
 
 enum NotificationType:string {
     case GENERAL = 'general';
