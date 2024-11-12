@@ -600,6 +600,7 @@ class PostService
             throw new Exceptions\InvalidPostId;
         }
         $bids = [];
+        $status = 'lowest';
 
         foreach ($post->bids as $bid) {
             $bids[] = [
@@ -607,8 +608,9 @@ class PostService
                 'avatar' => $bid->user->avatar,
                 'amount' => $bid->amount,
                 'created_at' => Carbon::parse($bid->created_at)->diffForHumans(),
-                'status' => $bid->status,
+                'status' => $status,
             ];
+            $status = $bid->status;
         }
 
         return $bids;
