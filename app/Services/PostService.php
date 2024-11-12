@@ -195,7 +195,7 @@ class PostService
                 'user_name' => $user->first_name.' '.$user->last_name,
                 'user_avatar' => $user->avatar,
                 'description' => $user->about,
-                'sender_id' => $receiver_user->id,
+                'sender_id' => $user->id,
                 'post_id' => $post->id,
             ]
         );
@@ -237,7 +237,7 @@ class PostService
                 'user_name' => $user->first_name.' '.$user->last_name,
                 'user_avatar' => $user->avatar,
                 'description' => $user->about,
-                'sender_id' => $receiver_user->id,
+                'sender_id' => $user->id,
                 'post_id' => $post->id,
             ]
         );
@@ -279,7 +279,7 @@ class PostService
                 'user_name' => $user->first_name.' '.$user->last_name,
                 'user_avatar' => $user->avatar,
                 'description' => $user->about,
-                'sender_id' => $receiver_user->id,
+                'sender_id' => $user->id,
                 'post_id' => $post->id,
             ]
         );
@@ -473,7 +473,7 @@ class PostService
                 'user_name' => $user->first_name.' '.$user->last_name,
                 'user_avatar' => $user->avatar,
                 'description' => $user->about,
-                'sender_id' => $receiver_user->id,
+                'sender_id' => $user->id,
                 'post_id' => $post->id,
             ]
         );

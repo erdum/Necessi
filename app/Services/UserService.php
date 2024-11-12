@@ -472,7 +472,7 @@ class UserService
                 'user_name' => $user->first_name.' '.$user->last_name,
                 'user_avatar' => $user->avatar,
                 'description' => $user->about,
-                'sender_id' => $receiver_user->id,
+                'sender_id' => $user->id,
                 'connection_request_id' => $connection_request->id,
             ]
         );
@@ -583,7 +583,7 @@ class UserService
                 'user_name' => $user->first_name.' '.$user->last_name,
                 'user_avatar' => $user->avatar,
                 'description' => $user->about,
-                'sender_id' => $receiver_user->id,
+                'sender_id' => $user->id,
                 'connection_request_id' => $connection_request->id,
                 'is_connection_request' => true,
             ]
