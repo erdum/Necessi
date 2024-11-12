@@ -188,7 +188,7 @@ class UserService
         $recent_post = $user->posts()->latest()->first();
 
         if ($recent_post) {
-            $current_user_like = PostLike::where('user_id', $user->id)
+            $current_user_like = PostLike::where('user_id', $current_user->id)
                 ->where('post_id', $recent_post->id)->exists();
         }
 
