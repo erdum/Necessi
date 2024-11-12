@@ -219,9 +219,14 @@ class PostService
         $bid_ref = $this->db->collection('bids')->document($bid->user->uid)
             ->collection('post_bid')->document($bid->post_id);
 
-        $bid_ref->update([
-            ['path' => 'status', 'value' => 'accepted'],
-        ]);
+        $snapshot = $bid_ref->snapshot();
+
+        if ($snapshot->exists()) 
+        {
+            $bid_ref->update([
+                ['path' => 'status', 'value' => 'accepted'],
+            ]);
+        }
 
         $receiver_user = User::find($bid->user_id);
         $type = 'bid_accepted';
@@ -260,7 +265,7 @@ class PostService
 
         $bid_ref = $this->db->collection('bids')->document($bid->user->uid)
             ->collection('post_bid')->document($bid->post_id);
-            
+
         $snapshot = $bid_ref->snapshot();
 
         if ($snapshot->exists()) {
@@ -268,10 +273,6 @@ class PostService
                 ['path' => 'status', 'value' => 'rejected'],
             ]);
         }
-
-        // $bid_ref->update([
-        //     ['path' => 'status', 'value' => 'rejected'],
-        // ]);
 
         $receiver_user = User::find($bid->user_id);
         $type = 'bid_rejected';
