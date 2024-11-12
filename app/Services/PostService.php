@@ -828,7 +828,10 @@ class PostService
         if($bid_id)
         {
             $user_bid = PostBid::where('id', $bid_id)->where('user_id', $user->id)->with('post')->first();
-            // return $user_bid;
+
+            if(! $user_bid){
+                return $user_bid;
+            }
 
             $distance = $this->calculateDistance(
                 $user->lat,
