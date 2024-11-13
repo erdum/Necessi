@@ -152,6 +152,13 @@ class PostService
             ->collection('bids')->document($user->uid);
         $bid_snapshot = $bid_ref->snapshot();
 
+        $bids_ref = $this->db->collection('posts')->document($post->id)
+            ->collection('bids');
+
+        foreach ($bids_ref->documents() as $doc) {
+            $doc->update([['path' => 'is_lowest', 'value' => false]]);
+        }
+
         if ($existing_bid) {
 
             if ($bid_snapshot->exists()) {
