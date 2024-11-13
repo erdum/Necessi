@@ -2,7 +2,7 @@
 
 namespace App\Exceptions;
 
-class TokenAlreadLinked extends BaseException
+class TokenAlreadyLinked extends BaseException
 {
     protected $code = 400;
 
