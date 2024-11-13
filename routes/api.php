@@ -36,6 +36,24 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [UserController::class, 'update_user_fcm']
     );
 
+    // Add user payment card
+    Route::post(
+        '/user/payment-card',
+        [UserController::class, 'add_payment_card']
+    );
+
+    // Update user payment card
+    Route::post(
+        '/user/payment-card/{payment_method_id}',
+        [UserController::class, 'update_payment_card']
+    );
+
+    // Delete user payment card
+    Route::delete(
+        '/user/payment-card/{payment_method_id}',
+        [UserController::class, 'delete_payment_card']
+    );
+
     // Get uses notifications list
     Route::get(
         '/user/notifications',

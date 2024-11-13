@@ -17,28 +17,24 @@ use Kreait\Firebase\Factory;
 
 class UserService
 {
-    protected $db;
-
-    protected $auth;
-
     protected $post_service;
-
     protected $notification_service;
+    protected $stripe_service;
 
     public function __construct(
         Factory $factory,
         PostService $post_service,
-        FirebaseNotificationService $notification_service
+        FirebaseNotificationService $notification_service,
+        StripeService $stripe_service
     ) {
         $firebase = $factory->withServiceAccount(
             base_path()
             .DIRECTORY_SEPARATOR
             .config('firebase.projects.app.credentials')
         );
-        $this->db = $firebase->createFirestore()->database();
-        $this->auth = $firebase->createAuth();
         $this->post_service = $post_service;
         $this->notification_service = $notification_service;
+        $this->stripe_service = $stripe_service;
     }
 
     private function is_connected(User $current_user, User $target_user)
@@ -805,5 +801,70 @@ class UserService
     public function get_blocked_users(User $user)
     {
         return $user->blocked_users;
+    }
+
+    public function add_payment_card(
+        User $user,
+        string $payment_method_id,
+        string $last_digits,
+        string $expiry_month,
+        string $expiry_year,
+        string $card_holder_name,
+        string $brand_name
+    ) {
+
+        $stripe_customer_id = $this->stripe_service->get_customer_id($user);
+
+        $card = new UserPaymentCard;
+        $card->id = $payment_method_id;
+        $card->last_digits = $last_digits;
+        $card->expiry_month = $expiry_month;
+        $card->expiry_year = $expiry_year;
+        $card->card_holder_name = $card_holder_name;
+        $card->brand_name = $brand_name;
+        $card->save();
+
+        $this->stripe_service->add_card(
+            $payment_method_id,
+            stripe_customer_id
+        );
+
+        return ['message' => 'User card has been successfully attached'];
+    }
+
+    public function update_payment_card(
+        string $payment_method_id,
+        ?string $last_digits,
+        ?string $expiry_month,
+        ?string $expiry_year,
+        ?string $card_holder_name,
+        ?string $brand_name
+    ) {
+        $card = UserPaymentCard::find($payment_method_id);
+
+        if ($card->user_id != $user->id) throw new Exceptions\AccessForbidden;
+
+        $card->last_digits = $last_digits ?? $card->last_digits;
+        $card->expiry_month = $expiry_month ?? $card->expiry_month;
+        $card->expiry_year = $expiry_year ?? $card->expiry_year;
+        $card->card_holder_name = $card_holder_name ?? $card->card_holder_name;
+        $card->brand_name = $brand_name ?? $card->brand_name;
+        $card->save();
+
+        return ['message' => 'User card has been successfully updated'];
+    }
+
+    public function delete_payment_card(
+        User $user,
+        string $payment_method_id
+    ) {
+        $card = UserPaymentCard::find($payment_method_id);
+
+        if ($card->user_id != $user->id) throw new Exceptions\AccessForbidden;
+
+        $card->delete();
+        $this->stripe_service->detach_card($payment_method_id);
+
+        return ['message' => 'User card has been successfully detached'];
     }
 }

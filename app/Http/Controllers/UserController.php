@@ -306,4 +306,60 @@ class UserController extends Controller
 
         return response()->json($response);
     }
+
+    public function add_payment_card(
+        Request $request,
+        UserService $user_service
+    ) {
+        $request->validate([
+            'payment_method_id' => 'required|unique:id,user_payment_cards',
+            'last_digits' => 'required',
+            'expiry_month' => 'required',
+            'expiry_year' => 'required',
+            'card_holder_name' => 'required',
+            'brand_name' => 'required',
+        ]);
+
+        $response = $user_service->add_payment_card(
+            $request->user(),
+            $request->payment_method_id,
+            $request->last_digits,
+            $request->expiry_month,
+            $request->expiry_year,
+            $request->card_holder_name,
+            $request->brand_name
+        );
+
+        return response()->json($response);
+    }
+
+    public function update_payment_card(
+        string $payment_method_id,
+        Request $request,
+        UserService $user_service
+    ) {
+        $response = $user_service->update_payment_card(
+            $payment_method_id,
+            $request->last_digits,
+            $request->expiry_month,
+            $request->expiry_year,
+            $request->card_holder_name,
+            $request->brand_name
+        );
+
+        return response()->json($response);
+    }
+
+    public function delete_payment_card(
+        string $payment_method_id,
+        Request $request,
+        UserService $user_service
+    ) {
+        $response = $user_service->delete_payment_card(
+            $request->user(),
+            $payment_method_id
+        );
+
+        return response()->json($response);
+    }
 }

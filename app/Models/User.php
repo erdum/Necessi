@@ -150,4 +150,9 @@ class User extends Authenticatable
     {
         return $this->blocker_users()->where('blocker_id', $user_id)->exists();
     }
+
+    public function cards()
+    {
+        return $this->hasMany(UserPaymentCard::class);
+    }
 }
