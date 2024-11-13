@@ -158,7 +158,13 @@ class PostService
             ->collection('bids');
 
         foreach ($bids_ref->documents() as $doc) {
-            $doc->update([['path' => 'is_lowest', 'value' => false]]);
+            if ($doc->exists()) {
+                $doc->reference()->update([
+                    ['path' => 'is_lowest', 'value' => false]
+                ]);
+            }else {
+                continue;
+            }
         }
 
         if ($existing_bid) {
