@@ -13,13 +13,15 @@ return new class extends Migration
     {
         Schema::create('order_histories', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('post_id')->constrained()->onDelete('cascade');
-            $table->foreignId('bid_id')->constrained('post_bids')->onDelete('cascade');
+            $table->foreignId('bid_id')->constrained('post_bids')
+                ->onDelete('cascade');
+            $table->foreignId('transaction_id')->constrained()
+                ->onDelete('cascade');
             $table->timestamp('received_by_borrower')->nullable();
             $table->timestamp('received_by_lender')->nullable();
             $table->timestamps();
-            $table->unique('post_id');
             $table->unique('bid_id');
+            $table->unique('transaction_id');
         });
     }
 

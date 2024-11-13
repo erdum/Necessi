@@ -210,6 +210,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [PostController::class, 'search_all']
     );
 
+    // Make bid payment
+    Route::post(
+        '/bids/{bid_id}/payment',
+        [OrderController::class, 'make_bid_payment']
+    );
+
     // Set user location
     Route::post(
         '/user/location',
