@@ -674,8 +674,13 @@ class PostService
 
     public function get_post_comments(User $user, int $post_id)
     {
-        $post = Post::with(['comments', 'comments.user'])->find($post_id);
-
+        $post = Post::with([
+            'comments' => function ($query) {
+                $query->orderBy('created_at', 'asc');
+            },
+            'comments.user'
+        ])->find($post_id);
+        
         if (! $post) {
             throw new Exceptions\InvalidPostId;
         }
