@@ -133,8 +133,10 @@ class PostService
         }
         $lowest_bid = $post->bids()->orderBy('amount')->first();
 
-        if ($amount >= $lowest_bid->amount) {
-            throw new Exceptions\BidAmountTooHigh;
+        if ($lowest_bid) {
+            if ($amount >= $lowest_bid?->amount) {
+                throw new Exceptions\BidAmountTooHigh;
+            }
         }
 
         if ($amount > $post->budget) {
