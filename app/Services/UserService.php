@@ -462,6 +462,16 @@ class UserService
         $type = 'accept_connection_request';
         $user_name = $user->first_name.' '.$user->last_name;
 
+        $request_notification = Notification::whereJsonContains(
+            'additional_data->connection_request_id',
+            $connection_request->id
+        )->first();
+
+        if ($request_notification) {
+            $request_notification->body = 'You and '.$request_notification->title.' are now connected';
+            $request_notification->save();
+        }
+
         $this->notification_service->push_notification(
             $receiver_user,
             NotificationType::ACTIVITY,
@@ -491,6 +501,16 @@ class UserService
 
         $connection_request->status = 'rejected';
         $connection_request->save();
+
+        $request_notification = Notification::whereJsonContains(
+            'additional_data->connection_request_id',
+            $connection_request->id
+        )->first();
+
+        if ($request_notification) {
+            $request_notification->body = 'Connection request has been canceled';
+            $request_notification->save();
+        }
 
         return [
             'message' => 'Connection Decline successfully',
