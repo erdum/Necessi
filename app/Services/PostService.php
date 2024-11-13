@@ -239,7 +239,7 @@ class PostService
         $bid->status = 'accepted';
         $bid->save();
 
-        $bid_ref = $this->db->collection('posts')->document($post->id)
+        $bid_ref = $this->db->collection('posts')->document($bid->post_id)
             ->collection('bids')->document($user->uid);
 
         $snapshot = $bid_ref->snapshot();
@@ -284,7 +284,7 @@ class PostService
         $bid->status = 'rejected';
         $bid->save();
 
-        $bid_ref = $this->db->collection('posts')->document($post->id)
+        $bid_ref = $this->db->collection('posts')->document($bid->post_id)
             ->collection('bids')->document($user->uid);
 
         $snapshot = $bid_ref->snapshot();
