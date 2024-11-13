@@ -126,53 +126,58 @@ class PostService
         int $amount
     ) {
         $post = Post::find($post_id);
+        $user_name = $user->first_name.' '.$user->last_name;
 
         if (! $post) {
             throw new Exceptions\InvalidPostId;
         }
+        $lowest_bid = $post->bids()->orderBy('amount')->first();
 
-        if ($user->posts->contains('id', $post_id)) {
+        if ($amount >= $lowest_bid->amount) {
+            throw new Exceptions\BidAmountTooHigh;
+        }
+
+        if ($amount > $post->budget) {
+            throw new Exceptions\BidHigherThanBudget;
+        }
+
+        if ($post->user_id == $user->id) {
             throw new Exceptions\CannotBidOnOwnPost;
         }
 
         $existing_bid = PostBid::where('user_id', $user->id)
             ->where('post_id', $post_id)->first();
 
-        $bid_ref = $this->db->collection('bids')->document($user->uid);
-        $bid = $bid_ref->collection('post_bid')->document($post_id);
+        $bid_ref = $this->db->collection('posts')->document($post->id)
+            ->collection('bids')->document($user->uid);
+        $bid_snapshot = $bid_ref->snapshot();
 
         if ($existing_bid) {
-            if ($amount >= $existing_bid->amount) {
-                throw new Exceptions\BidAmountTooHigh;
-            }
 
-            $bid_snapshot = $bid->snapshot();
             if ($bid_snapshot->exists()) {
-                $bid->update([
+                $bid_ref->update([
                     ['path' => 'user_id', 'value' => $user->id],
                     ['path' => 'post_id', 'value' => $post_id],
                     ['path' => 'amount', 'value' => $amount],
                     ['path' => 'status', 'value' => 'pending'],
-                    ['path' => 'created_at', 'value' => FieldValue::serverTimestamp()],
+                    ['path' => 'user_avatar', 'value' => $user->avatar],
+                    ['path' => 'user_name', 'value' => $user_name],
+                    [
+                        'path' => 'created_at',
+                        'value' => FieldValue::serverTimestamp()
+                    ],
+                    ['path' => 'is_lowest', 'value' => true],
                 ]);
-
-                $existing_bid->amount = $amount;
-                $existing_bid->status = 'pending';
-                $existing_bid->save();
-
-                return [
-                    'message' => 'Your bid has been updated successfully',
-                ];
             }
-        }
 
-        $bid->set([
-            'user_id' => $user->id,
-            'post_id' => $post_id,
-            'amount' => $amount,
-            'status' => 'pending',
-            'created_at' => FieldValue::serverTimestamp(),
-        ]);
+            $existing_bid->amount = $amount;
+            $existing_bid->status = 'pending';
+            $existing_bid->save();
+
+            return [
+                'message' => 'Your bid has been updated successfully',
+            ];
+        }
 
         $post_bid = new PostBid;
         $post_bid->user_id = $user->id;
@@ -181,9 +186,18 @@ class PostService
         $post_bid->status = 'pending';
         $post_bid->save();
 
-        $receiver_user = User::find($post->user_id);
-        $type = 'post_bidding';
-        $user_name = $user->first_name.' '.$user->last_name;
+        $bid_ref->set([
+            'user_id' => $user->id,
+            'post_id' => $post_id,
+            'amount' => $amount,
+            'status' => 'pending',
+            'user_avatar' => $user->avatar,
+            'user_name' => $user_name,
+            'created_at' => FieldValue::serverTimestamp(),
+            'is_lowest' => true,
+        ]);
+
+        $receiver_user = $post->user;
 
         $this->notification_service->push_notification(
             $receiver_user,
@@ -192,7 +206,7 @@ class PostService
             ' has placed bid on your post',
             $user->avatar ?? '',
             [
-                'user_name' => $user->first_name.' '.$user->last_name,
+                'user_name' => $user_name,
                 'user_avatar' => $user->avatar,
                 'description' => $user->about,
                 'sender_id' => $user->id,
@@ -216,20 +230,18 @@ class PostService
         $bid->status = 'accepted';
         $bid->save();
 
-        $bid_ref = $this->db->collection('bids')->document($bid->user->uid)
-            ->collection('post_bid')->document($bid->post_id);
+        $bid_ref = $this->db->collection('posts')->document($post->id)
+            ->collection('bids')->document($user->uid);
 
         $snapshot = $bid_ref->snapshot();
 
-        if ($snapshot->exists()) 
-        {
+        if ($snapshot->exists())  {
             $bid_ref->update([
                 ['path' => 'status', 'value' => 'accepted'],
             ]);
         }
 
-        $receiver_user = User::find($bid->user_id);
-        $type = 'bid_accepted';
+        $receiver_user = $bid->user;
         $user_name = $user->first_name.' '.$user->last_name;
 
         $this->notification_service->push_notification(
@@ -239,7 +251,7 @@ class PostService
             ' has accepted your bid request',
             $user->avatar ?? '',
             [
-                'user_name' => $user->first_name.' '.$user->last_name,
+                'user_name' => $user_name,
                 'user_avatar' => $user->avatar,
                 'description' => $user->about,
                 'sender_id' => $user->id,
@@ -263,8 +275,8 @@ class PostService
         $bid->status = 'rejected';
         $bid->save();
 
-        $bid_ref = $this->db->collection('bids')->document($bid->user->uid)
-            ->collection('post_bid')->document($bid->post_id);
+        $bid_ref = $this->db->collection('posts')->document($post->id)
+            ->collection('bids')->document($user->uid);
 
         $snapshot = $bid_ref->snapshot();
 
@@ -274,8 +286,7 @@ class PostService
             ]);
         }
 
-        $receiver_user = User::find($bid->user_id);
-        $type = 'bid_rejected';
+        $receiver_user = $bid->user;
         $user_name = $user->first_name.' '.$user->last_name;
 
         $this->notification_service->push_notification(
@@ -285,7 +296,7 @@ class PostService
             ' has rejected your bid request',
             $user->avatar ?? '',
             [
-                'user_name' => $user->first_name.' '.$user->last_name,
+                'user_name' => $user_name,
                 'user_avatar' => $user->avatar,
                 'description' => $user->about,
                 'sender_id' => $user->id,
@@ -1000,13 +1011,18 @@ class PostService
             throw new Exceptions\BidNotFound;
         }
 
-        $bid_ref = $this->db->collection('bids')->document($user->uid);
-        $bid = $bid_ref->collection('post_bid')->document($post_id)->snapshot();
+        $bid_ref = $this->db->collection('posts')->document($post->id)
+            ->collection('bids')->document($user->uid);
+        $bid = $bid_ref->snapshot();
 
         if ($bid->exists()) {
             $bid_data = $bid->data();
-            if (isset($bid_data['post_id']) && $bid_data['post_id'] == $post_id) {
-                $bid->reference()->delete();
+
+            if (
+                isset($bid_data['post_id'])
+                && $bid_data['post_id'] == $post_id
+            ) {
+                $bid_ref->delete();
             }
         }
 
