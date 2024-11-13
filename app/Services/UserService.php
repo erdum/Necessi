@@ -527,7 +527,9 @@ class UserService
             ->first();
 
         if (! $connection) {
-            throw new Exceptions\UserNotConnected;
+            throw new Exceptions\BaseException(
+                'The specified user is not in your connections.', 400
+            );
         }
 
         $connection->delete();
@@ -732,11 +734,15 @@ class UserService
         }
 
         if (! Hash::check($old_password, $user->password)) {
-            throw new Exceptions\WrongPassword;
+            throw new Exceptions\BaseException(
+                'The current password you entered is incorrect. Please try again.', 400
+            );
         }
 
         if (Hash::check($new_password, $user->password)) {
-            throw new Exceptions\SameAsOldPassword;
+            throw new Exceptions\BaseException(
+                'New password cannot be the same as the old password.', 400
+            );
         }
 
         $user->password = Hash::make($new_password);

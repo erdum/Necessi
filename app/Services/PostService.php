@@ -135,16 +135,22 @@ class PostService
 
         if ($lowest_bid) {
             if ($amount >= $lowest_bid?->amount) {
-                throw new Exceptions\BidAmountTooHigh;
+                throw new Exceptions\BaseException(
+                    'New bid amount must be less than the previous bids', 400
+                );
             }
         }
 
         if ($amount > $post->budget) {
-            throw new Exceptions\BidHigherThanBudget;
+            throw new Exceptions\BaseException(
+                'The bid amount should be less than the budget amount', 400
+            );
         }
 
         if ($post->user_id == $user->id) {
-            throw new Exceptions\CannotBidOnOwnPost;
+            throw new Exceptions\BaseException(
+                'You cannot place a bid on your own post.', 400
+            );
         }
 
         $existing_bid = PostBid::where('user_id', $user->id)
