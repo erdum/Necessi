@@ -664,12 +664,17 @@ class UserService
                     $notif->additional_data['connection_request_id'] ?? 0
                 );
 
+                $is_connection_request = str_contains(
+                    $notif?->body,
+                    'has sent you a connection request'
+                );
+
                 return [
                     'title' => $notif->title,
                     'body' => $notif->body,
                     'image' => $notif->image,
                     'created_at' => $notif->created_at,
-                    'is_connection_request' => true,
+                    'is_connection_request' => $is_connection_request,
                     'is_connection_request_accepted' => $connection_request?->status == 'accepted',
                     'is_connection_request_rejected' => $connection_request?->status == 'rejected',
                     'sender_id' => $notif->additional_data['sender_id'] ?? null,
