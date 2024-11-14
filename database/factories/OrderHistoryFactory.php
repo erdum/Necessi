@@ -16,11 +16,9 @@ class OrderHistoryFactory extends Factory
      */
     public function definition(): array
     {
-        $post_ids = \App\Models\Post::pluck('id')->toArray();
         $bid_ids = \App\Models\PostBid::pluck('id')->toArray();
 
         return [
-            'post_id' => fake()->randomElement($post_ids),
             'bid_id' => fake()->randomElement($bid_ids),
         ];
     }

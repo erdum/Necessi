@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('bid_id')->constrained('post_bids')
                 ->onDelete('cascade');
-            $table->foreignId('transaction_id')->constrained()
+            $table->foreignId('transaction_id')->nullable()->constrained()
                 ->onDelete('cascade');
             $table->timestamp('received_by_borrower')->nullable();
             $table->timestamp('received_by_lender')->nullable();

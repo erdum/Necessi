@@ -9,11 +9,6 @@ class OrderHistory extends Model
 {
     use HasFactory;
 
-    public function post()
-    {
-        return $this->belongsTo(Post::class);
-    }
-
     public function bid()
     {
         return $this->belongsTo(PostBid::class);

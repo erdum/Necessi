@@ -45,7 +45,6 @@ class DatabaseSeeder extends Seeder
             ]);
 
             \App\Models\OrderHistory::factory()->create([
-                'post_id' => $post->id,
                 'bid_id' => $bid->id,
             ]);
 

@@ -18,4 +18,9 @@ class PostBid extends Model
     {
         return $this->belongsTo(Post::class);
     }
+
+    public function order()
+    {
+        return $this->hasOne(OrderHistory::class, 'bid_id');
+    }
 }

@@ -3,6 +3,7 @@
 use App\Http\Controllers\FirebaseAuthController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\OrderController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -208,6 +209,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post(
         '/search',
         [PostController::class, 'search_all']
+    );
+
+    // Get all transactions
+    Route::get(
+        '/transactions',
+        [OrderController::class, 'get_all']
     );
 
     // Make bid payment
