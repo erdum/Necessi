@@ -286,7 +286,7 @@ class UserService
             'lat' => $user->lat,
             'long' => $user->long,
             'who_can_see_connection' => $connection_visibility,
-            'is_connection' => $this->is_connected($current_user, $user),
+            'is_connection' => $this->is_connected($current_user, $user) ? true : false,
             'connection_request_status' => $connection_request_status,
             'connection_count' => $connection_count,
             'connections' => $connections_data,
