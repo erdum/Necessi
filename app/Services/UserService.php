@@ -572,13 +572,37 @@ class UserService
         int $receiver_id,
     )
     {
-        $existing_request = ConnectionRequest::where('sender_id', $sender_id)
-            ->where('receiver_id', $receiver_id)->first();
+        $existing_request = ConnectionRequest::where([
+            ['sender_id', '=', $sender_id],
+            ['receiver_id', '=', $receiver_id],
+        ])
+            ->orWhere([
+                ['sender_id', '=', $receiver_id],
+                ['receiver_id', '=', $sender_id],
+            ])->first();
 
-        if ($existing_request) {
-            return [
-                'message' => 'Connection request already sent!',
-            ];
+        if ($existing_request) 
+        {
+            if($existing_request->status == 'pending'){
+                throw new Exceptions\BaseException(
+                    'Connection request already sent!', 400
+                );
+            }
+            if($existing_request->status == 'accepted')
+            {
+                throw new Exceptions\BaseException(
+                    'You are already connected this connection', 400
+                );
+            }
+            if($existing_request->status == 'rejected')
+            {
+                $existing_request->status = 'pending';
+                $existing_request->save();
+
+                return [
+                    'message' => 'Connection request successfully sent',
+                ];
+            }
         }
 
         $connection_request = new ConnectionRequest;
@@ -608,7 +632,6 @@ class UserService
         );
 
         return ['message' => 'Connection request successfully sent'];
-
     }
 
     public function send_connection_requests(User $user, array $user_ids)
