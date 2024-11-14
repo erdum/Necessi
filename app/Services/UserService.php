@@ -611,6 +611,11 @@ class UserService
                 $user = User::find($sender_id);
                 $type = 'send_connection_request';
                 $user_name = $user->first_name.' '.$user->last_name;
+
+                $request_notification = Notification::whereJsonContains(
+                    'additional_data->connection_request_id',
+                    $existing_request->id
+                )->delete();
         
                 $this->notification_service->push_notification(
                     $receiver_user,
