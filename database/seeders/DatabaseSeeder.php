@@ -54,6 +54,7 @@ class DatabaseSeeder extends Seeder
                 'post_id' => $post->id,
             ]);
 
+            \App\Models\UserPreference::factory()->create();
         });
     }
 }
