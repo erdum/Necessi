@@ -718,7 +718,7 @@ class UserService
 
                 $is_request_accepted = $connection_request?->status == 'accepted';
                 $is_request_rejected = $connection_request?->status == 'rejected';
-                $is_connection_request = $is_request_accepted || $is_request_rejected;
+                $is_connection_request = ! ($is_request_accepted || $is_request_rejected);
 
                 return [
                     'title' => $notif->title,
