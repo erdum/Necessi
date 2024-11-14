@@ -39,16 +39,24 @@ class UserService
 
     private function is_connected(User $current_user, User $target_user)
     {
-        return ConnectionRequest::where([
+        $is_connection = ConnectionRequest::where([
             ['sender_id', '=', $current_user->id],
             ['receiver_id', '=', $target_user->id],
         ])
             ->orWhere([
                 ['sender_id', '=', $target_user->id],
                 ['receiver_id', '=', $current_user->id],
-            ])
-            ->where('status', 'accepted')
-            ->exists();
+            ])->first();
+            
+        if($is_connection)
+        {
+            if($is_connection->status == 'accepted'){
+                return true;
+            }
+            else{
+                return false;
+            }
+        }
     }
 
     public function update_profile(
