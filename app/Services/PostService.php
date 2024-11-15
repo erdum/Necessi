@@ -522,6 +522,20 @@ class PostService
         return ['message' => 'Comment has been successfully posted'];
     }
 
+    public function delete_post_comment(User $user, int $comment_id)
+    {
+        $comment = PostComment::find($comment_id);
+
+        if (! $comment) throw new Exceptions\BaseException(
+            'Comment not found',
+            404
+        );
+
+        $comment->delete();
+
+        return ['message' => 'Comment has been successfully deleted'];
+    }
+
     public function post_unlike(User $user, int $post_id)
     {
         $post = Post::find($post_id);

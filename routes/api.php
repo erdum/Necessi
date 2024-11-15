@@ -193,6 +193,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [PostController::class, 'get_post_comments']
     );
 
+    // Delete comment on a post
+    Route::delete(
+        '/posts/comments/{comment_id}',
+        [PostController::class, 'delete_post_comment']
+    );
+
     // Place like on a post
     Route::post(
         '/posts/{post_id}/like',

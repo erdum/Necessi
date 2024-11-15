@@ -189,6 +189,19 @@ class PostController extends Controller
         return response()->json($response);
     }
 
+    public function delete_post_comment(
+        int $comment_id,
+        Request $request,
+        PostService $post_service
+    ) {
+        $response = $post_service->delete_post_comment(
+            $request->user(),
+            $comment_id
+        );
+
+        return response()->json($response);
+    }
+
     public function get_post_details(
         Request $request,
         int $post_id,
