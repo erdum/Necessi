@@ -16,6 +16,28 @@ class StripeService
         $this->client = new StripeClient(config('services.stripe.secret'));
     }
 
+    public function get_account_id(User $user)
+    {
+        if ( !empty($user->stripe_account_id)) {
+            return $user->stripe_account_id;
+        }
+
+        $stripe_account = $this->client->accounts->create([
+          'country' => 'US',
+          'email' => $user->email,
+          'controller' => [
+            'fees' => ['payer' => 'application'],
+            'losses' => ['payments' => 'application'],
+            'stripe_dashboard' => ['type' => 'express'],
+          ],
+        ]);
+
+        $user->stripe_account_id = $stripe_account->id;
+        $user->save();
+
+        return $stripe_account->id;
+    }
+
     public function get_customer_id(User $user)
     {
         if (! empty($user->stripe_customer_id)) {
