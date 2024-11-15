@@ -235,8 +235,8 @@ class UserService
            ($connection_visibility === 'connections' && $this->is_connected($current_user, $user))
         ) {
             $connections = ConnectionRequest::where('sender_id', $user->id)
-                ->where('status', 'accepted')
                 ->orWhere('receiver_id', $user->id)
+                ->where('status', 'accepted')
                 ->limit(3)
                 ->get();
 
