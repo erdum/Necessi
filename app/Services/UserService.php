@@ -235,6 +235,7 @@ class UserService
            ($connection_visibility === 'connections' && $this->is_connected($current_user, $user))
         ) {
             $connections = ConnectionRequest::where('sender_id', $user->id)
+                ->where('status', 'accepted')
                 ->orWhere('receiver_id', $user->id)
                 ->limit(3)
                 ->get();
@@ -717,7 +718,7 @@ class UserService
         $notifications->getCollection()->transform(
             function ($notif) {
 
-                $connection_request = ConnectionRequest::find(
+                $connection_request = ConnectionRequest::withTrashed()->find(
                     $notif->additional_data['connection_request_id'] ?? 0
                 );
 

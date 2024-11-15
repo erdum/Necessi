@@ -20,6 +20,7 @@ return new class extends Migration
             $table->enum('status', ['pending', 'accepted', 'rejected'])
                 ->default('pending');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -29,5 +30,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('connection_requests');
+        Schema::table('connection_requests', function (Blueprint $table) {
+            $table->dropSoftDeletes();
+        });
     }
 };
