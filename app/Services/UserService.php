@@ -581,14 +581,16 @@ class UserService
         int $receiver_id,
     )
     {
-        $existing_request = ConnectionRequest::where([
-            ['sender_id', '=', $sender_id],
-            ['receiver_id', '=', $receiver_id],
-        ])
+        $existing_request = ConnectionRequest::withTrashed()
+            ->where([
+                ['sender_id', '=', $sender_id],
+                ['receiver_id', '=', $receiver_id],
+            ])
             ->orWhere([
                 ['sender_id', '=', $receiver_id],
                 ['receiver_id', '=', $sender_id],
-            ])->first();
+            ])
+            ->first();
 
         if ($existing_request) 
         {
