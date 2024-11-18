@@ -31,9 +31,12 @@ class DeleteOldAcceptedBids implements ShouldQueue
 
             $one_day_ago = Carbon::now()->subDay();
             $bids = PostBid::where('status', 'accepted')
-                ->where('updated_at', '<', $one_day_ago)
-                ->with('user')
-                ->get();
+            ->where('updated_at', '<', $one_day_ago)
+            ->whereHas('order', function ($query) {
+                $query->whereNull('transaction_id');
+            })
+            ->with('user:id,uid,first_name,last_name,avatar')
+            ->get();
 
             if ($bids->isNotEmpty()) {
                 foreach ($bids as $bid) 
