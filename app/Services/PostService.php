@@ -421,6 +421,28 @@ class PostService
         ];
     }
 
+    public function place_post_review(
+        User $user, 
+        int $post_id,
+        string $description,
+        int $rating,
+    ) {
+        $post = Post::find($post_id);
+
+        if (! $post) {
+            throw new Exceptions\InvalidPostId;
+        }
+    
+        $review = new Review;
+        $review->user_id = $user->id;
+        $review->post_id = $post_id;
+        $review->data = $description;
+        $review->rating = $rating;
+        $review->save();
+
+        return $review;
+    }
+
     public function get_all_posts(User $user)
     {
         $posts = Post::orderBy('created_at', 'desc')

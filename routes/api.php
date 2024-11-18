@@ -109,6 +109,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [PostController::class, 'get_user_posts_reviews']
     );
 
+    // Place user posts reviews
+    Route::post(
+        '/user/posts/review',
+        [PostController::class, 'place_post_review']
+    );
+
     // Create post
     Route::post(
         '/posts/create',

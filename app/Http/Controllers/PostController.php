@@ -132,6 +132,25 @@ class PostController extends Controller
         return response()->json($response);
     }
 
+    public function place_post_review(
+        Request $request, 
+        PostService $post_service,
+    ) {
+        $request->validate([
+            'post_id' => 'required|integer',
+            'description' => 'required|string',
+            'rating' => 'required|integer',
+        ]);
+        $response =  $post_service->place_post_review(
+            $request->user(),
+            $request->post_id,
+            $request->description,
+            $request->rating
+        );
+
+        return response()->json($response);
+    }
+
     public function get_all_posts(
         Request $request,
         PostService $post_service,
