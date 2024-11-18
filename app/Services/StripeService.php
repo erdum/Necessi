@@ -32,10 +32,87 @@ class StripeService
           ],
         ]);
 
+        $this->client->accounts->update($stripe_account->id, [
+            'settings' => [
+                'payouts' => ['schedule' => ['interval' => 'manual']]
+            ]
+        ]);
+
         $user->stripe_account_id = $stripe_account->id;
         $user->save();
 
         return $stripe_account->id;
+    }
+
+    public function get_account_balance(User $user)
+    {
+        $balance = $this->client->balance->retrieve([], [
+            'stripe_account' => $user->stripe_account_id,
+        ]);
+
+        return $balance;
+    }
+
+    public function charge_card_on_behalf(
+        string $payment_method_id,
+        string $stripe_customer_id,
+        string $stripe_account_id,
+        float $amount
+    )
+    {
+        try {
+            $payment = $this->client->paymentIntents->create([
+                'amount' => $amount * 100,
+                'currency' => 'usd',
+                'customer' => $stripe_customer_id,
+                'on_behalf_of' => $stripe_account_id,
+                'payment_method' => $payment_method_id,
+                'application_fee_amount' => (
+                    ($amount * config('services.stripe.application_fee')) * 100
+                ),
+                'off_session' => true,
+                'confirm' => true,
+            ]);
+        } catch (CardException $e) {
+            $error = $e->getError();
+
+            return response()->json(['error' => [
+                'message' => 'Transaction failed',
+                'type' => $error->code,
+            ]], 500);
+        } catch (Exception $e) {
+            $error = $e->getMessage();
+
+            return response()->json(['error' => [
+                'message' => 'Transaction failed',
+                'type' => $error,
+            ]], 500);
+        }
+
+        return $payment;
+    }
+
+    public function payout_to_account(User $user, float $amount)
+    {
+        try {
+            $transaction = $stripe->payouts->create(
+                [
+                    'amount' => $amount * 100,
+                    'currency' => 'usd',
+                    'source_type' => 'bank_account',
+                ],
+                ['stripe_account' => $user->stripe_account_id]
+            );
+        }  catch (Exception $e) {
+            $error = $e->getMessage();
+
+            return response()->json(['error' => [
+                'message' => 'Transaction failed',
+                'type' => $error,
+            ]], 500);
+        }
+
+        return $transaction;
     }
 
     public function get_customer_id(User $user)
