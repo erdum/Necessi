@@ -21,11 +21,11 @@ class PostBidObserver implements ShouldQueue
         );
         $db = $firebase->createFirestore()->database();
 
-        $lowest_ref = $this->db->collection('posts')
+        $lowest_ref = $db->collection('posts')
             ->document($postBid->post->id)->collection('bids')
             ->document('lowest_bid');
 
-        $bid_ref = $this->db->collection('posts')->document($postBid->post->id)
+        $bid_ref = $db->collection('posts')->document($postBid->post->id)
             ->collection('bids')->document($postBid->user->uid);
 
         $db->runTransaction(function ($trx) use ($postBid) {
@@ -60,11 +60,11 @@ class PostBidObserver implements ShouldQueue
         );
         $db = $firebase->createFirestore()->database();
 
-        $lowest_ref = $this->db->collection('posts')
+        $lowest_ref = $db->collection('posts')
             ->document($postBid->post->id)->collection('bids')
             ->document('lowest_bid');
 
-        $bid_ref = $this->db->collection('posts')->document($postBid->post->id)
+        $bid_ref = $db->collection('posts')->document($postBid->post->id)
             ->collection('bids')->document($postBid->user->uid);
 
         $db->runTransaction(function ($trx) use ($postBid) {
@@ -97,11 +97,11 @@ class PostBidObserver implements ShouldQueue
         );
         $db = $firebase->createFirestore()->database();
 
-        $lowest_ref = $this->db->collection('posts')
+        $lowest_ref = $db->collection('posts')
             ->document($postBid->post->id)->collection('bids')
             ->document('lowest_bid');
 
-        $bid_ref = $this->db->collection('posts')->document($postBid->post->id)
+        $bid_ref = $db->collection('posts')->document($postBid->post->id)
             ->collection('bids')->document($postBid->user->uid);
 
         $db->runTransaction(function ($trx) use ($postBid) {
