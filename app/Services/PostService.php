@@ -421,6 +421,27 @@ class PostService
         ];
     }
 
+    public function get_user_review(User $user, int $post_id)
+    {
+        $post = Post::find($post_id);
+
+        if (! $post) {
+            throw new Exceptions\InvalidPostId;
+        }
+
+        $review = Review::where('user_id', $user->id)->where('post_id', $post_id)->first();
+
+        if(! $review){ return []; }
+
+        return [
+            'review_id' => $review->id,
+            'user_id' => $review->user_id,
+            'post_id' => $review->post_id,
+            'description' => $review->data,
+            'rating' => $review->rating,
+        ];
+    }
+
     public function place_post_review(
         User $user, 
         int $post_id,
