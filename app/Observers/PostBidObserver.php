@@ -41,8 +41,9 @@ class PostBidObserver implements ShouldQueue
                     'post_id' => $postBid->post_id,
                     'amount' => $postBid->amount,
                     'status' => 'pending',
-                    'user_avatar' => $postBid->user->avatar,
-                    'user_name' => $user_name,
+                    'user_uid' => $postBid->user->uid,
+                    // 'user_avatar' => $postBid->user->avatar,
+                    // 'user_name' => $user_name,
                     'created_at' => FieldValue::serverTimestamp(),
                 ]);
             }
@@ -79,8 +80,9 @@ class PostBidObserver implements ShouldQueue
                 $trx->set($bid_ref, [
                     'amount' => $postBid->amount,
                     'status' => 'pending',
-                    'user_avatar' => $postBid->user->avatar,
-                    'user_name' => $user_name,
+                    'user_uid' => $postBid->user->uid,
+                    // 'user_avatar' => $postBid->user->avatar,
+                    // 'user_name' => $user_name,
                     'created_at' => FieldValue::serverTimestamp(),
                 ], ['merge' => true]);
             }
