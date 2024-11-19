@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\PostBid;
+use Kreait\Firebase\Factory;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 class PostBidObserver implements ShouldQueue
