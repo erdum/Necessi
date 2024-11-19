@@ -429,13 +429,16 @@ class PostService
             throw new Exceptions\InvalidPostId;
         }
 
-        $review = Review::where('user_id', $user->id)->where('post_id', $post_id)->first();
+        $review = Review::where('user_id', $user->id)->where('post_id', $post_id)
+           ->with('user:id,first_name,last_name,avatar')->first();
 
         if(! $review){ return []; }
 
         return [
             'review_id' => $review->id,
             'user_id' => $review->user_id,
+            'user_name' => $review->user->first_name . ' ' . $review->user->last_name,
+            'avatar' => $review->user->avatar,
             'post_id' => $review->post_id,
             'description' => $review->data,
             'rating' => $review->rating,
