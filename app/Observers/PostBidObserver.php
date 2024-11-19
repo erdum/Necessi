@@ -28,23 +28,25 @@ class PostBidObserver implements ShouldQueue
         $bid_ref = $db->collection('posts')->document($postBid->post->id)
             ->collection('bids')->document($postBid->user->uid);
 
-        $db->runTransaction(function ($trx) use ($postBid) {
-            $trx->update($lowest_ref, [[
-                'path' => 'bid_id',
-                'value' => $postBid->id,
-            ]]);
+        $db->runTransaction(
+            function ($trx) use ($postBid, $lowest_ref, $bid_ref) {
+                $trx->update($lowest_ref, [[
+                    'path' => 'bid_id',
+                    'value' => $postBid->id,
+                ]]);
 
-            $user_name = $postBid->user->first_name.' '.$postBid->user->last_name;
-            $trx->set($bid_ref, [
-                'user_id' => $postBid->user_id,
-                'post_id' => $postBid->post_id,
-                'amount' => $postBid->amount,
-                'status' => 'pending',
-                'user_avatar' => $postBid->user->avatar,
-                'user_name' => $user_name,
-                'created_at' => FieldValue::serverTimestamp(),
-            ]);
-        });
+                $user_name = $postBid->user->first_name.' '.$postBid->user->last_name;
+                $trx->set($bid_ref, [
+                    'user_id' => $postBid->user_id,
+                    'post_id' => $postBid->post_id,
+                    'amount' => $postBid->amount,
+                    'status' => 'pending',
+                    'user_avatar' => $postBid->user->avatar,
+                    'user_name' => $user_name,
+                    'created_at' => FieldValue::serverTimestamp(),
+                ]);
+            }
+        );
     }
 
     /**
@@ -67,21 +69,23 @@ class PostBidObserver implements ShouldQueue
         $bid_ref = $db->collection('posts')->document($postBid->post->id)
             ->collection('bids')->document($postBid->user->uid);
 
-        $db->runTransaction(function ($trx) use ($postBid) {
-            $trx->update($lowest_ref, [[
-                'path' => 'bid_id',
-                'value' => $postBid->id,
-            ]]);
+        $db->runTransaction(
+            function ($trx) use ($postBid, $lowest_ref, $bid_ref) {
+                $trx->update($lowest_ref, [[
+                    'path' => 'bid_id',
+                    'value' => $postBid->id,
+                ]]);
 
-            $user_name = $postBid->user->first_name.' '.$postBid->user->last_name;
-            $trx->update($bid_ref, [
-                'amount' => $postBid->amount,
-                'status' => $postBid->status,
-                'user_avatar' => $postBid->user->avatar,
-                'user_name' => $user_name,
-                'created_at' => FieldValue::serverTimestamp(),
-            ]);
-        });
+                $user_name = $postBid->user->first_name.' '.$postBid->user->last_name;
+                $trx->update($bid_ref, [
+                    'amount' => $postBid->amount,
+                    'status' => $postBid->status,
+                    'user_avatar' => $postBid->user->avatar,
+                    'user_name' => $user_name,
+                    'created_at' => FieldValue::serverTimestamp(),
+                ]);
+            }
+        );
     }
 
     /**
@@ -104,14 +108,16 @@ class PostBidObserver implements ShouldQueue
         $bid_ref = $db->collection('posts')->document($postBid->post->id)
             ->collection('bids')->document($postBid->user->uid);
 
-        $db->runTransaction(function ($trx) use ($postBid) {
-            $trx->update($lowest_ref, [[
-                'path' => 'bid_id',
-                'value' => ($postBid->id - 1) > 0 ? ($postBid->id - 1) : null,
-            ]]);
+        $db->runTransaction(
+            function ($trx) use ($postBid, $lowest_ref, $bid_ref) {
+                $trx->update($lowest_ref, [[
+                    'path' => 'bid_id',
+                    'value' => ($postBid->id - 1) > 0 ? ($postBid->id - 1) : null,
+                ]]);
 
-            $trx->delete($bid_ref);
-        });
+                $trx->delete($bid_ref);
+            }
+        );
     }
 
     /**
