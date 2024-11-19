@@ -131,5 +131,24 @@ class OrderService
 
     public function get_revenue(User $user, ?string $year, ?string $month)
     {
+        $orders = OrderHistory::withWhereHas(
+            'bid',
+            function ($query) use ($user) {
+                $query->where('user_id', $user->id)->where('status', 'accepted')
+                    ->withWhereHas('post');
+            }
+        )
+        ->whereNotNull('transaction_id')
+        ->paginate();
+
+        $orders->getCollection()->transform(function ($order) {
+            return [
+                'type' => $order->bid->post->type,
+                'created_at' => $order->created_at->format('d F Y'),
+                'amount' => $order->bid->amount,
+            ];
+        });
+
+        return $orders;
     }
 }
