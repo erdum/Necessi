@@ -89,7 +89,10 @@ class PostBidObserver implements ShouldQueue
                         'path' => 'user_name',
                         'value' => $user_name
                     ],
-                    'created_at' => FieldValue::serverTimestamp(),
+                    [
+                        'path' => 'created_at',
+                        'value' => FieldValue::serverTimestamp()
+                    ],
                 ]);
             }
         );
