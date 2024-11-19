@@ -502,6 +502,23 @@ class PostService
         $like->user_id = $user->id;
         $like->save();
 
+        $user_name = $user->first_name.' '.$user->last_name;
+
+        $this->notification_service->push_notification(
+            $receiver_user,
+            NotificationType::ACTIVITY,
+            $user_name,
+            ' has liked your post',
+            $user->avatar ?? '',
+            [
+                'user_name' => $user_name,
+                'user_avatar' => $user->avatar,
+                'description' => $user->about,
+                'sender_id' => $user->id,
+                'post_id' => $post->id,
+            ]
+        );
+
         return ['message' => 'Post successfully liked'];
     }
 
@@ -533,7 +550,7 @@ class PostService
             ' has commented on your post',
             $user->avatar ?? '',
             [
-                'user_name' => $user->first_name.' '.$user->last_name,
+                'user_name' => $user_name,
                 'user_avatar' => $user->avatar,
                 'description' => $user->about,
                 'sender_id' => $user->id,
