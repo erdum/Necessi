@@ -229,6 +229,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [OrderController::class, 'get_all']
     );
 
+    // Get revenue
+    Route::get(
+        '/revenue',
+        [OrderController::class, 'get_revenue']
+    );
+
     // Make bid payment
     Route::post(
         '/bids/{bid_id}/payment',

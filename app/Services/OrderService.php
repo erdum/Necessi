@@ -128,4 +128,8 @@ class OrderService
         $order->transaction_id = $transaction_id;
         $order->save();
     }
+
+    public function get_revenue(User $user, ?string $year, ?string $month)
+    {
+    }
 }

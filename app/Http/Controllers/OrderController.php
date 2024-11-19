@@ -29,4 +29,20 @@ class OrderController extends Controller
 
         return response()->json($response);
     }
+
+    public function get_revenue(Request $request, OrderService $order_service)
+    {
+        $request->validate([
+            'year' => 'nullable|date_format:"Y"',
+            'month' => 'nullable|date_format:"n"',
+        ]);
+
+        $response = $order_service->get_revenue(
+            $request->user(),
+            $request->year,
+            $request->month,
+        );
+
+        return response()->json($response);
+    }
 }
