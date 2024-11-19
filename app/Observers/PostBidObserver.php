@@ -32,7 +32,7 @@ class PostBidObserver implements ShouldQueue
         $db->runTransaction(
             function ($trx) use ($postBid, $lowest_ref, $bid_ref) {
                 $trx->set($lowest_ref, [
-                    'bid_id' => $postBid->id,
+                    'bid_id' => $postBid->user->uid,
                 ]);
 
                 $user_name = $postBid->user->first_name.' '.$postBid->user->last_name;
@@ -72,7 +72,7 @@ class PostBidObserver implements ShouldQueue
         $db->runTransaction(
             function ($trx) use ($postBid, $lowest_ref, $bid_ref) {
                 $trx->set($lowest_ref, [
-                    'bid_id' => $postBid->id,
+                    'bid_id' => $postBid->user->uid,
                 ]);
 
                 $user_name = $postBid->user->first_name.' '.$postBid->user->last_name;
@@ -111,7 +111,7 @@ class PostBidObserver implements ShouldQueue
             function ($trx) use ($postBid, $lowest_ref, $bid_ref) {
                 $trx->set($lowest_ref, [
                     'bid_id' => ($postBid->id - 1) > 0 ? ($postBid->id - 1) : null,
-                ], ['merge' => true]);
+                ]);
 
                 $trx->delete($bid_ref);
             }
