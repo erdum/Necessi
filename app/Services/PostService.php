@@ -817,7 +817,7 @@ class PostService
         $post->city = $city ?? $post->city ?? null;
         $post->state = $state ?? $post->state ?? null;
         $post->location = $location ?? $post->location ?? null;
-        $post->budget = $budget ?? $post->budget ?? null;
+        // $post->budget = $budget ?? $post->budget ?? null;
         $post->start_date = $start_date ?? $post->start_date ?? null;
         $post->end_date = $end_date ?? $post->end_date ?? null;
         $post->delivery_requested = $request_delivery ?? $post->delivery_requested ?? null;
