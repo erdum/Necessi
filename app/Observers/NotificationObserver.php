@@ -72,28 +72,19 @@ class NotificationObserver implements ShouldQueue
                 'has sent you a connection request'
             );
 
-        $db->collection('notifications')->document($notification->id)->update([
-            ['path' => 'title', 'value' => $notification->title],
-            ['path' => 'body', 'value' => $notification->body],
-            ['path' => 'image', 'value' => $notification->image],
-            ['path' => 'created_at', 'value' => $notification->created_at],
-            [
-                'path' => 'is_connection_request',
-                'value' => $is_connection_request
-            ],
-            [
-                'path' => 'is_connection_request_accepted',
-                'value' => $is_request_accepted
-            ],
-            [
-                'path' => 'is_connection_request_rejected',
-                'value' => $is_request_rejected
-            ],
-            [
-                'path' => 'sender_id',
-                'value' => $notification->additional_data['sender_id'] ?? null
-            ],
-        ]);
+        $data = [
+            'title' => $notification->title,
+            'body' => $notification->body,
+            'image' => $notification->image,
+            'created_at' => $notification->created_at,
+            'is_connection_request' => $is_connection_request,
+            'is_connection_request_accepted' => $is_request_accepted,
+            'is_connection_request_rejected' => $is_request_rejected,
+            'sender_id' => $notification->additional_data['sender_id'] ?? null,
+        ];
+
+        $db->collection('notifications')->document($notification->id)
+            ->set($data);
     }
 
     /**

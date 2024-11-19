@@ -33,7 +33,7 @@ class PostBidObserver implements ShouldQueue
             function ($trx) use ($postBid, $lowest_ref, $bid_ref) {
                 $trx->set($lowest_ref, [
                     'bid_id' => $postBid->id,
-                ], ['merge' => true]);
+                ]);
 
                 $user_name = $postBid->user->first_name.' '.$postBid->user->last_name;
                 $trx->set($bid_ref, [
@@ -73,25 +73,16 @@ class PostBidObserver implements ShouldQueue
             function ($trx) use ($postBid, $lowest_ref, $bid_ref) {
                 $trx->set($lowest_ref, [
                     'bid_id' => $postBid->id,
-                ], ['merge' => true]);
+                ]);
 
                 $user_name = $postBid->user->first_name.' '.$postBid->user->last_name;
-                $trx->update($bid_ref, [
-                    ['path' => 'amount', 'value' => $postBid->amount],
-                    ['path' => 'status', 'value' => $postBid->status],
-                    [
-                        'path' => 'user_avatar',
-                        'value' => $postBid->user->avatar
-                    ],
-                    [
-                        'path' => 'user_name',
-                        'value' => $user_name
-                    ],
-                    [
-                        'path' => 'created_at',
-                        'value' => FieldValue::serverTimestamp()
-                    ],
-                ]);
+                $trx->set($bid_ref, [
+                    'amount' => $postBid->amount,
+                    'status' => 'pending',
+                    'user_avatar' => $postBid->user->avatar,
+                    'user_name' => $user_name,
+                    'created_at' => FieldValue::serverTimestamp(),
+                ], ['merge' => true]);
             }
         );
     }
