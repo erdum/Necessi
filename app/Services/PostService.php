@@ -633,6 +633,7 @@ class PostService
         $comments = [];
         $bids = [];
         $images = [];
+        $is_lowest = true;
 
         if (! $post_details) {
             throw new Exceptions\InvalidPostId;
@@ -645,7 +646,9 @@ class PostService
                 'amount' => $bid->amount,
                 'created_at' => Carbon::parse($bid->created_at)->diffForHumans(),
                 'status' => $bid->status,
+                'is_lowest' => $is_lowest,
             ];
+            $is_lowest = false;
         }
 
         foreach ($post_details->images as $image) {
