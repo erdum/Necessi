@@ -13,7 +13,6 @@ use App\Models\UserPreference;
 use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
-use Kreait\Firebase\Factory;
 
 class UserService
 {
@@ -22,16 +21,10 @@ class UserService
     protected $stripe_service;
 
     public function __construct(
-        Factory $factory,
         PostService $post_service,
         FirebaseNotificationService $notification_service,
         StripeService $stripe_service
     ) {
-        $firebase = $factory->withServiceAccount(
-            base_path()
-            .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
-        );
         $this->post_service = $post_service;
         $this->notification_service = $notification_service;
         $this->stripe_service = $stripe_service;
