@@ -502,6 +502,7 @@ class PostService
         $like->user_id = $user->id;
         $like->save();
 
+        $receiver_user = Post::find($post_id)?->user;
         $user_name = $user->first_name.' '.$user->last_name;
 
         $this->notification_service->push_notification(
@@ -539,7 +540,7 @@ class PostService
         $comment->data = $post_comment;
         $comment->save();
 
-        $receiver_user = User::find($post->user_id);
+        $receiver_user = $post->user;
         $type = 'placed_comment';
         $user_name = $user->first_name.' '.$user->last_name;
 
