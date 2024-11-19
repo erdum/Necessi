@@ -13,24 +13,14 @@ use App\Models\Review;
 use App\Models\User;
 use Carbon\Carbon;
 use Google\Cloud\Firestore\FieldValue;
-use Kreait\Firebase\Factory;
 
 class PostService
 {
-    protected $db;
-
     protected $notification_service;
 
     public function __construct(
-        Factory $factory,
-        FirebaseNotificationService $notification_service,
+        FirebaseNotificationService $notification_service
     ) {
-        $firebase = $factory->withServiceAccount(
-            base_path()
-            .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
-        );
-        $this->db = $firebase->createFirestore()->database();
         $this->notification_service = $notification_service;
     }
 
@@ -156,41 +146,7 @@ class PostService
         $existing_bid = PostBid::where('user_id', $user->id)
             ->where('post_id', $post_id)->first();
 
-        $bid_ref = $this->db->collection('posts')->document($post->id)
-            ->collection('bids')->document($user->uid);
-        $bid_snapshot = $bid_ref->snapshot();
-
-        $bids_ref = $this->db->collection('posts')->document($post->id)
-            ->collection('bids');
-
-        foreach ($bids_ref->documents() as $doc) {
-            if ($doc->exists()) {
-                $doc->reference()->update([
-                    ['path' => 'is_lowest', 'value' => false]
-                ]);
-            }else {
-                continue;
-            }
-        }
-
         if ($existing_bid) {
-
-            if ($bid_snapshot->exists()) {
-                $bid_ref->update([
-                    ['path' => 'user_id', 'value' => $user->id],
-                    ['path' => 'post_id', 'value' => $post_id],
-                    ['path' => 'amount', 'value' => $amount],
-                    ['path' => 'status', 'value' => 'pending'],
-                    ['path' => 'user_avatar', 'value' => $user->avatar],
-                    ['path' => 'user_name', 'value' => $user_name],
-                    [
-                        'path' => 'created_at',
-                        'value' => FieldValue::serverTimestamp()
-                    ],
-                    ['path' => 'is_lowest', 'value' => true],
-                ]);
-            }
-
             $existing_bid->amount = $amount;
             $existing_bid->status = 'pending';
             $existing_bid->save();
@@ -206,17 +162,6 @@ class PostService
         $post_bid->amount = $amount;
         $post_bid->status = 'pending';
         $post_bid->save();
-
-        $bid_ref->set([
-            'user_id' => $user->id,
-            'post_id' => $post_id,
-            'amount' => $amount,
-            'status' => 'pending',
-            'user_avatar' => $user->avatar,
-            'user_name' => $user_name,
-            'created_at' => FieldValue::serverTimestamp(),
-            'is_lowest' => true,
-        ]);
 
         $receiver_user = $post->user;
 
@@ -251,17 +196,6 @@ class PostService
         $bid->status = 'accepted';
         $bid->save();
 
-        $bid_ref = $this->db->collection('posts')->document($bid->post_id)
-            ->collection('bids')->document($user->uid);
-
-        $snapshot = $bid_ref->snapshot();
-
-        if ($snapshot->exists())  {
-            $bid_ref->update([
-                ['path' => 'status', 'value' => 'accepted'],
-            ]);
-        }
-
         $receiver_user = $bid->user;
         $user_name = $user->first_name.' '.$user->last_name;
 
@@ -295,17 +229,6 @@ class PostService
 
         $bid->status = 'rejected';
         $bid->save();
-
-        $bid_ref = $this->db->collection('posts')->document($bid->post_id)
-            ->collection('bids')->document($user->uid);
-
-        $snapshot = $bid_ref->snapshot();
-
-        if ($snapshot->exists()) {
-            $bid_ref->update([
-                ['path' => 'status', 'value' => 'rejected'],
-            ]);
-        }
 
         $receiver_user = $bid->user;
         $user_name = $user->first_name.' '.$user->last_name;
@@ -1116,21 +1039,6 @@ class PostService
 
         if (! $user_bid) {
             throw new Exceptions\BidNotFound;
-        }
-
-        $bid_ref = $this->db->collection('posts')->document($post->id)
-            ->collection('bids')->document($user->uid);
-        $bid = $bid_ref->snapshot();
-
-        if ($bid->exists()) {
-            $bid_data = $bid->data();
-
-            if (
-                isset($bid_data['post_id'])
-                && $bid_data['post_id'] == $post_id
-            ) {
-                $bid_ref->delete();
-            }
         }
 
         $user_bid->delete();
