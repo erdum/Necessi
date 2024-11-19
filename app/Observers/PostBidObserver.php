@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Models\PostBid;
 use Kreait\Firebase\Factory;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Google\Cloud\Firestore\FieldValue;
 
 class PostBidObserver implements ShouldQueue
 {
