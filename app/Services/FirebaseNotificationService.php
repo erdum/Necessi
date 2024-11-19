@@ -93,7 +93,7 @@ class FirebaseNotificationService
         }
 
         $notification = new Notification;
-        $notification->type = $type;
+        $notification->type = $type->value;
         $notification->title = $title;
         $notification->body = $body;
         $notification->image = $image;

@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Services\NotificationType;
 use App\Observers\PostBidObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
@@ -12,10 +11,6 @@ use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 class PostBid extends Model
 {
     use HasFactory;
-
-    protected $casts = [
-        'type' => NotificationType::class,
-    ];
 
     public function user()
     {
