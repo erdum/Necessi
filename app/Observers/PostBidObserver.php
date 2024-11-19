@@ -31,10 +31,9 @@ class PostBidObserver implements ShouldQueue
 
         $db->runTransaction(
             function ($trx) use ($postBid, $lowest_ref, $bid_ref) {
-                $trx->update($lowest_ref, [[
-                    'path' => 'bid_id',
-                    'value' => $postBid->id,
-                ]]);
+                $trx->set($lowest_ref, [
+                    'bid_id' => $postBid->id,
+                ], ['merge' => true]);
 
                 $user_name = $postBid->user->first_name.' '.$postBid->user->last_name;
                 $trx->set($bid_ref, [
@@ -72,10 +71,9 @@ class PostBidObserver implements ShouldQueue
 
         $db->runTransaction(
             function ($trx) use ($postBid, $lowest_ref, $bid_ref) {
-                $trx->update($lowest_ref, [[
-                    'path' => 'bid_id',
-                    'value' => $postBid->id,
-                ]]);
+                $trx->set($lowest_ref, [
+                    'bid_id' => $postBid->id,
+                ], ['merge' => true]);
 
                 $user_name = $postBid->user->first_name.' '.$postBid->user->last_name;
                 $trx->update($bid_ref, [
@@ -120,10 +118,9 @@ class PostBidObserver implements ShouldQueue
 
         $db->runTransaction(
             function ($trx) use ($postBid, $lowest_ref, $bid_ref) {
-                $trx->update($lowest_ref, [[
-                    'path' => 'bid_id',
-                    'value' => ($postBid->id - 1) > 0 ? ($postBid->id - 1) : null,
-                ]]);
+                $trx->set($lowest_ref, [
+                    'bid_id' => ($postBid->id - 1) > 0 ? ($postBid->id - 1) : null,
+                ], ['merge' => true]);
 
                 $trx->delete($bid_ref);
             }
