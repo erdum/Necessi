@@ -457,7 +457,6 @@ class UserService
         }
 
         $connection_request->status = 'accepted';
-        $connection_request->save();
 
         $receiver_user = User::find($user_id);
         $type = 'accept_connection_request';
@@ -472,6 +471,11 @@ class UserService
             $request_notification->body = 'You and '.$request_notification->title.' are now connected';
             $request_notification->save();
         }
+
+        $chat = $this->create_chat($user, $receiver_user->uid);
+
+        $connection_request->chat_id = $chat['chat_id'];
+        $connection_request->save();
 
         $this->notification_service->push_notification(
             $receiver_user,
@@ -538,6 +542,8 @@ class UserService
         }
 
         $connection->delete();
+
+        $this->remove_chat($connection->chat_id);
 
         return [
             'message' => 'user Disconnected Successfully',
@@ -828,6 +834,23 @@ class UserService
         $db->collection('chats')->document($chat_id)->set($data);
 
         return ['chat_id' => $chat_id];
+    }
+
+    public function remove_chat(string $chat_id)
+    {
+        $factory = app(Factory::class);
+        $firebase = $factory->withServiceAccount(
+            base_path()
+            .DIRECTORY_SEPARATOR
+            .config('firebase.projects.app.credentials')
+        );
+        $db = $firebase->createFirestore()->database();
+
+        $ref = $db->collection('chats')->document($chat_id);
+
+        if ($ref->snapshot()->exists()) $ref->delete();
+
+        return ['message' => 'Chat successfully deleted'];
     }
 
     public function block_user(

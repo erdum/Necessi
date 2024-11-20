@@ -302,6 +302,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
     );
 
     // Create chat
+    // Route::post(
+    //     '/chat',
+    //     [UserController::class, 'create_chat']
+    // ); ------- We're creating chat upon connection request being accepted
+
+    // Send message notification
     Route::post(
         '/chat',
         [UserController::class, 'create_chat']

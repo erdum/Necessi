@@ -19,6 +19,7 @@ return new class extends Migration
                 ->onDelete('cascade');
             $table->enum('status', ['pending', 'accepted', 'rejected'])
                 ->default('pending');
+            $table->uuid('chat_id')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
