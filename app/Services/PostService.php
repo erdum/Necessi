@@ -57,8 +57,8 @@ class PostService
         string $description,
         float $lat,
         float $long,
-        ?string $city,
-        ?string $state,
+        string $city,
+        string $state,
         string $location,
         int $budget,
         string $start_date,
@@ -75,9 +75,9 @@ class PostService
         $post->description = $description;
         $post->lat = $lat;
         $post->long = $long;
-        $post->city = $city ?? null;
-        $post->state = $state ?? null;
-        $post->location = $location ?? null;
+        $post->city = $city;
+        $post->state = $state;
+        $post->location = $location;
         $post->budget = $budget;
         $post->start_date = $start_date;
         $post->end_date = $end_date;
