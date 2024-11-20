@@ -13,6 +13,8 @@ use App\Models\UserPreference;
 use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
+use Kreait\Firebase\Factory;
+use Google\Cloud\Firestore\FieldValue;
 
 class UserService
 {
@@ -800,6 +802,30 @@ class UserService
         return [
             'message' => 'Password Update Succesfully',
         ];
+    }
+
+    public function create_chat(User $user, string $other_party_uid)
+    {
+        $factory = app(Factory::class);
+        $firebase = $factory->withServiceAccount(
+            base_path()
+            .DIRECTORY_SEPARATOR
+            .config('firebase.projects.app.credentials')
+        );
+        $db = $firebase->createFirestore()->database();
+        $chat_id = str()->random(20);
+
+        $data = [
+            'blocked_by' => null,
+            'created_at' => FieldValue::serverTimestamp(),
+            'last_msg' => '',
+            'members' => [
+                $user->uid,
+                $other_party_uid,
+            ]
+        ];
+
+        $db->collection('chats')->document($chat_id)->set($data);
     }
 
     public function block_user(

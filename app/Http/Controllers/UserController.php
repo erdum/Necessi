@@ -265,6 +265,23 @@ class UserController extends Controller
         return response()->json($response);
     }
 
+    public function create_chat(
+        Request $request,
+        UserService $user_service
+    )
+    {
+        $request->validate([
+            'other_party_uid' => 'required|exists:users,uid'
+        ]);
+
+        $response = $user_service->create_chat(
+            $request->user(),
+            $request->other_party_uid
+        );
+
+        return response()->json($response);
+    }
+
     public function block_user(
         string $uid,
         Request $request,

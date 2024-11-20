@@ -301,6 +301,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [UserController::class, 'get_connections']
     );
 
+    // Create chat
+    Route::post(
+        '/chat',
+        [UserController::class, 'create_chat']
+    );
+
     // Block user from chat
     Route::post(
         '/user/block/{uid}',
