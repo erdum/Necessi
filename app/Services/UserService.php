@@ -227,11 +227,12 @@ class UserService
         if ($is_own_profile || $connection_visibility === 'public' ||
            ($connection_visibility === 'connections' && $this->is_connected($current_user, $user))
         ) {
-            $connections = ConnectionRequest::where('sender_id', $user->id)
-                ->orWhere('receiver_id', $user->id)
-                ->where('status', 'accepted')
-                ->limit(3)
-                ->get();
+            $connections = ConnectionRequest::where(function ($query) use ($user) {
+                $query->where('sender_id', $user->id)
+                    ->orWhere('receiver_id', $user->id);
+            })->where('status', 'accepted')
+              ->limit(3)
+              ->get();
 
             foreach ($connections as $connection) {
                 $connected_user_id = $connection->sender_id == $user->id
