@@ -61,7 +61,10 @@ class UserObserver implements ShouldQueue
             'about' => $user->about,
         ];
 
-        $db->collection('users')->document($user->uid)->set($data);
+        $db->collection('users')->document($user->uid)->set(
+            $data,
+            ['merge' => true]
+        );
     }
 
     /**
