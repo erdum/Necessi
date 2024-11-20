@@ -827,7 +827,7 @@ class UserService
 
         $db->collection('chats')->document($chat_id)->set($data);
 
-        return ['message' => 'Chat successfully created'];
+        return ['chat_id' => $chat_id];
     }
 
     public function block_user(
