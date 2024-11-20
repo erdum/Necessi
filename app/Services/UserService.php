@@ -247,6 +247,7 @@ class UserService
                         'id' => $user_connection->id,
                         'user_name' => $user_connection->first_name.' '.$user_connection->last_name,
                         'avatar' => $user_connection->avatar,
+                        'chat_id' => $user_connection->chat_id,
                     ];
                 }
             }
@@ -571,6 +572,7 @@ class UserService
                 'id' => $con->id,
                 'status' => $con->status,
                 'created_at' => $con->created_at,
+                'chat_id' => $con->chat_id,
                 'user' => $sender_user,
             ];
         }
