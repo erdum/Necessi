@@ -23,7 +23,7 @@ class UserNotificationDeviceObserver implements ShouldQueue
 
         $db->collection('users')->document($userNotificationDevice->user->uid)
             ->set(
-                ['fcm' => $userNotificationDevice->fcm_token],
+                ['fcm_token' => $userNotificationDevice->fcm_token],
                 ['merge' => true]
             );
     }
@@ -43,7 +43,7 @@ class UserNotificationDeviceObserver implements ShouldQueue
 
         $db->collection('users')->document($userNotificationDevice->user->uid)
             ->set(
-                ['fcm' => $userNotificationDevice->fcm_token],
+                ['fcm_token' => $userNotificationDevice->fcm_token],
                 ['merge' => true]
             );
     }
@@ -63,7 +63,7 @@ class UserNotificationDeviceObserver implements ShouldQueue
 
         $db->collection('users')->document($userNotificationDevice->user->uid)
             ->set(
-                ['fcm' => null],
+                ['fcm_token' => null],
                 ['merge' => true]
             );
     }
