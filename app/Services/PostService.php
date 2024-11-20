@@ -255,6 +255,13 @@ class PostService
             $current_user_like = PostLike::where('user_id', $user->id)
                 ->where('post_id', $post->id)->exists();
 
+            $distance = $this->calculateDistance(
+            $user->lat,
+            $user->long,
+            $post->lat,
+            $post->long,
+            );
+
             return [
                 'post_id' => $post->id,
                 'first_name' => $user->first_name,
@@ -267,6 +274,7 @@ class PostService
                 'location' => $post->city,
                 'lat' => $post->lat,
                 'long' => $post->long,
+                'distance' => round($distance, 2).' miles away',
                 'budget' => $post->budget,
                 'duration' => Carbon::parse($post->start_date)->format('d M').' - '.Carbon::parse($post->end_date)->format('d M y'),
                 'created_at' => $post->created_at->diffForHumans(),
