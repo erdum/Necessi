@@ -172,8 +172,6 @@ class PostService
             ' has placed bid on your post',
             $user->avatar ?? '',
             [
-                'user_name' => $user_name,
-                'user_avatar' => $user->avatar,
                 'description' => $user->about,
                 'sender_id' => $user->id,
                 'post_id' => $post->id,
@@ -206,8 +204,6 @@ class PostService
             ' has accepted your bid request',
             $user->avatar ?? '',
             [
-                'user_name' => $user_name,
-                'user_avatar' => $user->avatar,
                 'description' => $user->about,
                 'sender_id' => $user->id,
                 'post_id' => $bid->post_id,
@@ -240,8 +236,6 @@ class PostService
             ' has rejected your bid request',
             $user->avatar ?? '',
             [
-                'user_name' => $user_name,
-                'user_avatar' => $user->avatar,
                 'description' => $user->about,
                 'sender_id' => $user->id,
                 'post_id' => $bid->post_id,
@@ -459,8 +453,6 @@ class PostService
             ' has liked your post',
             $user->avatar ?? '',
             [
-                'user_name' => $user_name,
-                'user_avatar' => $user->avatar,
                 'description' => $user->about,
                 'sender_id' => $user->id,
                 'post_id' => $post_id,
@@ -498,8 +490,6 @@ class PostService
             ' has commented on your post',
             $user->avatar ?? '',
             [
-                'user_name' => $user_name,
-                'user_avatar' => $user->avatar,
                 'description' => $user->about,
                 'sender_id' => $user->id,
                 'post_id' => $post->id,
