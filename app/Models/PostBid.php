@@ -26,4 +26,9 @@ class PostBid extends Model
     {
         return $this->hasOne(OrderHistory::class, 'bid_id');
     }
+
+    public function reviews()
+    {
+        return $this->belongsTo(Review::class);
+    }
 }

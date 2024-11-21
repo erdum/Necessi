@@ -23,7 +23,7 @@ class OrderService
             ->withWhereHas('bids', function ($query) {
                 $query->where('status', 'accepted')
                     ->withWhereHas('order')
-                    ->with('user:id,uid,first_name,last_name,avatar');
+                    ->with('user:id,uid,first_name,last_name,avatar', 'reviews');
             })
             ->where(function ($query) use ($user) {
                 $query->where('user_id', $user->id)
@@ -72,6 +72,7 @@ class OrderService
                         'post_user_avatar' => $post->user->avatar,
                         'is_provided' => $post->user_id != $user->id,
                         'status' => $status,
+                        'is_feedback' => $post->reviews->isNotEmpty(),
                     ]);
                 } else {
                     array_push($services, [
@@ -85,6 +86,7 @@ class OrderService
                         'post_user_avatar' => $post->user->avatar,
                         'is_provided' => $post->user_id != $user->id,
                         'status' => $status,
+                        'is_feedback' => $post->reviews->isNotEmpty(),
                     ]);
                 }
             }
