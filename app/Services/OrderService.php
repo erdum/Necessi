@@ -2,36 +2,37 @@
 
 namespace App\Services;
 
-use App\Models\User;
+use App\Exceptions;
 use App\Models\OrderHistory;
 use App\Models\Post;
-use App\Exceptions;
+use App\Models\User;
 
 class OrderService
 {
     protected $stripe_service;
 
-    public function __construct(StripeService $stripe_service) {
+    public function __construct(StripeService $stripe_service)
+    {
         $this->stripe_service = $stripe_service;
     }
 
     public function get_all(User $user)
     {
         $posts = Post::query()
-        ->with('user:id,uid,first_name,last_name,avatar')
-        ->withWhereHas('bids', function ($query) use ($user) {
-            $query->where('status', 'accepted')
-                ->withWhereHas('order')
-                ->with('user:id,uid,first_name,last_name,avatar');
-        })
-        ->where(function ($query) use ($user) {
-            $query->where('user_id', $user->id)
-                ->orWhereHas('bids', function ($query) use ($user) {
-                    $query->where('user_id', $user->id)
-                        ->where('status', 'accepted');
-                });
-        })
-        ->paginate();
+            ->with('user:id,uid,first_name,last_name,avatar')
+            ->withWhereHas('bids', function ($query) {
+                $query->where('status', 'accepted')
+                    ->withWhereHas('order')
+                    ->with('user:id,uid,first_name,last_name,avatar');
+            })
+            ->where(function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                    ->orWhereHas('bids', function ($query) use ($user) {
+                        $query->where('user_id', $user->id)
+                            ->where('status', 'accepted');
+                    });
+            })
+            ->paginate();
 
         $items = [
         ];
@@ -101,16 +102,19 @@ class OrderService
         User $user,
         int $bid_id,
         string $payment_method_id
-    )
-    {
+    ) {
         $bid = PostBid::find($bid_id);
 
-        if (! $bid) throw new Exceptions\BidNotFound;
+        if (! $bid) {
+            throw new Exceptions\BidNotFound;
+        }
 
-        if ($bid->status != 'accepted') throw new Exceptions\BaseException(
-            'Bid is not accepted',
-            400
-        );
+        if ($bid->status != 'accepted') {
+            throw new Exceptions\BaseException(
+                'Bid is not accepted',
+                400
+            );
+        }
 
         $receipt = $this->stripe_service->charge_card(
             $payment_method_id,
@@ -138,8 +142,8 @@ class OrderService
                     ->withWhereHas('post');
             }
         )
-        ->whereNotNull('transaction_id')
-        ->paginate();
+            ->whereNotNull('transaction_id')
+            ->paginate();
 
         $orders->getCollection()->transform(function ($order) {
             return [

@@ -133,7 +133,7 @@ class PostController extends Controller
     }
 
     public function get_user_review(
-        Request $request, 
+        Request $request,
         PostService $post_service,
         int $post_id
     ) {
@@ -146,7 +146,7 @@ class PostController extends Controller
     }
 
     public function place_post_review(
-        Request $request, 
+        Request $request,
         PostService $post_service,
     ) {
         $request->validate([
@@ -154,7 +154,7 @@ class PostController extends Controller
             'description' => 'required|string',
             'rating' => 'required|integer',
         ]);
-        $response =  $post_service->place_post_review(
+        $response = $post_service->place_post_review(
             $request->user(),
             $request->post_id,
             $request->description,
@@ -349,7 +349,7 @@ class PostController extends Controller
     public function get_placed_bids(
         Request $request,
         PostService $post_service,
-        string $bid_id = null
+        ?string $bid_id = null
     ) {
         $response = $post_service->get_placed_bids(
             $request->user(),
@@ -360,10 +360,10 @@ class PostController extends Controller
     }
 
     public function remove_rejected_bid(
-        Request $request, 
+        Request $request,
         PostService $post_service,
         string $bid_id,
-    ){
+    ) {
         $response = $post_service->remove_rejected_bid(
             $request->user(),
             $bid_id,

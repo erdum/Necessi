@@ -3,8 +3,8 @@
 namespace App\Observers;
 
 use App\Models\User;
-use Kreait\Firebase\Factory;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Kreait\Firebase\Factory;
 
 class UserObserver implements ShouldQueue
 {

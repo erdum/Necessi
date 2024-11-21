@@ -2,13 +2,13 @@
 
 namespace App\Jobs;
 
+use App\Models\PostBid;
+use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Carbon\Carbon;
-use App\Models\PostBid;
 
 class DeleteOldAcceptedBids implements ShouldQueue
 {
@@ -17,7 +17,7 @@ class DeleteOldAcceptedBids implements ShouldQueue
     /**
      * Execute the job.
      *
-     * @param Factory $factory
+     * @param  Factory  $factory
      * @return void
      */
     public function handle()
@@ -25,21 +25,20 @@ class DeleteOldAcceptedBids implements ShouldQueue
         try {
             $one_day_ago = Carbon::now()->subDay();
             $bids = PostBid::where('status', 'accepted')
-            ->where('updated_at', '<', $one_day_ago)
-            ->whereHas('order', function ($query) {
-                $query->whereNull('transaction_id');
-            })
-            ->with('user:id,uid,first_name,last_name,avatar')
-            ->get();
+                ->where('updated_at', '<', $one_day_ago)
+                ->whereHas('order', function ($query) {
+                    $query->whereNull('transaction_id');
+                })
+                ->with('user:id,uid,first_name,last_name,avatar')
+                ->get();
 
             if ($bids->isNotEmpty()) {
-                foreach ($bids as $bid) 
-                {
+                foreach ($bids as $bid) {
                     $bid->delete();
                 }
             }
         } catch (\Exception $e) {
-            \Log::error('Error in DeleteOldAcceptedBids job: ' . $e->getMessage(), [
+            \Log::error('Error in DeleteOldAcceptedBids job: '.$e->getMessage(), [
                 'stack' => $e->getTraceAsString(),
             ]);
         }

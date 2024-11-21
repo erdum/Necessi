@@ -20,7 +20,7 @@ return new class extends Migration
                 'bid',
                 'transaction',
                 'activity',
-                'message'
+                'message',
             ])->default('activity');
             $table->string('title');
             $table->string('body');

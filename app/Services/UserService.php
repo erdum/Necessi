@@ -11,15 +11,17 @@ use App\Models\Review;
 use App\Models\User;
 use App\Models\UserPreference;
 use Carbon\Carbon;
+use Google\Cloud\Firestore\FieldValue;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 use Kreait\Firebase\Factory;
-use Google\Cloud\Firestore\FieldValue;
 
 class UserService
 {
     protected $post_service;
+
     protected $notification_service;
+
     protected $stripe_service;
 
     public function __construct(
@@ -42,13 +44,11 @@ class UserService
                 ['sender_id', '=', $target_user->id],
                 ['receiver_id', '=', $current_user->id],
             ])->first();
-            
-        if($is_connection)
-        {
-            if($is_connection->status == 'accepted'){
+
+        if ($is_connection) {
+            if ($is_connection->status == 'accepted') {
                 return true;
-            }
-            else{
+            } else {
                 return false;
             }
         }
@@ -233,8 +233,8 @@ class UserService
                 $query->where('sender_id', $user->id)
                     ->orWhere('receiver_id', $user->id);
             })->where('status', 'accepted')
-              ->limit(3)
-              ->get();
+                ->limit(3)
+                ->get();
 
             foreach ($connections as $connection) {
                 $connected_user_id = $connection->sender_id == $user->id
@@ -448,8 +448,7 @@ class UserService
     public function accept_connection_request(
         User $user,
         int $user_id,
-    )
-    {
+    ) {
         $connection_request = ConnectionRequest::where('receiver_id', $user->id)
             ->where('sender_id', $user_id)->first();
 
@@ -583,8 +582,7 @@ class UserService
     private function send_request(
         int $sender_id,
         int $receiver_id,
-    )
-    {
+    ) {
         $existing_request = ConnectionRequest::withTrashed()
             ->where([
                 ['sender_id', '=', $sender_id],
@@ -596,21 +594,18 @@ class UserService
             ])
             ->first();
 
-        if ($existing_request) 
-        {
-            if($existing_request->status == 'pending'){
+        if ($existing_request) {
+            if ($existing_request->status == 'pending') {
                 throw new Exceptions\BaseException(
                     'Connection request already sent!', 400
                 );
             }
-            if($existing_request->status == 'accepted')
-            {
+            if ($existing_request->status == 'accepted') {
                 throw new Exceptions\BaseException(
                     'You are already connected this connection', 400
                 );
             }
-            if($existing_request->status == 'rejected')
-            {
+            if ($existing_request->status == 'rejected') {
                 $existing_request->status = 'pending';
                 $existing_request->save();
 
@@ -623,7 +618,7 @@ class UserService
                     'additional_data->connection_request_id',
                     $existing_request->id
                 )->delete();
-        
+
                 $this->notification_service->push_notification(
                     $receiver_user,
                     NotificationType::ACTIVITY,
@@ -731,9 +726,9 @@ class UserService
                 $is_request_accepted = $connection_request?->status == 'accepted';
                 $is_request_rejected = $connection_request?->status == 'rejected';
                 $is_connection_request = (! ($is_request_accepted || $is_request_rejected)) && str_contains(
-                        $notif?->body,
-                        'has sent you a connection request'
-                    );
+                    $notif?->body,
+                    'has sent you a connection request'
+                );
 
                 return [
                     'title' => $notif->title,
@@ -830,7 +825,7 @@ class UserService
             'members' => [
                 $user->uid,
                 $other_party_uid,
-            ]
+            ],
         ];
 
         $db->collection('chats')->document($chat_id)->set($data);
@@ -850,7 +845,9 @@ class UserService
 
         $ref = $db->collection('chats')->document($chat_id);
 
-        if ($ref->snapshot()->exists()) $ref->delete();
+        if ($ref->snapshot()->exists()) {
+            $ref->delete();
+        }
 
         return ['message' => 'Chat successfully deleted'];
     }
@@ -971,7 +968,9 @@ class UserService
     ) {
         $card = UserPaymentCard::find($payment_method_id);
 
-        if ($card->user_id != $user->id) throw new Exceptions\AccessForbidden;
+        if ($card->user_id != $user->id) {
+            throw new Exceptions\AccessForbidden;
+        }
 
         $card->last_digits = $last_digits ?? $card->last_digits;
         $card->expiry_month = $expiry_month ?? $card->expiry_month;
@@ -989,7 +988,9 @@ class UserService
     ) {
         $card = UserPaymentCard::find($payment_method_id);
 
-        if ($card->user_id != $user->id) throw new Exceptions\AccessForbidden;
+        if ($card->user_id != $user->id) {
+            throw new Exceptions\AccessForbidden;
+        }
 
         $card->delete();
         $this->stripe_service->detach_card($payment_method_id);

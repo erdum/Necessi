@@ -6,12 +6,13 @@ use App\Exceptions;
 use App\Models\Notification;
 use App\Models\User;
 use App\Models\UserNotificationDevice;
+use Illuminate\Support\Facades\Log;
 use Kreait\Firebase\Factory;
 use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Messaging\Notification as FirebaseNotification;
-use Illuminate\Support\Facades\Log;
 
-enum NotificationType:string {
+enum NotificationType: string
+{
     case GENERAL = 'general';
     case BID = 'bid';
     case TRANSACTION = 'transaction';
@@ -60,32 +61,44 @@ class FirebaseNotificationService
             $user->id
         )->first();
 
-        if (! $notification_device) return;
+        if (! $notification_device) {
+            return;
+        }
 
         switch ($type) {
             case NotificationType::GENERAL:
 
-                if (! $user->preferences->general_notifications) return;
+                if (! $user->preferences->general_notifications) {
+                    return;
+                }
                 break;
 
             case NotificationType::BID:
 
-                if (! $user->preferences->biding_notifications) return;
+                if (! $user->preferences->biding_notifications) {
+                    return;
+                }
                 break;
 
             case NotificationType::TRANSACTION:
 
-                if (! $user->preferences->transaction_notifications) return;
+                if (! $user->preferences->transaction_notifications) {
+                    return;
+                }
                 break;
 
             case NotificationType::ACTIVITY:
 
-                if (! $user->preferences->activity_notifications) return;
+                if (! $user->preferences->activity_notifications) {
+                    return;
+                }
                 break;
 
             case NotificationType::MESSAGE:
 
-                if (! $user->preferences->messages_notifications) return;
+                if (! $user->preferences->messages_notifications) {
+                    return;
+                }
                 break;
 
             default:

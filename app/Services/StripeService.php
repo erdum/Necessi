@@ -18,24 +18,24 @@ class StripeService
 
     public function get_account_id(User $user)
     {
-        if ( !empty($user->stripe_account_id)) {
+        if (! empty($user->stripe_account_id)) {
             return $user->stripe_account_id;
         }
 
         $stripe_account = $this->client->accounts->create([
-          'country' => 'US',
-          'email' => $user->email,
-          'controller' => [
-            'fees' => ['payer' => 'application'],
-            'losses' => ['payments' => 'application'],
-            'stripe_dashboard' => ['type' => 'express'],
-          ],
+            'country' => 'US',
+            'email' => $user->email,
+            'controller' => [
+                'fees' => ['payer' => 'application'],
+                'losses' => ['payments' => 'application'],
+                'stripe_dashboard' => ['type' => 'express'],
+            ],
         ]);
 
         $this->client->accounts->update($stripe_account->id, [
             'settings' => [
-                'payouts' => ['schedule' => ['interval' => 'manual']]
-            ]
+                'payouts' => ['schedule' => ['interval' => 'manual']],
+            ],
         ]);
 
         $user->stripe_account_id = $stripe_account->id;
@@ -58,8 +58,7 @@ class StripeService
         string $stripe_customer_id,
         string $stripe_account_id,
         float $amount
-    )
-    {
+    ) {
         try {
             $payment = $this->client->paymentIntents->create([
                 'amount' => $amount * 100,
@@ -103,7 +102,7 @@ class StripeService
                 ],
                 ['stripe_account' => $user->stripe_account_id]
             );
-        }  catch (Exception $e) {
+        } catch (Exception $e) {
             $error = $e->getMessage();
 
             return response()->json(['error' => [

@@ -12,7 +12,6 @@ use App\Models\PostLike;
 use App\Models\Review;
 use App\Models\User;
 use Carbon\Carbon;
-use Google\Cloud\Firestore\FieldValue;
 
 class PostService
 {
@@ -256,10 +255,10 @@ class PostService
                 ->where('post_id', $post->id)->exists();
 
             $distance = $this->calculateDistance(
-            $user->lat,
-            $user->long,
-            $post->lat,
-            $post->long,
+                $user->lat,
+                $user->long,
+                $post->lat,
+                $post->long,
             );
 
             return [
@@ -355,14 +354,16 @@ class PostService
         }
 
         $review = Review::where('user_id', $user->id)->where('post_id', $post_id)
-           ->with('user:id,first_name,last_name,avatar')->first();
+            ->with('user:id,first_name,last_name,avatar')->first();
 
-        if(! $review){ return []; }
+        if (! $review) {
+            return [];
+        }
 
         return [
             'review_id' => $review->id,
             'user_id' => $review->user_id,
-            'user_name' => $review->user->first_name . ' ' . $review->user->last_name,
+            'user_name' => $review->user->first_name.' '.$review->user->last_name,
             'avatar' => $review->user->avatar,
             'post_id' => $review->post_id,
             'description' => $review->data,
@@ -371,7 +372,7 @@ class PostService
     }
 
     public function place_post_review(
-        User $user, 
+        User $user,
         int $post_id,
         string $description,
         int $rating,
@@ -381,7 +382,7 @@ class PostService
         if (! $post) {
             throw new Exceptions\InvalidPostId;
         }
-    
+
         $review = new Review;
         $review->user_id = $user->id;
         $review->post_id = $post_id;
@@ -511,10 +512,12 @@ class PostService
     {
         $comment = PostComment::find($comment_id);
 
-        if (! $comment) throw new Exceptions\BaseException(
-            'Comment not found',
-            404
-        );
+        if (! $comment) {
+            throw new Exceptions\BaseException(
+                'Comment not found',
+                404
+            );
+        }
 
         $comment->delete();
 
@@ -617,7 +620,7 @@ class PostService
             'images' => $images,
             'bids' => $bids,
             'comments' => $comments,
-            'current_user_name' => $current_user->first_name . ' ' . $current_user->last_name,
+            'current_user_name' => $current_user->first_name.' '.$current_user->last_name,
             'current_user_avatar' => $current_user->avatar,
         ];
     }
@@ -680,9 +683,9 @@ class PostService
             'comments' => function ($query) {
                 $query->orderBy('created_at', 'asc');
             },
-            'comments.user'
+            'comments.user',
         ])->find($post_id);
-        
+
         if (! $post) {
             throw new Exceptions\InvalidPostId;
         }
@@ -866,12 +869,11 @@ class PostService
             throw new Exceptions\UserNotFound;
         }
 
-        if($bid_id)
-        {
-            $post_ids =  $user->posts()->pluck('id');
+        if ($bid_id) {
+            $post_ids = $user->posts()->pluck('id');
             $user_bid = PostBid::where('id', $bid_id)->whereIn('post_id', $post_ids)->with('post')->first();
 
-            if(! $user_bid){
+            if (! $user_bid) {
                 return $user_bid;
             }
 
@@ -885,7 +887,7 @@ class PostService
             return [
                 'bid_id' => $user_bid->id,
                 'post_id' => $user_bid->post_id,
-                'user_name' => $user_bid->user->first_name . ' ' . $user_bid->user->last_name,
+                'user_name' => $user_bid->user->first_name.' '.$user_bid->user->last_name,
                 'avatar' => $user_bid->user->avatar,
                 'type' => $user_bid->post->type,
                 'location' => $user_bid->post->city,
@@ -895,7 +897,7 @@ class PostService
                 'budget' => $user_bid->post->budget,
                 'duration' => Carbon::parse($user_bid->post->start_date)->format('d M').' - '.
                               Carbon::parse($user_bid->post->end_date)->format('d M y'),
-                'current_user_name' => $user->first_name . ' ' . $user->last_name,
+                'current_user_name' => $user->first_name.' '.$user->last_name,
                 'curretn_user_avatar' => $user->avatar,
                 'current_user_bid_amount' => $user_bid->amount,
                 'bid_status' => $user_bid->status,
@@ -951,15 +953,14 @@ class PostService
         if (! $user_bid) {
             throw new Exceptions\BidNotFound;
         }
-        
-        if($user_bid->status == 'rejected')
-        {
+
+        if ($user_bid->status == 'rejected') {
             $user_bid->delete();
 
             return [
-                'message' => 'Bid successfully removed'
+                'message' => 'Bid successfully removed',
             ];
-        }else{
+        } else {
             throw new Exceptions\BidNotFound;
         }
     }
@@ -991,7 +992,6 @@ class PostService
             $post->long,
         );
         $is_first = true;
-
 
         foreach ($post_bids as $post_bid) {
             $bids_data[] = [

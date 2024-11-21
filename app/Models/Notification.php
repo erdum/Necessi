@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use App\Observers\NotificationObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
- 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
 #[ObservedBy([NotificationObserver::class])]
 class Notification extends Model
 {

@@ -2,10 +2,10 @@
 
 namespace App\Observers;
 
-use App\Models\Notification;
 use App\Models\ConnectionRequest;
-use Kreait\Firebase\Factory;
+use App\Models\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Kreait\Firebase\Factory;
 
 class NotificationObserver implements ShouldQueue
 {
@@ -29,9 +29,9 @@ class NotificationObserver implements ShouldQueue
         $is_request_accepted = $connection_request?->status == 'accepted';
         $is_request_rejected = $connection_request?->status == 'rejected';
         $is_connection_request = (! ($is_request_accepted || $is_request_rejected)) && str_contains(
-                $notification?->body,
-                'has sent you a connection request'
-            );
+            $notification?->body,
+            'has sent you a connection request'
+        );
 
         $data = [
             'title' => $notification->title,
@@ -68,9 +68,9 @@ class NotificationObserver implements ShouldQueue
         $is_request_accepted = $connection_request?->status == 'accepted';
         $is_request_rejected = $connection_request?->status == 'rejected';
         $is_connection_request = (! ($is_request_accepted || $is_request_rejected)) && str_contains(
-                $notification?->body,
-                'has sent you a connection request'
-            );
+            $notification?->body,
+            'has sent you a connection request'
+        );
 
         $data = [
             'title' => $notification->title,

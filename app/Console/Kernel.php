@@ -2,9 +2,9 @@
 
 namespace App\Console;
 
+use App\Jobs\DeleteOldAcceptedBids;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
-use App\Jobs\DeleteOldAcceptedBids;
 
 class Kernel extends ConsoleKernel
 {

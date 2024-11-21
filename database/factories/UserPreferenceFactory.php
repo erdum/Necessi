@@ -19,7 +19,7 @@ class UserPreferenceFactory extends Factory
         do {
             $users = \App\Models\User::inRandomOrder()->first();
         } while (\App\Models\UserPreference::where('user_id', $users->id)->exists());
-    
+
         return [
             'user_id' => $users->id,
             'general_notifications' => 1,

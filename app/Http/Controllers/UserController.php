@@ -285,11 +285,10 @@ class UserController extends Controller
     public function send_message_notificatfion(
         Request $request,
         UserService $user_service
-    )
-    {
+    ) {
         $request->validate([
             'chat_id' => 'required',
-            'receiver_uid' => 'required|exists:users,uid'
+            'receiver_uid' => 'required|exists:users,uid',
         ]);
 
         $response = $user_service->send_message_notificatfion(
