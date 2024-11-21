@@ -596,16 +596,26 @@ class UserService
             ->first();
 
         if ($existing_request) {
+
             if ($existing_request->status == 'pending') {
                 throw new Exceptions\BaseException(
                     'Connection request already sent!', 400
                 );
             }
+
             if ($existing_request->status == 'accepted') {
-                throw new Exceptions\BaseException(
-                    'You are already connected this connection', 400
-                );
+
+                if ($existing_request->deleted_at == null) {
+                    throw new Exceptions\BaseException(
+                        'You are already connected this connection', 400
+                    );
+                } else {
+                    $existing_request->restore();
+                    $existing_request->status = 'rejected';
+                    // It will be handled by the next check condition
+                }
             }
+
             if ($existing_request->status == 'rejected') {
                 $existing_request->status = 'pending';
                 $existing_request->save();
@@ -694,7 +704,7 @@ class UserService
             throw new Exceptions\ConnectionRequestNotFound;
         }
 
-        $connection_request->delete();
+        $connection_request->forceDelete();
 
         return [
             'message' => 'Canceled Connection request',
