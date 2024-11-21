@@ -858,6 +858,7 @@ class UserService
         string $receiver_uid
     ) {
         $receiver_user = User::where('uid', $receiver_uid)->first();
+        $user_name = $receiver_user->first_name.' '.$receiver_user->last_name;
 
         $this->notification_service->push_notification(
             $receiver_user,
