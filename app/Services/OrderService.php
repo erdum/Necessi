@@ -32,7 +32,7 @@ class OrderService
                             ->where('status', 'accepted');
                     });
             })
-            ->paginate();
+            ->paginate(2);
 
         $items = [
         ];
