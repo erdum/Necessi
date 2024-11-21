@@ -309,8 +309,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Send message notification
     Route::post(
-        '/chat',
-        [UserController::class, 'create_chat']
+        '/chat/notification',
+        [UserController::class, 'send_message_notificatfion']
     );
 
     // Block user from chat

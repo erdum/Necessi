@@ -855,6 +855,27 @@ class UserService
         return ['message' => 'Chat successfully deleted'];
     }
 
+    public function send_message_notificatfion(
+        User $user,
+        string $chat_id,
+        string $receiver_uid
+    ) {
+        $receiver_user = User::where('uid', $receiver_uid)->first();
+
+        $this->notification_service->push_notification(
+            $receiver_user,
+            NotificationType::MESSAGE,
+            $user_name,
+            ' has sent you a message',
+            $user->avatar ?? '',
+            [
+                'description' => $user->about,
+                'sender_id' => $user->id,
+                'connection_request_id' => null,
+            ]
+        );
+    }
+
     public function block_user(
         User $user,
         string $uid,

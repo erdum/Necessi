@@ -281,17 +281,21 @@ class UserController extends Controller
 
     //     return response()->json($response);
     // } ------- We're creating chat upon connection request being accepted
+
+    public function send_message_notificatfion(
         Request $request,
         UserService $user_service
     )
     {
         $request->validate([
-            'other_party_uid' => 'required|exists:users,uid'
+            'chat_id' => 'required',
+            'receiver_uid' => 'required|exists:users,uid'
         ]);
 
-        $response = $user_service->create_chat(
+        $response = $user_service->send_message_notificatfion(
             $request->user(),
-            $request->other_party_uid
+            $request->chat_id,
+            $request->receiver_uid
         );
 
         return response()->json($response);
