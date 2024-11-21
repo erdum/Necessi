@@ -567,11 +567,12 @@ class UserService
             $sender_user = $con->sender['id'] == $user->id
                 ? $con->receiver : $con->sender;
 
+            $sender_user['chat_id'] = $con->chat_id;
+
             $connection_list[] = [
                 'id' => $con->id,
                 'status' => $con->status,
                 'created_at' => $con->created_at,
-                'chat_id' => $con->chat_id,
                 'user' => $sender_user,
             ];
         }
