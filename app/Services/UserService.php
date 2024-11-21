@@ -860,6 +860,26 @@ class UserService
         $receiver_user = User::where('uid', $receiver_uid)->first();
         $user_name = $receiver_user->first_name.' '.$receiver_user->last_name;
 
+        if (! $receiver_user) return;
+
+        $factory = app(Factory::class);
+        $firebase = $factory->withServiceAccount(
+            base_path()
+            .DIRECTORY_SEPARATOR
+            .config('firebase.projects.app.credentials')
+        );
+        $db = $firebase->createFirestore()->database();
+
+        $chat_snap = $db->collection('chats')->document($chat_id)->snapshot();
+
+        if (! $chat_snap->exists()) return;
+
+        $chat_data = $chat_snap->data();
+
+        if (! in_array($user->uid, $chat_data['members'])) {
+            throw new Exceptions\AccessForbidden;
+        }
+
         $this->notification_service->push_notification(
             $receiver_user,
             NotificationType::MESSAGE,
