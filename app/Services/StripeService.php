@@ -69,6 +69,9 @@ class StripeService
                 'application_fee_amount' => (
                     ($amount * config('services.stripe.application_fee')) * 100
                 ),
+                'transfer_data' => [
+                    'destination' => $stripe_account_id,
+                ],
                 'off_session' => true,
                 'confirm' => true,
             ]);
