@@ -872,6 +872,8 @@ class UserService
                 'connection_request_id' => null,
             ]
         );
+
+        return ['message' => 'Message notification successfully sent'];
     }
 
     public function block_user(
