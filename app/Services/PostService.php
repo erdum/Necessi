@@ -497,8 +497,7 @@ class PostService
         $comment->data = $post_comment;
         $comment->save();
 
-        if($post->user_id !== $user->id)
-        {
+        if ($post->user_id !== $user->id) {
             $receiver_user = $post->user;
             $type = 'placed_comment';
             $user_name = $user->first_name.' '.$user->last_name;
