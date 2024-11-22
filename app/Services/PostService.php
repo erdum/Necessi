@@ -438,6 +438,12 @@ class PostService
 
     public function toggle_like(User $user, int $post_id)
     {
+        $post = Post::find($post_id);
+
+        if (! $post) {
+            throw new Exceptions\InvalidPostId;
+        }
+
         $like = PostLike::where('post_id', $post_id)
             ->where('user_id', $user->id)->first();
 
@@ -452,21 +458,24 @@ class PostService
         $like->user_id = $user->id;
         $like->save();
 
-        $receiver_user = Post::find($post_id)?->user;
-        $user_name = $user->first_name.' '.$user->last_name;
-
-        $this->notification_service->push_notification(
-            $receiver_user,
-            NotificationType::ACTIVITY,
-            $user_name,
-            ' has liked your post',
-            $user->avatar ?? '',
-            [
-                'description' => $user->about,
-                'sender_id' => $user->id,
-                'post_id' => $post_id,
-            ]
-        );
+        if($post->user_id !== $user->id)
+        {
+            $receiver_user = Post::find($post_id)?->user;
+            $user_name = $user->first_name.' '.$user->last_name;
+    
+            $this->notification_service->push_notification(
+                $receiver_user,
+                NotificationType::ACTIVITY,
+                $user_name,
+                ' has liked your post',
+                $user->avatar ?? '',
+                [
+                    'description' => $user->about,
+                    'sender_id' => $user->id,
+                    'post_id' => $post_id,
+                ]
+            );
+        }
 
         return ['message' => 'Post successfully liked'];
     }
@@ -488,22 +497,25 @@ class PostService
         $comment->data = $post_comment;
         $comment->save();
 
-        $receiver_user = $post->user;
-        $type = 'placed_comment';
-        $user_name = $user->first_name.' '.$user->last_name;
-
-        $this->notification_service->push_notification(
-            $receiver_user,
-            NotificationType::ACTIVITY,
-            $user_name,
-            ' has commented on your post',
-            $user->avatar ?? '',
-            [
-                'description' => $user->about,
-                'sender_id' => $user->id,
-                'post_id' => $post->id,
-            ]
-        );
+        if($post->user_id !== $user->id)
+        {
+            $receiver_user = $post->user;
+            $type = 'placed_comment';
+            $user_name = $user->first_name.' '.$user->last_name;
+    
+            $this->notification_service->push_notification(
+                $receiver_user,
+                NotificationType::ACTIVITY,
+                $user_name,
+                ' has commented on your post',
+                $user->avatar ?? '',
+                [
+                    'description' => $user->about,
+                    'sender_id' => $user->id,
+                    'post_id' => $post->id,
+                ]
+            );
+        }
 
         return ['message' => 'Comment has been successfully posted'];
     }
