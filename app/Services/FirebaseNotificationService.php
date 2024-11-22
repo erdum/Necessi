@@ -68,35 +68,35 @@ class FirebaseNotificationService
         switch ($type) {
             case NotificationType::GENERAL:
 
-                if (! $user->preferences->general_notifications) {
+                if (! $user?->preferences?->general_notifications) {
                     return;
                 }
                 break;
 
             case NotificationType::BID:
 
-                if (! $user->preferences->biding_notifications) {
+                if (! $user?->preferences?->biding_notifications) {
                     return;
                 }
                 break;
 
             case NotificationType::TRANSACTION:
 
-                if (! $user->preferences->transaction_notifications) {
+                if (! $user?->preferences?->transaction_notifications) {
                     return;
                 }
                 break;
 
             case NotificationType::ACTIVITY:
 
-                if (! $user->preferences->activity_notifications) {
+                if (! $user?->preferences?->activity_notifications) {
                     return;
                 }
                 break;
 
             case NotificationType::MESSAGE:
 
-                if (! $user->preferences->messages_notifications) {
+                if (! $user?->preferences?->messages_notifications) {
                     return;
                 }
                 break;
