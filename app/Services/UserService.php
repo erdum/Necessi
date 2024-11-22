@@ -829,6 +829,10 @@ class UserService
         $db = $firebase->createFirestore()->database();
         $chat_id = str()->random(20);
 
+        $unseen_count = [];
+        $unseen_count[$user->uid] = 0;
+        $unseen_count[$other_party_uid] = 0;
+
         $data = [
             'blocked_by' => null,
             'created_at' => FieldValue::serverTimestamp(),
@@ -837,10 +841,7 @@ class UserService
                 $user->uid,
                 $other_party_uid,
             ],
-            'unseen_count' => [
-                [$user->uid] => 0,
-                [$other_party_uid] => 0,
-            ],
+            'unseen_count' => $unseen_count,
         ];
 
         $db->collection('chats')->document($chat_id)->set($data);
