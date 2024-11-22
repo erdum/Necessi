@@ -837,6 +837,10 @@ class UserService
                 $user->uid,
                 $other_party_uid,
             ],
+            'unseen_count' => [
+                [$user->uid] => 0,
+                [$other_party_uid] => 0,
+            ],
         ];
 
         $db->collection('chats')->document($chat_id)->set($data);
