@@ -315,7 +315,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Block user from chat
     Route::post(
-        '/user/block/{uid}',
+        '/user/block/{chat_id}',
         [UserController::class, 'block_user']
     );
 
