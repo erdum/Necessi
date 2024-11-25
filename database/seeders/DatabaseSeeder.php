@@ -56,6 +56,8 @@ class DatabaseSeeder extends Seeder
 
             \App\Models\UserPreference::factory()->create();
         });
+
+        $this->clear_firestore();
     }
 
     protected function clear_firestore()
