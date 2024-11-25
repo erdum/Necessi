@@ -62,6 +62,7 @@ class OrderService
 
                 if ($post->type == 'item') {
                     array_push($items, [
+                        'post_id' => $post->id,
                         'title' => $post->title,
                         'description' => $post->description,
                         'start_date' => $post->start_date->format('j M'),
@@ -70,7 +71,7 @@ class OrderService
                         'post_user_uid' => $post->user->uid,
                         'post_user_name' => $post->user->first_name.' '.$post->user->last_name,
                         'post_user_avatar' => $post->user->avatar,
-                        'is_provided' => $post->user_id != $user->id,
+                        'is_provided' => $post->user_id == $user->id,
                         'status' => $status,
                         'is_feedback' => $post->reviews->isNotEmpty(),
                     ]);
@@ -84,7 +85,7 @@ class OrderService
                         'post_user_uid' => $post->user->uid,
                         'post_user_name' => $post->user->first_name.' '.$post->user->last_name,
                         'post_user_avatar' => $post->user->avatar,
-                        'is_provided' => $post->user_id != $user->id,
+                        'is_provided' => $post->user_id == $user->id,
                         'status' => $status,
                         'is_feedback' => $post->reviews->isNotEmpty(),
                     ]);
