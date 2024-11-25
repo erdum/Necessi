@@ -235,6 +235,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [OrderController::class, 'get_all']
     );
 
+    // Mark as received
+    Route::post(
+        '/user/mark-as-received/{bid_id}',
+        [OrderController::class, 'mark_as_received']
+    );
+
     // Get revenue
     Route::get(
         '/revenue',

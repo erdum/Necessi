@@ -45,4 +45,17 @@ class OrderController extends Controller
 
         return response()->json($response);
     }
+
+    public function mark_as_received(
+        Request $request, 
+        OrderService $order_service,
+        int $bid_id
+    ) {
+        $response = $order_service->mark_as_received(
+            $request->user(),
+            $bid_id,
+        );
+
+        return response()->json($response);
+    }
 }

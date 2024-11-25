@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Exceptions;
 use App\Models\OrderHistory;
 use App\Models\Post;
+use App\Models\PostBid;
 use App\Models\User;
 
 class OrderService
@@ -63,6 +64,7 @@ class OrderService
                 if ($post->type == 'item') {
                     array_push($items, [
                         'post_id' => $post->id,
+                        'bid_id' => $post->bids[0]->id,
                         'title' => $post->title,
                         'description' => $post->description,
                         'start_date' => $post->start_date->format('j M'),
@@ -100,6 +102,37 @@ class OrderService
 
         return $posts;
     }
+
+    
+    public function mark_as_received(User $user, int $bid_id)
+    {
+        if (! $user->bids->contains('id', $bid_id)) {
+            throw new Exceptions\BidNotFound;
+        }
+    
+        $order = OrderHistory::where('bid_id', $bid_id)->first();
+    
+        if (! $order) {
+            throw new Exceptions\BaseException(
+                'Order not found!',
+                400
+            );
+        }
+
+        if ($order->bid->user_id === $user->id) 
+        {
+            $order->received_by_lender = now();
+        } 
+        else {
+            $order->received_by_borrower = now();
+        }
+    
+        $order->save();
+    
+        return [
+            'message' => 'Order marked as received successfully!'
+        ];
+    }    
 
     public function make_bid_payment(
         User $user,
