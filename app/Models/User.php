@@ -154,6 +154,26 @@ class User extends Authenticatable
         return $this->blocker_users()->where('blocker_id', $user_id)->exists();
     }
 
+    public function reported_users()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'reported_users',
+            'reporter_id',
+            'reported_id'
+        )->withTimestamps();
+    }
+
+    public function reporter_users()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'reported_users',
+            'reported_id',
+            'reporter_id'
+        )->withTimestamps();
+    }
+
     public function cards()
     {
         return $this->hasMany(UserPaymentCard::class);

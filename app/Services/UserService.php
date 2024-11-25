@@ -1039,7 +1039,43 @@ class UserService
             ];
         });
     }
-    
+
+    public function report_user(
+        User $user,
+        string $chat_id,
+        string $reason_type,
+        ?string $other_reason,
+    ) {
+        $factory = app(Factory::class);
+        $firebase = $factory->withServiceAccount(
+            base_path()
+            .DIRECTORY_SEPARATOR
+            .config('firebase.projects.app.credentials')
+        );
+        $db = $firebase->createFirestore()->database();
+
+        $chat_snap = $db->collection('chats')->document($chat_id)->snapshot();
+
+        if (! $chat_snap->exists()) {
+            throw new Exceptions\BaseException('Invalid chat id', 400);
+        }
+        $chat = $chat_snap->data();
+
+        $other_uid = array_values(array_diff(
+            $chat['members'],
+            [$user->uid]
+        ))[0];
+        $other_user = User::where('uid', $other_uid)->first();
+
+        $user->blocked_users()->attach($other_user->id, [
+            'reason_type' => $reason_type,
+            'other_reason' => $other_reason ?: null,
+        ]);
+
+        return [
+            'message' => 'User successfully reported',
+        ];
+    }
 
     public function add_payment_card(
         User $user,
