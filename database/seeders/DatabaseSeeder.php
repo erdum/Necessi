@@ -13,6 +13,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->clear_firestore();
+
         \App\Models\User::factory(6)->create();
         $dev = \App\Models\User::factory()->create([
             'first_name' => 'Erdum',
@@ -56,8 +58,6 @@ class DatabaseSeeder extends Seeder
 
             \App\Models\UserPreference::factory()->create();
         });
-
-        $this->clear_firestore();
     }
 
     protected function clear_firestore()
