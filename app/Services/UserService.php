@@ -1013,8 +1013,33 @@ class UserService
 
     public function get_blocked_users(User $user)
     {
-        return $user->blocked_users;
+        return $user->blocked_users->map(function ($blocked_user) use ($user) 
+        {
+            $chat_id = ConnectionRequest::where([
+                ['sender_id', '=', $user->id],
+                ['receiver_id', '=', $blocked_user->id],
+            ])
+                ->orWhere([
+                    ['sender_id', '=', $blocked_user->id],
+                    ['receiver_id', '=', $user->id],
+                ])
+                ->value('chat_id');
+
+            return [
+                'user_id' => $blocked_user->id,
+                'first_name' => $blocked_user->first_name,
+                'last_name' => $blocked_user->last_name,
+                'avatar' => $blocked_user->avatar,
+                'uid' => $blocked_user->uid,
+                'email' => $blocked_user->email,
+                'phone_number' => $blocked_user->phone_number,
+                'location' => $blocked_user->location,
+                'blocked_at' => $blocked_user->pivot->created_at->format('Y-m-d H:i:s'),
+                'chat_id' => $chat_id,
+            ];
+        });
     }
+    
 
     public function add_payment_card(
         User $user,
