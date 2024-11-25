@@ -109,9 +109,9 @@ class OrderService
 
     public function mark_as_received(User $user, int $bid_id)
     {
-        if (! $user->bids->contains('id', $bid_id)) {
-            throw new Exceptions\BidNotFound;
-        }
+        // if (! $user->bids->contains('id', $bid_id)) {
+        //     throw new Exceptions\BidNotFound;
+        // }
     
         $order = OrderHistory::where('bid_id', $bid_id)->first();
     
@@ -181,7 +181,7 @@ class OrderService
             'chat_id' => $chat_id,
         ];
     }
-     
+
     public function make_bid_payment(
         User $user,
         int $bid_id,
