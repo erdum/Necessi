@@ -1006,7 +1006,7 @@ class PostService
 
         foreach ($post_bids as $post_bid) {
             $bids_data[] = [
-                'post-id' => $post_bid->post_id,
+                'post_id' => $post_bid->post_id,
                 'user_id' => $post_bid->user->id,
                 'user_name' => $post_bid->user->first_name.' '.$post_bid->user->last_name,
                 'avatar' => $post->user->avatar,

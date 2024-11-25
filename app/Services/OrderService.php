@@ -6,7 +6,9 @@ use App\Exceptions;
 use App\Models\OrderHistory;
 use App\Models\Post;
 use App\Models\PostBid;
+use App\Models\ConnectionRequest;
 use App\Models\User;
+use Carbon\Carbon;
 
 class OrderService
 {
@@ -76,6 +78,7 @@ class OrderService
                         'is_provided' => $post->user_id == $user->id,
                         'status' => $status,
                         'is_feedback' => $post->reviews->isNotEmpty(),
+                        'transaction_id' => $post->bids[0]->order?->transaction_id,
                     ]);
                 } else {
                     array_push($services, [
@@ -90,6 +93,7 @@ class OrderService
                         'is_provided' => $post->user_id == $user->id,
                         'status' => $status,
                         'is_feedback' => $post->reviews->isNotEmpty(),
+                        'transaction_id' => $post->bids[0]->order?->transaction_id,
                     ]);
                 }
             }
@@ -133,12 +137,51 @@ class OrderService
         ];
     }    
 
-    public function get_transaction_details(
-        User $user,
-        string $transaction_id
-    ) {
+    public function get_transaction_details(User $user, string $transaction_id)
+    {
+        $order = OrderHistory::with('bid')->where('transaction_id', $transaction_id)
+          ->first();
+    
+        if (! $order || ! $order->bid) {
+            throw new Exceptions\BaseException('Order or bid not found!', 404);
+        }
+    
+        $post = Post::with('user:id,first_name,last_name,avatar')
+            ->where('id', $order->bid->post_id)
+            ->first();
+    
+        if (! $post) {
+            throw new Exceptions\BaseException(
+                'Post or user not found!', 404
+            );
+        }
+    
+        $chat_id = ConnectionRequest::where([
+            ['sender_id', '=', $user->id],
+            ['receiver_id', '=', $post->user->id],
+        ])
+            ->orWhere([
+                ['sender_id', '=', $post->user->id],
+                ['receiver_id', '=', $user->id],
+            ])
+            ->value('chat_id');
+    
+        return [
+            'post_id' => $post->id,
+            'bid_id' => $order->bid->id,
+            'user_name' => $post->user->first_name . ' ' . $post->user->last_name,
+            'avatar' => $post->user->avatar,
+            'location' => $post->city,
+            'distance' => '0 miles away',
+            'transaction_id' => $order->transaction_id,
+            'title' => $post->title,
+            'description' => $post->description,
+            'duration' => Carbon::parse($post->start_date)->format('d M') . ' - ' . Carbon::parse($post->end_date)->format('d M Y'),
+            'return_date' => Carbon::parse($post->end_date)->format('d M Y'),
+            'chat_id' => $chat_id,
+        ];
     }
-
+     
     public function make_bid_payment(
         User $user,
         int $bid_id,
