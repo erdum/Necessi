@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Kreait\Firebase\Factory;
 
 class DatabaseSeeder extends Seeder
 {
@@ -55,5 +56,37 @@ class DatabaseSeeder extends Seeder
 
             \App\Models\UserPreference::factory()->create();
         });
+    }
+
+    protected function clear_firestore()
+    {
+        $factory = app(Factory::class);
+        $firebase = $factory->withServiceAccount(
+            base_path()
+            .DIRECTORY_SEPARATOR
+            .config('firebase.projects.app.credentials')
+        );
+        $db = $firebase->createFirestore()->database();
+
+        $users = $db->collection('users')->documents();
+        $chats = $db->collection('chats')->documents();
+        $posts = $db->collection('posts')->documents();
+        $notifications = $db->collection('notifications')->documents();
+
+        foreach ($users as $user) {
+            $user->delete();
+        }
+
+        foreach ($chats as $chat) {
+            $chat->delete();
+        }
+
+        foreach ($posts as $post) {
+            $post->delete();
+        }
+
+        foreach ($notifications as $notification) {
+            $notification->delete();
+        }
     }
 }
