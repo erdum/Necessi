@@ -14,6 +14,19 @@ class OrderController extends Controller
         return response()->json($response);
     }
 
+    public function get_transaction_details(
+        string $transaction_id,
+        Request $request,
+        OrderService $order_service
+    ) {
+        $response = $order_service->get_transaction_details(
+            $request->user(),
+            $transaction_id
+        );
+
+        return response()->json($response);
+    }
+
     public function make_bid_payment(
         int $bid_id,
         Request $request,

@@ -103,7 +103,6 @@ class OrderService
         return $posts;
     }
 
-    
     public function mark_as_received(User $user, int $bid_id)
     {
         if (! $user->bids->contains('id', $bid_id)) {
@@ -133,6 +132,12 @@ class OrderService
             'message' => 'Order marked as received successfully!'
         ];
     }    
+
+    public function get_transaction_details(
+        User $user,
+        string $transaction_id
+    ) {
+    }
 
     public function make_bid_payment(
         User $user,
