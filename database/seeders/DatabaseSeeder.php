@@ -70,25 +70,38 @@ class DatabaseSeeder extends Seeder
         );
         $db = $firebase->createFirestore()->database();
 
-        $users = $db->collection('users')->documents();
-        $chats = $db->collection('chats')->documents();
-        $posts = $db->collection('posts')->documents();
-        $notifications = $db->collection('notifications')->documents();
+        $db->runTransaction(function ($trx) use ($db) {
+            $users = $db->collection('users')->listDocuments();
+            $chats = $db->collection('chats')->listDocuments();
+            $posts = $db->collection('posts')->listDocuments();
+            $notifications = $db->collection('notifications')->listDocuments();
 
-        foreach ($users as $user) {
-            $user->delete();
-        }
+            foreach ($users as $user) {
+                $user->delete();
+            }
 
-        foreach ($chats as $chat) {
-            $chat->delete();
-        }
+            foreach ($chats as $chat) {
+                $chat->delete();
 
-        foreach ($posts as $post) {
-            $post->delete();
-        }
+                $messages = $post->collection('messages')->listDocuments();
 
-        foreach ($notifications as $notification) {
-            $notification->delete();
-        }
+                foreach ($messages as $message) {
+                    $message->delete();
+                }
+            }
+
+            foreach ($posts as $post) {
+                $post->delete();
+                $bids = $post->collection('bids')->listDocuments();
+
+                foreach ($bids as $bid) {
+                    $bid->delete();
+                }
+            }
+
+            foreach ($notifications as $notification) {
+                $notification->delete();
+            }
+        });
     }
 }
