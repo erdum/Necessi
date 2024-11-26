@@ -625,7 +625,10 @@ class PostService
             'type' => $post_details->type,
             'created_at' => $post_details->created_at->diffForHumans(),
             'budget' => $post_details->budget,
-            'duration' => Carbon::parse($post_details->start_date)->format('d M').' - '.Carbon::parse($post_details->end_date)->format('d M y'),
+            'duration' => ($post_details->start_time && $post_details->end_time)
+                ? Carbon::parse($post_details->start_time)->format('h:i A') . ' - ' . Carbon::parse($post_details->end_time)->format('h:i A')
+                : null,
+            'date' => $post_details->start_date->format('d M') . ' - ' . $post_details->end_date->format('d M Y'),
             'location' => $post_details->city,
             'distance' => round($distance, 2).' miles away',
             'title' => $post_details->title,
