@@ -83,7 +83,7 @@ class DatabaseSeeder extends Seeder
             foreach ($chats as $chat) {
                 $chat->delete();
 
-                $messages = $post->collection('messages')->listDocuments();
+                $messages = $chat->collection('messages')->listDocuments();
 
                 foreach ($messages as $message) {
                     $message->delete();
