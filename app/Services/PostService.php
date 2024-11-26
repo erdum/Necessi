@@ -423,7 +423,10 @@ class PostService
                 'long' => $post->long,
                 'distance' => round($distance, 2).' miles away',
                 'budget' => $post->budget,
-                'duration' => Carbon::parse($post->start_date)->format('d M').' - '.Carbon::parse($post->end_date)->format('d M y'),
+                'duration' => ($post->start_time && $post->end_time)
+                    ? Carbon::parse($post->start_time)->format('h:i A') . ' - ' . Carbon::parse($post->end_time)->format('h:i A')
+                    : null,
+                'date' => $post->start_date->format('d M') . ' - ' . $post->end_date->format('d M Y'),
                 'delivery_requested' => $post->delivery_requested,
                 'created_at' => $post->created_at->diffForHumans(),
                 'current_user_like' => $self_liked,
