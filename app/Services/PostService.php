@@ -104,9 +104,10 @@ class PostService
                     $avatar_name
                 );
             }
+            $post->images;
         }
 
-        return $post;
+        return $post;   
     }
 
     public function place_bid(
