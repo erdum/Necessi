@@ -15,11 +15,22 @@ class DatabaseSeeder extends Seeder
     {
         $this->clear_firestore();
 
-        \App\Models\User::factory(6)->create();
+        \App\Models\User::factory(5)->create();
+        \App\Models\User::factory()->create([
+            'first_name' => 'Anahi',
+            'last_name' => 'Smith',
+            'email' => 'anahi.smith@example.org',
+            'stripe_customer_id' => 'cus_RHvzhMFFDhmSwF',
+            'stripe_account_id' => 'acct_1QNUuZRqTPUued33',
+            'avatar' => 'avatars/m64z1YLnlynd1iB.webp',
+            'lat' => 24.8599499,
+            'long' => 67.0525505,
+        ]);
         $dev = \App\Models\User::factory()->create([
             'first_name' => 'Erdum',
             'last_name' => 'Adnan',
             'email' => 'erdumadnan@gmail.com',
+            'stripe_customer_id' => 'cus_RG0sykdYAzc17P',
             'avatar' => 'avatars/m64z1YLnlynd1iB.webp',
             'lat' => 24.8599499,
             'long' => 67.0525505,
