@@ -35,7 +35,7 @@ class OrderService
                             ->where('status', 'accepted');
                     });
             })
-            ->paginate(2);
+            ->paginate();
 
         $items = [
         ];
