@@ -64,7 +64,6 @@ class StripeService
                 'amount' => $amount * 100,
                 'currency' => 'usd',
                 'customer' => $stripe_customer_id,
-                'on_behalf_of' => $stripe_account_id,
                 'payment_method' => $payment_method_id,
                 'application_fee_amount' => (
                     ($amount * config('services.stripe.application_fee')) * 100
