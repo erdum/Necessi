@@ -122,7 +122,7 @@ class OrderService
             );
         }
 
-        if ($order->bid->user_id === $user->id) 
+        if ($order->bid->user_id !== $user->id) 
         {
             $order->received_by_lender = now();
         } 
