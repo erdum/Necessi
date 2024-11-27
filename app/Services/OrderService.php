@@ -14,9 +14,14 @@ class OrderService
 {
     protected $stripe_service;
 
-    public function __construct(StripeService $stripe_service)
-    {
+    protected $post_service;
+
+    public function __construct(
+        StripeService $stripe_service,
+        PostService $post_service,
+    ){
         $this->stripe_service = $stripe_service;
+        $this->post_service = $post_service;
     }
 
     public function get_all(User $user)
@@ -155,6 +160,15 @@ class OrderService
                 'Post or user not found!', 404
             );
         }
+
+        $calculatedDistance = $this->post_service->calculateDistance(
+            $user->lat,
+            $user->long,
+            $post->lat,
+            $post->long,
+        );
+
+        $distance = round($calculatedDistance, 2).' miles away';
     
         $chat_id = ConnectionRequest::where([
             ['sender_id', '=', $user->id],
@@ -172,7 +186,7 @@ class OrderService
             'user_name' => $post->user->first_name . ' ' . $post->user->last_name,
             'avatar' => $post->user->avatar,
             'location' => $post->city,
-            'distance' => '0 miles away',
+            'distance' => $distance,
             'transaction_id' => $order->transaction_id,
             'title' => $post->title,
             'type' => $post->type,
