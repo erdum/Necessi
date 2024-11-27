@@ -31,6 +31,8 @@ class UserObserver implements ShouldQueue
             'avatar' => $user->avatar,
             'age' => $user->age,
             'about' => $user->about,
+            'chat_unread' => 0,
+            'is_online' => true,
         ];
 
         $db->collection('users')->document($user->uid)->set($data);
