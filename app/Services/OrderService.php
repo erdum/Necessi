@@ -175,6 +175,7 @@ class OrderService
             'distance' => '0 miles away',
             'transaction_id' => $order->transaction_id,
             'title' => $post->title,
+            'type' => $post->type,
             'description' => $post->description,
             'duration' => Carbon::parse($post->start_date)->format('d M') . ' - ' . Carbon::parse($post->end_date)->format('d M Y'),
             'return_date' => Carbon::parse($post->end_date)->format('d M Y'),
