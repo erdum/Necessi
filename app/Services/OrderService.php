@@ -89,6 +89,8 @@ class OrderService
                     ]);
                 } else {
                     array_push($services, [
+                        'post_id' => $post->id,
+                        'bid_id' => $post->bids[0]->id,
                         'title' => $post->title,
                         'description' => $post->description,
                         'start_date' => $post->start_date->format('j M'),
@@ -100,6 +102,8 @@ class OrderService
                         'is_provided' => $post->user_id == $user->id,
                         'status' => $status,
                         'is_feedback' => $post->reviews->isNotEmpty(),
+                        'is_borrower' =>  $post->bids[0]->order?->received_by_borrower,
+                        'is_lender' =>  $post->bids[0]->order?->received_by_lender,
                         'transaction_id' => $post->bids[0]->order?->transaction_id,
                     ]);
                 }
