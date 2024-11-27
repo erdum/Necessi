@@ -158,10 +158,10 @@ class OrderService
     
         $chat_id = ConnectionRequest::where([
             ['sender_id', '=', $user->id],
-            ['receiver_id', '=', $post->user->id],
+            ['receiver_id', '=', $order->bid->user_id],
         ])
             ->orWhere([
-                ['sender_id', '=', $post->user->id],
+                ['sender_id', '=', $order->bid->user_id],
                 ['receiver_id', '=', $user->id],
             ])
             ->value('chat_id');
