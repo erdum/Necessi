@@ -48,8 +48,10 @@ class OrderService
         $services = [
         ];
 
+        $is_mark = false;
+
         $posts->getCollection()->each(
-            function ($post) use ($user, &$items, &$services) {
+            function ($post) use ($user, &$items, &$services, $is_mark) {
                 $status = $post->bids[0]->order->received_by_borrower == null
                     ? 'upcoming' : '';
 
@@ -67,6 +69,16 @@ class OrderService
                     && $post->bids[0]->order?->received_by_lender?->isPast()
                     && $post->bids[0]->order?->received_by_lender <= $post->end_date
                     ? 'completed' : $status;
+
+                if($post->user_id == $user->id){
+                    if(!empty($post->bids[0]->order->received_by_lender)){
+                        $is_mark = true;
+                    }
+                }else{
+                    if(!empty($post->bids[0]->order->received_by_borrower)){
+                        $is_mark = true;
+                    }
+                }
 
                 if ($post->type == 'item') {
                     array_push($items, [
@@ -86,6 +98,7 @@ class OrderService
                         'is_borrower' =>  $post->bids[0]->order?->received_by_borrower,
                         'is_lender' =>  $post->bids[0]->order?->received_by_lender,
                         'transaction_id' => $post->bids[0]->order?->transaction_id,
+                        'is_marked' => $is_mark,
                     ]);
                 } else {
                     array_push($services, [
@@ -105,6 +118,7 @@ class OrderService
                         'is_borrower' =>  $post->bids[0]->order?->received_by_borrower,
                         'is_lender' =>  $post->bids[0]->order?->received_by_lender,
                         'transaction_id' => $post->bids[0]->order?->transaction_id,
+                        'is_marked' => $is_mark,
                     ]);
                 }
             }
