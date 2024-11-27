@@ -70,14 +70,8 @@ class OrderService
                     && $post->bids[0]->order?->received_by_lender <= $post->end_date
                     ? 'completed' : $status;
 
-                if($post->user_id == $user->id){
-                    if(!empty($post->bids[0]->order->received_by_lender)){
-                        $is_mark = true;
-                    }
-                }else{
-                    if(!empty($post->bids[0]->order->received_by_borrower)){
-                        $is_mark = true;
-                    }
+                if($post->end_date <= now()){
+                    $is_mark = true;
                 }
 
                 if ($post->type == 'item') {
@@ -189,6 +183,11 @@ class OrderService
         );
 
         $distance = round($calculatedDistance, 2).' miles away';
+        $is_mark = false;
+
+        if($post->end_date <= now()){
+            $is_mark = true;
+        }
     
         $chat_id = ConnectionRequest::where([
             ['sender_id', '=', $user->id],
@@ -210,10 +209,13 @@ class OrderService
             'transaction_id' => $order->transaction_id,
             'title' => $post->title,
             'type' => $post->type,
+            'start_date' => $post->start_date->format('d M Y H:i:s A'),
+            'end_date' => $post->end_date->format('d M Y H:i:s A'),
             'description' => $post->description,
             'duration' => Carbon::parse($post->start_date)->format('d M') . ' - ' . Carbon::parse($post->end_date)->format('d M Y'),
             'return_date' => Carbon::parse($post->end_date)->format('d M Y'),
-            'chat_id' => $chat_id,
+            'chat_id' => $chat_id, 
+            'is_marked' => $is_mark,
         ];
     }
 
