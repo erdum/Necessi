@@ -499,10 +499,11 @@ class UserService
             $request_notification->save();
         }
 
-        $chat = $this->create_chat($user, $receiver_user->uid);
-
-        $connection_request->chat_id = $chat['chat_id'];
-        $connection_request->save();
+        if ($connection_request->chat_id == null) {
+            $chat = $this->create_chat($user, $receiver_user->uid);
+            $connection_request->chat_id = $chat['chat_id'];
+            $connection_request->save();
+        }
 
         $this->notification_service->push_notification(
             $receiver_user,
@@ -869,6 +870,7 @@ class UserService
                 $other_party_uid,
             ],
             'unseen_counts' => $unseen_count,
+            'connection_removed' => false,
         ];
 
         $db->collection('chats')->document($chat_id)->set($data);
@@ -889,7 +891,8 @@ class UserService
         $ref = $db->collection('chats')->document($chat_id);
 
         if ($ref->snapshot()->exists()) {
-            $ref->delete();
+            // $ref->delete();
+            $ref->update([['path' => 'connection_removed', 'value' => true]]);
         }
 
         return ['message' => 'Chat successfully deleted'];
