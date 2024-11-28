@@ -1059,15 +1059,16 @@ class UserService
     {
         return $user->blocked_users->map(function ($blocked_user) use ($user) 
         {
-            $chat_id = ConnectionRequest::where([
+            $chat_id = ConnectionRequest::withTrashed()
+            ->where([
                 ['sender_id', '=', $user->id],
                 ['receiver_id', '=', $blocked_user->id],
             ])
-                ->orWhere([
-                    ['sender_id', '=', $blocked_user->id],
-                    ['receiver_id', '=', $user->id],
-                ])
-                ->value('chat_id');
+            ->orWhere([
+                ['sender_id', '=', $blocked_user->id],
+                ['receiver_id', '=', $user->id],
+            ])
+            ->value('chat_id');
 
             return [
                 'user_id' => $blocked_user->id,
