@@ -918,7 +918,7 @@ class UserService
         string $receiver_uid
     ) {
         $receiver_user = User::where('uid', $receiver_uid)->first();
-        $user_name = $receiver_user->first_name.' '.$receiver_user->last_name;
+        $user_name = $user->first_name.' '.$user->last_name;
 
         if (! $receiver_user) return;
 
