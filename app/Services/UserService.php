@@ -503,6 +503,20 @@ class UserService
             $chat = $this->create_chat($user, $receiver_user->uid);
             $connection_request->chat_id = $chat['chat_id'];
             $connection_request->save();
+        } else {
+            $factory = app(Factory::class);
+            $firebase = $factory->withServiceAccount(
+                base_path()
+                .DIRECTORY_SEPARATOR
+                .config('firebase.projects.app.credentials')
+            );
+            $db = $firebase->createFirestore()->database();
+
+            $ref = $db->collection('chats')->document(
+                $connection_request->chat_id
+            );
+
+            $ref->update([['path' => 'connection_removed', 'value' => false]]);
         }
 
         $this->notification_service->push_notification(
