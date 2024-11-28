@@ -52,22 +52,26 @@ class OrderService
 
         $posts->getCollection()->each(
             function ($post) use ($user, &$items, &$services, $is_active) {
-                $status = $post->start_date->isFuture() ? 'upcoming' : '';
-
-                $status = $post->start_date->isPast() ? 'underway' : $status;
-
-                $status = $post->end_date->isPast()
-                    && $post->bids[0]->order->received_by_lender == null
-                    ? 'past due' : $status;
-
-                $status = $post->bids[0]->order?->received_by_borrower != null
-                    && $post->bids[0]->order?->received_by_lender != null ? 'completed' : $status;
 
                 if($post->end_date <= now()){
                     $is_active = true;
                 }
 
                 if ($post->type == 'item') {
+                    $status = $post->start_date->isFuture() ? 'upcoming' : '';
+
+                    $status = $post->start_date->isPast() ? 'underway'
+                        : $status;
+
+                    $status = $post->end_date->isPast()
+                        && $post->bids[0]->order->received_by_lender == null
+                        ? 'past due' : $status;
+
+                    $status = 
+                        $post->bids[0]->order?->received_by_borrower != null
+                        && $post->bids[0]->order?->received_by_lender != null
+                            ? 'completed' : $status;
+
                     array_push($items, [
                         'post_id' => $post->id,
                         'bid_id' => $post->bids[0]->id,
@@ -85,6 +89,12 @@ class OrderService
                         'is_marked' => $is_active,
                     ]);
                 } else {
+                    $status = $post->start_date->isFuture() ? 'upcoming' : '';
+
+                    $status = 
+                        $post->bids[0]->order?->received_by_borrower != null
+                            ? 'completed' : $status;
+
                     array_push($services, [
                         'post_id' => $post->id,
                         'bid_id' => $post->bids[0]->id,
