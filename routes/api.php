@@ -37,6 +37,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [UserController::class, 'update_user_fcm']
     );
 
+    // Delete user account
+    Route::delete(
+        '/user',
+        [UserController::class, 'delete_user_account']
+    );
+
     // Add user payment card
     Route::post(
         '/user/payment-card',

@@ -98,6 +98,33 @@ class UserService
         ]);
     }
 
+    public function delete_user_account(User $user)
+    {
+        if ($user->avatar ?? false) {
+            Storage::delete($user->avatar);
+        }
+
+        Otp::where('identifier', $user->email)->first()?->delete();
+
+        // Stripe customer account
+        // Stripe connect account
+        // User chats
+        // User posts
+        // User likes
+        // User comments
+        // User bids
+        // User notifications
+        // User reviews
+        // User orders
+        // User blocks
+        // User reports
+        // User payment methods
+
+        $user->delete();
+
+        return ['message' => 'User successfully deleted'];
+    }
+
     public function get_user_preferences(User $user)
     {
         $preferences = $user->preferences;

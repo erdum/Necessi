@@ -34,6 +34,15 @@ class UserController extends Controller
         return response()->json($response);
     }
 
+    public function delete_user_account(
+        Request $request,
+        UserService $user_service
+    ) {
+        $response = $user_service->delete_user_account($request->user());
+
+        return response()->json($response);
+    }
+
     public function get_user_preferences(
         Request $request,
         UserService $user_service
