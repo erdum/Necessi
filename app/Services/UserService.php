@@ -502,7 +502,6 @@ class UserService
         if ($connection_request->chat_id == null) {
             $chat = $this->create_chat($user, $receiver_user->uid);
             $connection_request->chat_id = $chat['chat_id'];
-            $connection_request->save();
         } else {
             $factory = app(Factory::class);
             $firebase = $factory->withServiceAccount(
@@ -518,6 +517,7 @@ class UserService
 
             $ref->update([['path' => 'connection_removed', 'value' => false]]);
         }
+        $connection_request->save();
 
         $this->notification_service->push_notification(
             $receiver_user,
