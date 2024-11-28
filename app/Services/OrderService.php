@@ -48,30 +48,23 @@ class OrderService
         $services = [
         ];
 
-        $is_mark = false;
+        $is_active = false;
 
         $posts->getCollection()->each(
-            function ($post) use ($user, &$items, &$services, $is_mark) {
-                $status = $post->bids[0]->order->received_by_borrower == null
-                    ? 'upcoming' : '';
+            function ($post) use ($user, &$items, &$services, $is_active) {
+                $status = $post->start_date->isFuture() ? 'upcoming' : '';
 
-                $status = $post->bids[0]->order?->received_by_borrower?->isPast()
-                    && $post->bids[0]->order->received_by_lender == null
-                    && $post->end_date->isFuture()
-                    ? 'underway' : $status;
+                $status = $post->start_date->isPast() ? 'underway' : $status;
 
-                $status = $post->bids[0]->order?->received_by_borrower?->isPast()
+                $status = $post->end_date->isPast()
                     && $post->bids[0]->order->received_by_lender == null
-                    && $post->end_date->isPast()
                     ? 'past due' : $status;
 
-                $status = $post->bids[0]->order?->received_by_borrower?->isPast()
-                    && $post->bids[0]->order?->received_by_lender?->isPast()
-                    && $post->bids[0]->order?->received_by_lender <= $post->end_date
-                    ? 'completed' : $status;
+                $status = $post->bids[0]->order?->received_by_borrower != null
+                    && $post->bids[0]->order?->received_by_lender != null ? 'completed' : $status;
 
                 if($post->end_date <= now()){
-                    $is_mark = true;
+                    $is_active = true;
                 }
 
                 if ($post->type == 'item') {
@@ -88,11 +81,8 @@ class OrderService
                         'post_user_avatar' => $post->user->avatar,
                         'is_provided' => $post->user_id == $user->id,
                         'status' => $status,
-                        'is_feedback' => $post->reviews->isNotEmpty(),
-                        'is_borrower' =>  $post->bids[0]->order?->received_by_borrower,
-                        'is_lender' =>  $post->bids[0]->order?->received_by_lender,
                         'transaction_id' => $post->bids[0]->order?->transaction_id,
-                        'is_marked' => $is_mark,
+                        'is_marked' => $is_active,
                     ]);
                 } else {
                     array_push($services, [
@@ -108,11 +98,8 @@ class OrderService
                         'post_user_avatar' => $post->user->avatar,
                         'is_provided' => $post->user_id == $user->id,
                         'status' => $status,
-                        'is_feedback' => $post->reviews->isNotEmpty(),
-                        'is_borrower' =>  $post->bids[0]->order?->received_by_borrower,
-                        'is_lender' =>  $post->bids[0]->order?->received_by_lender,
                         'transaction_id' => $post->bids[0]->order?->transaction_id,
-                        'is_marked' => $is_mark,
+                        'is_marked' => $is_active,
                     ]);
                 }
             }
@@ -183,10 +170,10 @@ class OrderService
         );
 
         $distance = round($calculatedDistance, 2).' miles away';
-        $is_mark = false;
+        $is_active = false;
 
         if($post->end_date <= now()){
-            $is_mark = true;
+            $is_active = true;
         }
     
         $chat_id = ConnectionRequest::where([
@@ -215,7 +202,7 @@ class OrderService
             'duration' => Carbon::parse($post->start_date)->format('d M') . ' - ' . Carbon::parse($post->end_date)->format('d M Y'),
             'return_date' => Carbon::parse($post->end_date)->format('d M Y'),
             'chat_id' => $chat_id, 
-            'is_marked' => $is_mark,
+            'is_marked' => $is_active,
         ];
     }
 
