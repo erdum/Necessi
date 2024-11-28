@@ -397,11 +397,15 @@ class PostService
     public function get_all_posts(User $user)
     {
         $posts = Post::orderBy('created_at', 'desc')
-            ->with('user:id,first_name,last_name,avatar')
+            ->with('user:id,first_name,last_name,avatar','bids.order')
             ->paginate(3);
 
-        $posts->getCollection()->transform(function ($post) use ($user) {
+        $posts->getCollection()->transform(function ($post) use ($user){
             $self_liked = $post->likes()->where('user_id', $user->id)->exists();
+
+            $order_status = $post->bids->filter(function ($bid) {
+                return $bid->order !== null;
+            })->isNotEmpty();
 
             $distance = $this->calculateDistance(
                 $user->lat,
@@ -428,12 +432,13 @@ class PostService
                     ? Carbon::parse($post->start_time)->format('h:i A') . ' - ' . Carbon::parse($post->end_time)->format('h:i A')
                     : null,
                 'date' => $post->start_date->format('d M') . ' - ' . $post->end_date->format('d M Y'),
-                'delivery_requested' => $post->delivery_requested,
+                'delivery_requested' => (bool) $post->delivery_requested,
                 'created_at' => $post->created_at->diffForHumans(),
                 'current_user_like' => $self_liked,
                 'likes' => $post->likes->count(),
                 'bids' => $post->bids->count(),
                 'images' => $post->images,
+                'paid' => $order_status,
             ];
         });
 
