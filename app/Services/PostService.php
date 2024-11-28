@@ -433,7 +433,11 @@ class PostService
                     : null,
                 'date' => $post->start_date->format('d M') . ' - ' . $post->end_date->format('d M Y'),
                 'delivery_requested' => (bool) $post->delivery_requested,
-                'created_at' => $post->created_at->diffForHumans(),
+                'created_at' => str_replace(
+                    [' seconds ago', ' second ago', ' minutes ago', ' minute ago', ' hours ago', ' hour ago'],
+                    [' sec ago', ' sec ago', ' mins ago', ' min ago', ' hrs ago', ' hr ago'],
+                    $post->created_at->diffForHumans()
+                ),
                 'current_user_like' => $self_liked,
                 'likes' => $post->likes->count(),
                 'bids' => $post->bids->count(),
