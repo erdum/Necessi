@@ -10,11 +10,13 @@ use App\Models\PostLike;
 use App\Models\Review;
 use App\Models\User;
 use App\Models\UserPreference;
+use App\Models\Otp;
 use Carbon\Carbon;
 use Google\Cloud\Firestore\FieldValue;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 use Kreait\Firebase\Factory;
+use Illuminate\Support\Facades\Storage;
 
 class UserService
 {
@@ -105,6 +107,60 @@ class UserService
         }
 
         Otp::where('identifier', $user->email)->first()?->delete();
+
+        $factory = app(Factory::class);
+        $firebase = $factory->withServiceAccount(
+            base_path()
+            .DIRECTORY_SEPARATOR
+            .config('firebase.projects.app.credentials')
+        );
+        $db = $firebase->createFirestore()->database();
+
+        $chat_ids = $user->connections->pluck('chat_id')->toArray();
+        $post_ids = $user->bids()->with('post')->get()->pluck('post.id')
+            ->toArray();
+        $notification_ids = $user->notifications->pluck('id')->toArray();
+
+        $db->runTransaction(
+            function ($trx) use ($db, $chat_ids, $post_ids, $user) {
+                foreach ($chat_ids as $chat_id) {
+                    $ref = $db->collection('chats')->document($chat_id);
+                    $messages = $ref->collection('messages')->listDocuments();
+
+                    foreach ($messages as $msg) {
+                        $trx->delete($msg);
+                    }
+
+                    $trx->delete($ref);
+                }
+
+                foreach ($post_ids as $post_id) {
+                    $ref = $db->collection('posts')->document($post_id)
+                        ->collection('bids');
+                    $bid_ref = $ref->document($user->uid);
+                    $lowest_bid_ref = $ref->document('lowest_bid');
+
+                    if (
+                        $lowest_bid_ref->snapshot()
+                            ->data()['bid_id'] == $user->uid
+                    ) {
+                        $trx->update(
+                            $lowest_bid_ref,
+                            [['path' => 'bid_id', 'value' => null]]
+                        );
+                    }
+
+                    $trx->delete($bid_ref);
+                }
+
+                foreach ($notification_ids as $notification_id) {
+                    $ref = $db->collection('notifications')
+                        ->document($notification_id);
+
+                    $trx->delete($ref);
+                }
+            }
+        );
 
         // Stripe customer account
         // Stripe connect account

@@ -89,7 +89,7 @@ class User extends Authenticatable
         return $this->hasMany(PostComment::class);
     }
 
-    public function connection_request()
+    public function connection_requests()
     {
         return $this->hasMany(ConnectionRequest::class);
     }
@@ -106,22 +106,8 @@ class User extends Authenticatable
 
     public function connections()
     {
-        return $this->belongsToMany(
-            User::class,
-            'user_connections',
-            'user_id',
-            'connection_id'
-        )->withTimestamps();
-    }
-
-    public function connected_by()
-    {
-        return $this->belongsToMany(
-            User::class,
-            'user_connections',
-            'connection_id',
-            'user_id'
-        )->withTimestamps();
+        return $this->hasMany(ConnectionRequest::class, 'sender_id')
+            ->orWhere('receiver_id', $this->id)->withTrashed();
     }
 
     public function blocked_users()
