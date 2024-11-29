@@ -123,7 +123,7 @@ class UserService
 
         $db->runTransaction(
             function ($trx) use (
-                $db, $chat_ids, $post_ids, notification_ids, $user
+                $db, $chat_ids, $post_ids, $notification_ids, $user
             ) {
                 foreach ($chat_ids as $chat_id) {
                     $ref = $db->collection('chats')->document($chat_id);
