@@ -234,6 +234,25 @@ class PostController extends Controller
         return response()->json($response);
     }
 
+    public function report_post_comment(
+        Request $request, 
+        PostService $post_service,
+        int $comment_id,
+    ){
+        $request->validate([
+            'reason_type' => 'required|in:unorofessional behavior,poor communication,fake or impersonating account,
+                harrasment or bullying,abuse or misconduct,violation policies',
+        ]);
+
+        $response = $post_service->report_post_comment(
+            $request->user(),
+            $comment_id,
+            $request->reason_type,
+        );
+
+        return response()->json($response);
+    }
+ 
     public function get_post_details(
         Request $request,
         int $post_id,

@@ -7,6 +7,7 @@ use App\Jobs\StoreImages;
 use App\Models\Post;
 use App\Models\PostBid;
 use App\Models\PostComment;
+use App\Models\ReportedComment;
 use App\Models\PostImage;
 use App\Models\PostLike;
 use App\Models\Review;
@@ -546,6 +547,41 @@ class PostService
         $comment->delete();
 
         return ['message' => 'Comment has been successfully deleted'];
+    }
+
+    public function report_post_comment(
+        User $user, 
+        int $comment_id,
+        string $reason_type,
+    ) {
+        $comment = PostComment::find($comment_id);
+
+        if (! $comment) {
+            throw new Exceptions\BaseException(
+                'Comment not found',
+                404
+            );
+        }
+
+        $reported_comment = ReportedComment::where('reporter_id', $user->id)
+            ->where('reported_id', $comment_id)->first();
+        
+        if($reported_comment){
+            throw new Exceptions\BaseException(
+                'Comment already reported',
+                400
+            );
+        }else{
+            $comment_report = new ReportedComment();
+            $comment_report->reporter_id = $user->id;
+            $comment_report->reported_id = $comment_id;
+            $comment_report->reason_type = $reason_type;
+            $comment_report->save();
+        }
+
+        return [
+            'message' => 'Comment successfully reported'
+        ];
     }
 
     public function post_unlike(User $user, int $post_id)
