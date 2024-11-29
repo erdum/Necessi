@@ -122,7 +122,9 @@ class UserService
         $notification_ids = $user->notifications->pluck('id')->toArray();
 
         $db->runTransaction(
-            function ($trx) use ($db, $chat_ids, $post_ids, $user) {
+            function ($trx) use (
+                $db, $chat_ids, $post_ids, notification_ids, $user
+            ) {
                 foreach ($chat_ids as $chat_id) {
                     $ref = $db->collection('chats')->document($chat_id);
                     $messages = $ref->collection('messages')->listDocuments();
