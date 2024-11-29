@@ -144,9 +144,18 @@ class UserService
                         $lowest_bid_ref->snapshot()
                             ->data()['bid_id'] == $user->uid
                     ) {
+                        $lowest_bids = $ref->orderBy('amount')->limit(2)
+                            ->documents()->rows();
+                        $next_value = null;
+
+                        foreach ($lowest_bids as $lowest) {
+                            $id = $lowest->id();
+
+                            if ($id != $user->uid) $next_value = $id;
+                        }
                         $trx->update(
                             $lowest_bid_ref,
-                            [['path' => 'bid_id', 'value' => null]]
+                            [['path' => 'bid_id', 'value' => $next_value]]
                         );
                     }
 
