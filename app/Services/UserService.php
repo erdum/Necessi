@@ -1237,6 +1237,17 @@ class UserService
         return ['message' => 'User card has been successfully updated'];
     }
 
+    public function get_payment_card(User $user)
+    {
+        $user_card = UserPaymentCard::where('user_id', $user->id)->first();
+
+        if(! $user_card){
+            throw new Exceptions\BaseException('Not Found', 400);
+        }
+
+        return $user_card;
+    }
+
     public function delete_payment_card(
         User $user,
         string $payment_method_id

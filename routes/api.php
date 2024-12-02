@@ -55,6 +55,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [UserController::class, 'update_payment_card']
     );
 
+    // Get user payment card
+    Route::get(
+        '/user/payment-card',
+        [UserController::class, 'get_payment_card']
+    );
+
     // Delete user payment card
     Route::delete(
         '/user/payment-card/{payment_method_id}',
