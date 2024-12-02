@@ -11,6 +11,7 @@ use App\Models\Review;
 use App\Models\User;
 use App\Models\UserPreference;
 use App\Models\Otp;
+use App\Models\UserPaymentCard;
 use Carbon\Carbon;
 use Google\Cloud\Firestore\FieldValue;
 use Illuminate\Http\UploadedFile;
