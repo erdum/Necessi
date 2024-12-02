@@ -82,7 +82,12 @@ class UserObserver implements ShouldQueue
         );
         $db = $firebase->createFirestore()->database();
 
-        $db->collection('users')->document($user->uid)->delete();
+        $ref = $db->collection('users')->document($user->uid);
+
+        foreach ($ref->collection('notifications')->listDocuments() as $doc) {
+            $doc->delete();
+        }
+        $ref->delete();
     }
 
     /**

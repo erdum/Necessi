@@ -119,7 +119,6 @@ class UserService
         $chat_ids = $user->connections->pluck('chat_id')->toArray();
         $post_ids = $user->bids()->with('post')->get()->pluck('post.id')
             ->toArray();
-        $notification_ids = $user->notifications->pluck('id')->toArray();
 
         $db->runTransaction(
             function ($trx) use (
@@ -162,13 +161,6 @@ class UserService
                     }
 
                     $trx->delete($bid_ref);
-                }
-
-                foreach ($notification_ids as $notification_id) {
-                    $ref = $db->collection('notifications')
-                        ->document($notification_id);
-
-                    $trx->delete($ref);
                 }
             }
         );
