@@ -376,7 +376,7 @@ class UserController extends Controller
         UserService $user_service
     ) {
         $request->validate([
-            'payment_method_id' => 'required|unique:id,user_payment_cards',
+            'payment_method_id' => 'required|unique:user_payment_cards,id',
             'last_digits' => 'required',
             'expiry_month' => 'required',
             'expiry_year' => 'required',
