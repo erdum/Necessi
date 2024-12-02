@@ -20,12 +20,12 @@ class PostController extends Controller
             'state' => 'required|string',
             'location' => 'required',
             'budget' => 'required',
+            'type' => 'required|string|in:item,service',
             'start_date' => 'required|date_format:Y-m-d|after_or_equal:today',
             'end_date' => 'required|date_format:Y-m-d|after:start_date',
-            'start_time' => 'nullable|date_format:H:i:s',
-            'end_time' => 'nullable|date_format:H:i:s',
+            'start_time' => 'nullable|date_format:H:i:s|required_if:type,service',
+            'end_time' => 'nullable|date_format:H:i:s|required_if:type,service',
             'request_delivery' => 'nullable',
-            'type' => 'required|string|in:item,service',
             'avatar.*' => 'nullable',
         ]);
 
