@@ -17,7 +17,6 @@ return new class extends Migration
             $table->string('last_digits', 4);
             $table->string('expiry_month', 2);
             $table->string('expiry_year', 4);
-            $table->string('card_holder_name');
             $table->string('brand');
             $table->timestamps();
         });

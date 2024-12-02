@@ -1200,7 +1200,6 @@ class UserService
         string $last_digits,
         string $expiry_month,
         string $expiry_year,
-        string $card_holder_name,
         string $brand_name
     ) {
 
@@ -1211,7 +1210,6 @@ class UserService
         $card->last_digits = $last_digits;
         $card->expiry_month = $expiry_month;
         $card->expiry_year = $expiry_year;
-        $card->card_holder_name = $card_holder_name;
         $card->brand_name = $brand_name;
         $card->save();
 
@@ -1228,7 +1226,6 @@ class UserService
         ?string $last_digits,
         ?string $expiry_month,
         ?string $expiry_year,
-        ?string $card_holder_name,
         ?string $brand_name
     ) {
         $card = UserPaymentCard::find($payment_method_id);
@@ -1240,7 +1237,6 @@ class UserService
         $card->last_digits = $last_digits ?? $card->last_digits;
         $card->expiry_month = $expiry_month ?? $card->expiry_month;
         $card->expiry_year = $expiry_year ?? $card->expiry_year;
-        $card->card_holder_name = $card_holder_name ?? $card->card_holder_name;
         $card->brand_name = $brand_name ?? $card->brand_name;
         $card->save();
 

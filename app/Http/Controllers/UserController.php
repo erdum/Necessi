@@ -380,7 +380,6 @@ class UserController extends Controller
             'last_digits' => 'required',
             'expiry_month' => 'required',
             'expiry_year' => 'required',
-            'card_holder_name' => 'required',
             'brand_name' => 'required',
         ]);
 
@@ -390,7 +389,6 @@ class UserController extends Controller
             $request->last_digits,
             $request->expiry_month,
             $request->expiry_year,
-            $request->card_holder_name,
             $request->brand_name
         );
 
@@ -407,7 +405,6 @@ class UserController extends Controller
             $request->last_digits,
             $request->expiry_month,
             $request->expiry_year,
-            $request->card_holder_name,
             $request->brand_name
         );
 
