@@ -1209,7 +1209,7 @@ class UserService
 
         $this->stripe_service->add_card(
             $payment_method_id,
-            stripe_customer_id
+            $stripe_customer_id
         );
 
         return ['message' => 'User card has been successfully attached'];
