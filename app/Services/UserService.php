@@ -1199,6 +1199,7 @@ class UserService
         $stripe_customer_id = $this->stripe_service->get_customer_id($user);
 
         $card = new UserPaymentCard;
+        $card->user_id = $user->id;
         $card->id = $payment_method_id;
         $card->last_digits = $last_digits;
         $card->expiry_month = $expiry_month;
