@@ -1203,7 +1203,7 @@ class UserService
         $card->last_digits = $last_digits;
         $card->expiry_month = $expiry_month;
         $card->expiry_year = $expiry_year;
-        $card->brand_name = $brand_name;
+        $card->brand = $brand_name;
         $card->save();
 
         $this->stripe_service->add_card(
@@ -1230,7 +1230,7 @@ class UserService
         $card->last_digits = $last_digits ?? $card->last_digits;
         $card->expiry_month = $expiry_month ?? $card->expiry_month;
         $card->expiry_year = $expiry_year ?? $card->expiry_year;
-        $card->brand_name = $brand_name ?? $card->brand_name;
+        $card->brand = $brand_name ?? $card->brand_name;
         $card->save();
 
         return ['message' => 'User card has been successfully updated'];
