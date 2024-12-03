@@ -1239,13 +1239,7 @@ class UserService
 
     public function get_payment_card(User $user)
     {
-        $user_card = UserPaymentCard::where('user_id', $user->id)->first();
-
-        if(! $user_card){
-            throw new Exceptions\BaseException('Not Found', 400);
-        }
-
-        return $user_card;
+        return $user->cards;
     }
 
     public function delete_payment_card(
