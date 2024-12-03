@@ -1250,7 +1250,7 @@ class UserService
         $bank_details->holder_name = $holder_name;
         $bank_details->account_number = $account_number;
         $bank_details->bank_name = $bank_name;
-        $bank_detailsrouting_number = $routing_number;
+        $bank_details->routing_number = $routing_number;
         $bank_details->save();
 
         return [
