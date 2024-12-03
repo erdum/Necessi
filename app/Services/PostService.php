@@ -556,6 +556,7 @@ class PostService
         User $user, 
         int $comment_id,
         string $reason_type,
+        ?string $other_reason,
     ) {
         $comment = PostComment::find($comment_id);
 
@@ -579,6 +580,7 @@ class PostService
             $comment_report->reporter_id = $user->id;
             $comment_report->reported_id = $comment_id;
             $comment_report->reason_type = $reason_type;
+            $comment_report->other_reason =  $other_reason ?: null;
             $comment_report->save();
         }
 

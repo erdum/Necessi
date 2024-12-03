@@ -240,14 +240,16 @@ class PostController extends Controller
         int $comment_id,
     ){
         $request->validate([
-            'reason_type' => 'required|in:unorofessional behavior,poor communication,fake or impersonating account,
-                harrasment or bullying,abuse or misconduct,violation policies',
+            'reason_type' => 'required|in:offensive language,harassment or bullying,spam or irrelevance,
+                 misleading or false information,violation of community guidelines,other',
+            'other_reason' => 'required_if:reason_type,other',
         ]);
 
         $response = $post_service->report_post_comment(
             $request->user(),
             $comment_id,
             $request->reason_type,
+            $request->other_reason,
         );
 
         return response()->json($response);

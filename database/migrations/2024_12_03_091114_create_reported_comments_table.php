@@ -18,13 +18,14 @@ return new class extends Migration
             $table->foreignId('reported_id')->references('id')->on('post_comments')
                 ->onDelete('cascade'); 
             $table->enum('reason_type', [
-                'unorofessional behavior',
-                'poor communication',
-                'fake or impersonating account',
-                'harrasment or bullying',
-                'abuse or misconduct',
-                'violation policies',
+                'offensive language',
+                'harassment or bullying',
+                'spam or irrelevance',
+                'misleading or false information',
+                'violation of community guidelines',
+                'other',
             ]);
+            $table->string('other_reason')->nullable();
             $table->timestamps();
         });
     }
