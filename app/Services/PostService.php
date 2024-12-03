@@ -434,6 +434,8 @@ class PostService
                     ? Carbon::parse($post->start_time)->format('h:i A') . ' - ' . Carbon::parse($post->end_time)->format('h:i A')
                     : null,
                 'date' => $post->start_date->format('d M') . ' - ' . $post->end_date->format('d M Y'),
+                'start_date' => $post->start_date->format('d M Y'),
+                'end_date' => $post->end_date->format('d M Y'),
                 'delivery_requested' => (bool) $post->delivery_requested,
                 'created_at' => str_replace(
                     [' seconds ago', ' second ago', ' minutes ago', ' minute ago', ' hours ago', ' hour ago'],
