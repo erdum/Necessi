@@ -1279,14 +1279,12 @@ class UserService
         return ['message' => 'Bank account updated successfully'];
     }
 
-    public function get_bank_details(User $user)
-    {
-        return $user->bank_details;
-    }
-
     public function get_payment_card(User $user)
     {
-        return $user->cards;
+        return [
+            'cards' => $user->cards,
+            'bank_details' => $user->bank_details,
+        ];
     }
 
     public function delete_payment_card(

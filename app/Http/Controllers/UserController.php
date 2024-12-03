@@ -457,17 +457,6 @@ class UserController extends Controller
         return response()->json($response);
     }
 
-    public function get_bank_details(
-        Request $request, 
-        UserService $user_service
-    ){
-        $response = $user_service->get_bank_details(
-            $request->user()
-        );
-
-        return response()->json($response);
-    }
-
     public function get_payment_card(
         Request $request,
         UserService $user_service,
