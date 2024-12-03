@@ -7,6 +7,7 @@ use App\Jobs\StoreImages;
 use App\Models\Post;
 use App\Models\PostBid;
 use App\Models\PostComment;
+use App\Models\ReportedPost;
 use App\Models\ReportedComment;
 use App\Models\PostImage;
 use App\Models\PostLike;
@@ -581,6 +582,40 @@ class PostService
 
         return [
             'message' => 'Comment successfully reported'
+        ];
+    }
+
+    public function report_post(
+        User $user,
+        string $reason_type,
+        ?string $other_reason,
+        int $post_id,
+    ){
+        $post = Post::find($post_id);
+
+        if (! $post) {
+            throw new Exceptions\InvalidPostId;
+        }
+
+        $reported_post = ReportedPost::where('reporter_id', $user->id)
+            ->where('reported_id', $post_id)->first();
+        
+        if($reported_post){
+            throw new Exceptions\BaseException(
+                'Post already reported',
+                400
+            );
+        }else{
+            $post_report = new ReportedPost();
+            $post_report->reporter_id = $user->id;
+            $post_report->reported_id = $post_id;
+            $post_report->reason_type = $reason_type;
+            $post_report->other_reason =  $other_reason ?: null;
+            $post_report->save();
+        }
+
+        return [
+            'message' => 'Post successfully reported'
         ];
     }
 

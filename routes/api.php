@@ -229,6 +229,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [PostController::class, 'report_post_comment']
     );
 
+    // Report Post
+    Route::post(
+        '/posts/{post_id}/report',
+        [PostController::class, 'report_post']
+    );
+
     // Place like on a post
     Route::post(
         '/posts/{post_id}/like',

@@ -252,6 +252,27 @@ class PostController extends Controller
 
         return response()->json($response);
     }
+
+    public function report_post(
+        Request $request,
+        PostService $post_service,
+        int $post_id
+    ) {
+        $request->validate([
+            'reason_type' => 'required|in:User no longer needs the platform,Violation of community guidelines,
+                Fraudulent or abusive behavior,Prolonged account inactivity,Privacy concerns or dissatisfaction with the service,other',
+            'other_reason' => 'required_if:reason_type,other',
+        ]);
+
+        $response = $post_service->report_post(
+            $request->user(),
+            $request->reason_type,
+            $request->other_reason,
+            $post_id,
+        );
+
+        return response()->json($response);
+    }
  
     public function get_post_details(
         Request $request,
