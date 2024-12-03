@@ -164,4 +164,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(UserPaymentCard::class);
     }
+
+    public function bank_details()
+    {
+        return $this->hasMany(UserBankDetail::class);
+    }
 }

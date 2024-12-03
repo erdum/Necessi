@@ -55,6 +55,24 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [UserController::class, 'update_payment_card']
     );
 
+    // Update user Bank Details 
+    Route::post(
+        '/user/bank-details',
+        [UserController::class, 'add_bank_details']
+    );
+
+    // Update a specific bank account
+    Route::post(
+        '/user/bank-details/{bank_account_id}', 
+        [UserController::class, 'update_bank_details']
+    );
+
+    // Get all bank accounts for a user
+    Route::get(
+        '/user/bank-details', 
+        [UserController::class, 'get_bank_details']
+    );
+
     // Get user payment card
     Route::get(
         '/user/payment-card',

@@ -411,6 +411,63 @@ class UserController extends Controller
         return response()->json($response);
     }
 
+    public function add_bank_details(
+        Request $request, 
+        UserService $user_service
+    ){
+        $request->validate([
+            'holder_name' => 'string|required',
+            'account_number' => 'integer|required',
+            'bank_name' => 'string|required',
+            'routing_number' => 'string|required',
+        ]);
+
+        $response = $user_service->add_bank_details(
+            $request->user(),
+            $request->holder_name,
+            $request->account_number,
+            $request->bank_name,
+            $request->routing_number
+        );
+
+        return response()->json($response);
+    }
+
+    public function update_bank_details(
+        Request $request, 
+        UserService $user_service, 
+        $bank_account_id
+    ){
+        $request->validate([
+            'holder_name' => 'string|nullable',
+            'account_number' => 'integer|nullable',
+            'bank_name' => 'string|nullable',
+            'routing_number' => 'string|nullable',
+        ]);
+
+        $response = $user_service->update_bank_details(
+            $request->user(),
+            $bank_account_id,
+            $request->holder_name,
+            $request->account_number,
+            $request->bank_name,
+            $request->routing_number
+        );
+
+        return response()->json($response);
+    }
+
+    public function get_bank_details(
+        Request $request, 
+        UserService $user_service
+    ){
+        $response = $user_service->get_bank_details(
+            $request->user()
+        );
+
+        return response()->json($response);
+    }
+
     public function get_payment_card(
         Request $request,
         UserService $user_service,

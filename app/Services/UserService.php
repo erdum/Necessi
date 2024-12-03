@@ -10,6 +10,7 @@ use App\Models\PostLike;
 use App\Models\Review;
 use App\Models\User;
 use App\Models\UserPreference;
+use App\Models\UserBankDetail;
 use App\Models\Otp;
 use App\Models\UserPaymentCard;
 use Carbon\Carbon;
@@ -1235,6 +1236,52 @@ class UserService
         $card->save();
 
         return ['message' => 'User card has been successfully updated'];
+    }
+
+    public function add_bank_details(
+        User $user,
+        string $holder_name,
+        int $account_number,
+        string $bank_name,
+        string $routing_number
+    ){
+        $bank_details = new UserBankDetail();
+        $bank_details->user_id = $user->id;
+        $bank_details->holder_name = $holder_name;
+        $bank_details->account_number = $account_number;
+        $bank_details->bank_name = $bank_name;
+        $bank_detailsrouting_number = $routing_number;
+        $bank_details->save();
+
+        return [
+            'message' => 'Bank account added successfully'
+        ];
+    }
+
+    public function update_bank_details(
+        User $user,
+        int $bank_account_id,
+        ?string $holder_name,
+        ?int $account_number,
+        ?string $bank_name,
+        ?string $routing_number
+    ) {
+        $bank_details = UserBankDetail::where('user_id', $user->id)
+            ->findOrFail($bank_account_id);
+    
+        $bank_details->holder_name = $holder_name ?? $bank_details->holder_name;
+        $bank_details->account_number = $account_number ?? $bank_details->account_number;
+        $bank_details->bank_name = $bank_name ?? $bank_details->bank_name;
+        $bank_details->routing_number = $routing_number ?? $bank_details->routing_number;
+    
+        $bank_details->save();
+    
+        return ['message' => 'Bank account updated successfully'];
+    }
+
+    public function get_bank_details(User $user)
+    {
+        return $user->bank_details;
     }
 
     public function get_payment_card(User $user)
