@@ -335,7 +335,7 @@ class UserController extends Controller
         UserService $user_service
     ) {
         $request->validate([
-            'reason_type' => 'required|in:harassment,spam,fraudulent activity,fake profile,inappropriate content,violation of terms,hate speech,other',
+            'reason_type' => 'required|in:inappropriate behavior,fraudulent activity,harassment or abuse,spam or scamming,violation of platform rules,other',
             'other_reason' => 'required_if:reason_type,other',
         ]);
 

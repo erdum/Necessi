@@ -18,13 +18,11 @@ return new class extends Migration
             $table->foreignId('reported_id')->references('id')->on('users')
                 ->onDelete('cascade');
             $table->enum('reason_type', [
-                'harassment',
-                'spam',
+                'inappropriate behavior',
                 'fraudulent activity',
-                'fake profile',
-                'inappropriate content',
-                'violation of terms',
-                'hate speech',
+                'harassment or abuse',
+                'spam or scamming',
+                'violation of platform rules',
                 'other',
             ]);
             $table->string('other_reason')->nullable();
