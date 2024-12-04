@@ -436,6 +436,8 @@ class PostService
                 'date' => $post->start_date->format('d M') . ' - ' . $post->end_date->format('d M Y'),
                 'start_date' => $post->start_date->format('d M Y'),
                 'end_date' => $post->end_date->format('d M Y'),
+                'start_time' => $post->start_time?->format('h:i A'),
+                'end_time' => $post->end_time?->format('h:i A'),
                 'delivery_requested' => (bool) $post->delivery_requested,
                 'created_at' => str_replace(
                     [' seconds ago', ' second ago', ' minutes ago', ' minute ago', ' hours ago', ' hour ago'],
