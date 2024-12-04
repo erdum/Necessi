@@ -261,8 +261,7 @@ class PostController extends Controller
         int $post_id
     ) {
         $request->validate([
-            'reason_type' => 'required|in:inappropriate content,misleading or fraudulent,prohibited items or services,
-                  spam or irrelevance,harassment or harmful behavior,other',
+            'reason_type' => 'required|in:inappropriate content,misleading or fraudulent,prohibited items or services,spam or irrelevance,harassment or harmful behavior,other',
             'other_reason' => 'required_if:reason_type,other',
         ]);
 

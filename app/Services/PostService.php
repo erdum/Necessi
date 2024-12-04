@@ -603,22 +603,12 @@ class PostService
             throw new Exceptions\InvalidPostId;
         }
 
-        $reported_post = ReportedPost::where('reporter_id', $user->id)
-            ->where('reported_id', $post_id)->first();
-        
-        if($reported_post){
-            throw new Exceptions\BaseException(
-                'Post already reported',
-                400
-            );
-        }else{
-            $post_report = new ReportedPost();
-            $post_report->reporter_id = $user->id;
-            $post_report->reported_id = $post_id;
-            $post_report->reason_type = $reason_type;
-            $post_report->other_reason =  $other_reason ?: null;
-            $post_report->save();
-        }
+        $post_report = new ReportedPost();
+        $post_report->reporter_id = $user->id;
+        $post_report->reported_id = $post_id;
+        $post_report->reason_type = $reason_type;
+        $post_report->other_reason =  $other_reason ?: null;
+        $post_report->save();
 
         return [
             'message' => 'Post successfully reported'
