@@ -376,7 +376,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Report user from chat
     Route::post(
         '/user/report/{chat_id}',
-        [UserController::class, 'report_user']
+        [UserController::class, 'report_chat']
     );
 
     // Unblock user from chat

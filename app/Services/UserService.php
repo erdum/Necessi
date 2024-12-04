@@ -1151,7 +1151,7 @@ class UserService
         });
     }
 
-    public function report_user(
+    public function report_chat(
         User $user,
         string $chat_id,
         string $reason_type,
