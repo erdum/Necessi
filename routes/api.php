@@ -375,6 +375,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Report user from chat
     Route::post(
+        '/users/report/{user_id}',
+        [UserController::class, 'report_user']
+    );
+
+    // Report user from chat
+    Route::post(
         '/user/report/{chat_id}',
         [UserController::class, 'report_chat']
     );

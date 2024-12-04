@@ -11,6 +11,7 @@ use App\Models\Review;
 use App\Models\User;
 use App\Models\UserPreference;
 use App\Models\UserBankDetail;
+use App\Models\ReportedUser;
 use App\Models\Otp;
 use App\Models\UserPaymentCard;
 use Carbon\Carbon;
@@ -1185,6 +1186,40 @@ class UserService
 
         return [
             'message' => 'User successfully reported',
+        ];
+    }
+
+    public function report_user(
+        User $user,
+        string $reason_type,
+        ?string $other_reason,
+        int $reported_user_id
+    ){
+        $user = User::find($reported_user_id);
+
+        if(! $user){
+            throw new Exceptions\UserNotFound;
+        }
+        
+        $reported_user = ReportedUser::where('reporter_id', $user->id)
+        ->where('reported_id', $reported_user_id)->first();
+    
+        if($reported_user){
+            throw new Exceptions\BaseException(
+                'User already reported',
+                400
+            );
+        }else{
+            $user_report = new ReportedUser();
+            $user_report->reporter_id = $user->id;
+            $user_report->reported_id = $reported_user_id;
+            $user_report->reason_type = $reason_type;
+            $user_report->other_reason =  $other_reason ?: null;
+            $user_report->save();
+        }
+
+        return [
+            'message' => 'User Successfully reported',
         ];
     }
 
