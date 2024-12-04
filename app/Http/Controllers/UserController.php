@@ -13,22 +13,28 @@ class UserController extends Controller
         UserService $user_service
     ) {
         $request->validate([
+            'first_name' => 'nullable|string',
+            'last_name' => 'nullable|string',
             'avatar' => 'nullable|image',
             'about' => 'nullable|string|max:500',
             'age' => 'nullable|integer|between:10,110',
             'phone_number' => 'nullable|min:10|max:15',
             'lat' => 'nullable|numeric',
             'long' => 'nullable|numeric',
+            'location' => 'nullable|string',
         ]);
 
         $response = $user_service->update_profile(
             $request->user(),
+            $request->first_name,
+            $request->last_name,
             $request->about,
             $request->age,
             $request->avatar,
             $request->phone_number,
             $request->lat,
             $request->long,
+            $request->location,
         );
 
         return response()->json($response);

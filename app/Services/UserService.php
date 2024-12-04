@@ -61,18 +61,24 @@ class UserService
 
     public function update_profile(
         User $user,
+        ?string $first_name,
+        ?string $last_name,
         ?string $about,
         ?string $age,
         ?UploadedFile $avatar,
         ?string $phone_number,
         ?float $lat,
-        ?float $long
+        ?float $long,
+        ?string $location,
     ) {
+        $user->first_name = $first_name ?? $user->first_name ?? null;
+        $user->last_name = $last_name ?? $user->last_name ?? null;
         $user->about = $about ?? $user->about ?? null;
         $user->age = $age ?? $user->age ?? null;
         $user->phone_number = $phone_number ?? $user->phone_number ?? null;
         $user->lat = $lat ?? $user->lat ?? null;
         $user->long = $long ?? $user->long ?? null;
+        $user->location = $location ?? $user->location ?? null;
 
         if (! $avatar) {
             $user->avatar = $avatar ?? $user->avatar ?? null;
