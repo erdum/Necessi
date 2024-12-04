@@ -79,6 +79,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [UserController::class, 'delete_payment_card']
     );
 
+    // Get Stripe account onboarding link
+    Route::get(
+        '/user/connect/onboarding/link',
+        [UserController::class, 'get_onboarding_link']
+    );
+
     // Get uses notifications list
     Route::get(
         '/user/notifications',

@@ -34,6 +34,10 @@ return [
     'stripe' => [
         'secret' => env('STRIPE_SECRET'),
         'application_fee' => env('STRIPE_APPLICATION_FEE'),
+        'onboarding' => [
+            'refresh_url' => env('STRIPE_REFRESH_URL'),
+            'return_url' => env('STRIPE_RETURN_URL'),
+        ],
     ],
 
 ];

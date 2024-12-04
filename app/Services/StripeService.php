@@ -16,6 +16,18 @@ class StripeService
         $this->client = new StripeClient(config('services.stripe.secret'));
     }
 
+    public function get_onboarding_link(User $user) {
+        $acc_id = $this->get_account_id($user);
+
+        return $this->client->accountLinks->create([
+            'account' => $acc_id,
+            'refresh_url' => config('services.stripe.onboarding.refresh_url'),
+            'return_url' => config('services.stripe.onboarding.return_url'),
+            'type' => 'account_onboarding',
+            'collection_options' => ['fields' => 'eventually_due'],
+        ]);
+    }
+
     public function get_account_id(User $user)
     {
         if (! empty($user->stripe_account_id)) {

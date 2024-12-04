@@ -480,4 +480,13 @@ class UserController extends Controller
 
         return response()->json($response);
     }
+
+    public function get_onboarding_link(
+        Request $request,
+        UserService $user_service
+    ) {
+        $response = $user_service->get_onboarding_link($request->user());
+
+        return response()->json($response);
+    }
 }

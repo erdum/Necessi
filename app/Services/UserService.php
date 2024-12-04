@@ -1302,4 +1302,8 @@ class UserService
 
         return ['message' => 'User card has been successfully detached'];
     }
+
+    public function get_onboarding_link(User $user) {
+        return $this->stripe_service->get_onboarding_link($user);
+    }
 }
