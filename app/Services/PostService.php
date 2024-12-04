@@ -797,6 +797,7 @@ class PostService
 
         foreach ($post->comments as $comment) {
             $comments[] = [
+                'id' => $comment->id,
                 'post_id' => $post->id,
                 'user_id' => $comment->user->id,
                 'user_name' => $comment->user->first_name.' '.$comment->user->last_name,
