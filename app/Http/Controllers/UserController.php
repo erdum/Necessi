@@ -349,6 +349,26 @@ class UserController extends Controller
         return response()->json($response);
     }
 
+    public function report_user(
+        Request $request, 
+        UserService $user_service,
+        int $user_id
+    ){
+        $request->validate([
+            'reason_type' => 'required|in:inappropriate behavior,fraudulent activity,harassment or abuse,spam or scamming,violation of platform rules,other',
+            'other_reason' => 'required_if:reason_type,other',
+        ]);
+
+        $response = $user_service->report_user(
+            $request->user(),
+            $request->reason_type,
+            $request->other_reason,
+            $request->user_id,
+        );
+
+        return response()->json($response);
+    }
+
     public function unblock_user(
         string $chat_id,
         Request $request,
