@@ -79,7 +79,7 @@ class PostBidObserver implements ShouldQueue
                 $user_name = $postBid->user->first_name.' '.$postBid->user->last_name;
                 $trx->set($bid_ref, [
                     'amount' => $postBid->amount,
-                    'status' => 'pending',
+                    'status' => $postBid->status,
                     'user_uid' => $postBid->user->uid,
                     // 'user_avatar' => $postBid->user->avatar,
                     // 'user_name' => $user_name,
