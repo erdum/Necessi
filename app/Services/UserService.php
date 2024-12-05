@@ -82,11 +82,7 @@ class UserService
 
         if ($avatar == 'none') {
             $user->avatar = null;
-        } else {
-            $user->avatar = $avatar ?? $user->avatar ?? null;
-        }
-
-        if ($avatar) {
+        } else if ($avatar) {
             $avatar_name = str()->random(15);
             $user->avatar = "avatars/$avatar_name.webp";
 
