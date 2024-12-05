@@ -265,6 +265,7 @@ class OrderService
 
         $orders->getCollection()->transform(function ($order) {
             return [
+                'order_id' => $order->id,
                 'type' => $order->bid->post->type,
                 'created_at' => $order->created_at->format('d F Y'),
                 'amount' => $order->bid->amount,
@@ -272,5 +273,33 @@ class OrderService
         });
 
         return $orders;
+    }
+
+    public function get_revenue_details(User $user, int $order_id)
+    {
+        $order = OrderHistory::with(['bid.post'])
+        ->whereHas('bid', function ($query) {
+            $query->whereHas('post');
+        })
+        ->where('id', $order_id)
+        ->first();
+    
+        if(! $order){
+            throw new Exceptions\BaseException(
+                'Order Not Found',
+                400
+            );
+        }
+        return [
+            'created_at' =>  $order->created_at->format('d F Y'),
+            'order_id' => $order->id,
+            'post_id' => $order->bid->post->id,
+            'post_title' => $order->bid->post->title,
+            'post_user_name' => $order->bid->post->user->first_name . ' ' .  $order->bid->post->user->first_name,
+            'post_user_avatar' => $order->bid->post->user->avatar,
+            'post_created_at' =>  $order->bid->post->created_at->format('d M Y'),
+            'received_amount' => $order->bid->amount,
+        ];
+
     }
 }

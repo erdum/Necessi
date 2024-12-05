@@ -59,6 +59,19 @@ class OrderController extends Controller
         return response()->json($response);
     }
 
+    public function get_revenue_details(
+        Request $request, 
+        OrderService $order_service,
+        int $order_id
+    ){
+        $response = $order_service->get_revenue_details(
+            $request->user(),
+            $order_id,
+        );
+
+        return response()->json($response);
+    }
+
     public function mark_as_received(
         Request $request, 
         OrderService $order_service,
