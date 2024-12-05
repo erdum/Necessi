@@ -80,7 +80,9 @@ class UserService
         $user->long = $long ?? $user->long ?? null;
         $user->location = $location ?? $user->location ?? null;
 
-        if (! $avatar) {
+        if ($avatar == 'none') {
+            $user->avatar = null;
+        } else {
             $user->avatar = $avatar ?? $user->avatar ?? null;
         }
 
