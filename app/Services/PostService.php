@@ -516,10 +516,11 @@ class PostService
         $comment->data = $post_comment;
         $comment->save();
 
+        $user_name = $user->first_name.' '.$user->last_name;
+
         if ($post->user_id !== $user->id) {
             $receiver_user = $post->user;
             $type = 'placed_comment';
-            $user_name = $user->first_name.' '.$user->last_name;
     
             $this->notification_service->push_notification(
                 $receiver_user,
@@ -535,7 +536,15 @@ class PostService
             );
         }
 
-        return $comment;
+        return [
+            'id' => $comment->id,
+            'post_id' => $comment->post_id,
+            'user_id' => $comment->user_id,
+            'user_name' => $user_name,
+            'avatar' => $user->avatar,
+            'comment' => $comment->data,
+            'created_at' => $comment->created_at,
+        ];
     }
 
     public function delete_post_comment(User $user, int $comment_id)
