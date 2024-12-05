@@ -535,7 +535,7 @@ class PostService
             );
         }
 
-        return ['message' => 'Comment has been successfully posted'];
+        return $comment;
     }
 
     public function delete_post_comment(User $user, int $comment_id)
