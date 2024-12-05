@@ -15,7 +15,7 @@ class UserController extends Controller
         $request->validate([
             'first_name' => 'nullable|string',
             'last_name' => 'nullable|string',
-            'avatar' => 'nullable|image',
+            'avatar' => 'nullable',
             'about' => 'nullable|string|max:500',
             'age' => 'nullable|integer|between:10,110',
             'phone_number' => 'nullable|min:10|max:15',
@@ -442,10 +442,10 @@ class UserController extends Controller
         UserService $user_service
     ){
         $request->validate([
-            'holder_name' => 'string|required',
-            'account_number' => 'integer|required',
-            'bank_name' => 'string|required',
-            'routing_number' => 'string|required',
+            'holder_name' => 'required',
+            'account_number' => 'required|unique:user_bank_details,account_number',
+            'bank_name' => 'required',
+            'routing_number' => 'required|unique:user_bank_details,routing_number',
         ]);
 
         $response = $user_service->add_bank_details(

@@ -65,7 +65,7 @@ class UserService
         ?string $last_name,
         ?string $about,
         ?string $age,
-        ?UploadedFile $avatar,
+        UploadedFile|string|null $avatar,
         ?string $phone_number,
         ?float $lat,
         ?float $long,
