@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Models\ConnectionRequest;
 use App\Models\Notification;
+use App\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Kreait\Firebase\Factory;
 
