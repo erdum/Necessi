@@ -301,6 +301,19 @@ class PostController extends Controller
         return response()->json($response);
     }
 
+    public function get_post_preview(
+        int $post_id,
+        Request $request,
+        PostService $post_service
+    ) {
+        $response = $post_service->get_post_preview(
+            $post_id,
+            $request->user()
+        );
+
+        return response()->json($response);
+    }
+
     public function get_post_reviews(
         int $post_id,
         PostService $post_service

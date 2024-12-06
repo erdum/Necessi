@@ -728,6 +728,19 @@ class PostService
         ];
     }
 
+    public function get_post_preview(int $post_id, User $user)
+    {
+        $post = Post::findOrFail($post_id);
+        $user_name = $post->user->first_name.' '.$post->user->last_name;
+
+        return [
+            'post_user_name' => $user_name,
+            'post_user_avatar' => $post->user->avatar,
+            'post_budget' => $post->budget,
+            'post_duration' => $post->start_date->format('d M') . ' - ' . $post->end_date->format('d M Y'),
+        ];
+    }
+
     public function get_post_bids(User $user, int $post_id)
     {
         $post = Post::with([

@@ -121,6 +121,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [PostController::class, 'get_all_posts']
     );
 
+    // Get post preview link
+    Route::get(
+        '/posts/{post_id}/preview',
+        [PostController::class, 'get_post_preview']
+    );
+
     // Get specific post
     Route::get(
         '/posts/{post_id}',
