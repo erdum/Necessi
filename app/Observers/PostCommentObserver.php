@@ -31,8 +31,7 @@ class PostCommentObserver implements ShouldQueue
             'id' => $postComment->id,
             'post_id' => $postComment->post_id,
             'user_id' => $postComment->user_id,
-            'user_name' => $user_name,
-            'avatar' => $postComment->user->avatar,
+            'uid' => $postComment->user->uid,
             'comment' => $postComment->data,
             'created_at' => $postComment->created_at,
         ]);
@@ -61,8 +60,7 @@ class PostCommentObserver implements ShouldQueue
             'id' => $postComment->id,
             'post_id' => $postComment->post_id,
             'user_id' => $postComment->user_id,
-            'user_name' => $user_name,
-            'avatar' => $postComment->user->avatar,
+            'uid' => $postComment->user->uid,
             'comment' => $postComment->data,
             'created_at' => $postComment->created_at,
         ]);

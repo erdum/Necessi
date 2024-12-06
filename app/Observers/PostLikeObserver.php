@@ -31,8 +31,7 @@ class PostLikeObserver implements ShouldQueue
             'id' => $postLike->id,
             'user_id' => $postLike->user_id,
             'post_id' => $postLike->post_id,
-            'user_name' => $user_name,
-            'avatar' => $postLike->user->avatar,
+            'uid' => $postLike->user->uid,
             'created_at' => $postLike->created_at,
         ]);
     }
@@ -60,8 +59,7 @@ class PostLikeObserver implements ShouldQueue
             'id' => $postLike->id,
             'user_id' => $postLike->user_id,
             'post_id' => $postLike->post_id,
-            'user_name' => $user_name,
-            'avatar' => $postLike->user->avatar,
+            'uid' => $postLike->user->uid,
             'created_at' => $postLike->created_at,
         ]);
     }
