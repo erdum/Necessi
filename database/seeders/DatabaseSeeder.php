@@ -85,10 +85,16 @@ class DatabaseSeeder extends Seeder
             $users = $db->collection('users')->listDocuments();
             $chats = $db->collection('chats')->listDocuments();
             $posts = $db->collection('posts')->listDocuments();
-            $notifications = $db->collection('notifications')->listDocuments();
 
             foreach ($users as $user) {
                 $user->delete();
+
+                $notifications = $user->collection('notifications')
+                    ->listDocuments();
+
+                foreach ($notifications as $notification) {
+                    $notification->delete();
+                }
             }
 
             foreach ($chats as $chat) {
@@ -104,14 +110,20 @@ class DatabaseSeeder extends Seeder
             foreach ($posts as $post) {
                 $post->delete();
                 $bids = $post->collection('bids')->listDocuments();
+                $comments = $post->collection('comments')->listDocuments();
+                $likes = $post->collection('likes')->listDocuments();
 
                 foreach ($bids as $bid) {
                     $bid->delete();
                 }
-            }
 
-            foreach ($notifications as $notification) {
-                $notification->delete();
+                foreach ($comments as $comment) {
+                    $comment->delete();
+                }
+
+                foreach ($likes as $like) {
+                    $like->delete();
+                }
             }
         });
     }
