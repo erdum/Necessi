@@ -1314,34 +1314,25 @@ class UserService
 
     public function delete_payment_card(
         User $user,
-        array $payment_method_ids,
+        string $payment_method_id
     ) {
-        $deleted_cards = [];
-        $errors = [];
+        $card = UserPaymentCard::find($payment_method_id);
 
-        foreach($payment_method_ids as $payment_method_id)
-        {
-            $card = UserPaymentCard::find($payment_method_id);
-
-            if (!$card) {
-                $errors[] = "Payment card ID $payment_method_id not found.";
-                continue;
-            }
-
-            if ($card->user_id != $user->id) {
-                $errors[] = "Access forbidden for card ID $payment_method_id.";
-                continue;
-            }
-    
-            $card->delete();
-            $this->stripe_service->detach_card($payment_method_id);
-            $deleted_cards[] = $payment_method_id;
+        if (!$card) {
+            throw new Exceptions\BaseException(
+                'Card not found', 400
+            );
         }
+
+        if ($card->user_id != $user->id) {
+            throw new Exceptions\AccessForbidden;
+        }
+    
+        $card->delete();
+        $this->stripe_service->detach_card($payment_method_id);
 
         return [
             'message' => 'User card has been successfully detached',
-            'deleted_cards' => $deleted_cards,
-            'errors' => $errors
         ];
     }
 
