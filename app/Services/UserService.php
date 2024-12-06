@@ -1314,18 +1314,35 @@ class UserService
 
     public function delete_payment_card(
         User $user,
-        string $payment_method_id
+        array $payment_method_ids,
     ) {
-        $card = UserPaymentCard::find($payment_method_id);
+        $deleted_cards = [];
+        $errors = [];
 
-        if ($card->user_id != $user->id) {
-            throw new Exceptions\AccessForbidden;
+        foreach($payment_method_ids as $payment_method_id)
+        {
+            $card = UserPaymentCard::find($payment_method_id);
+
+            if (!$card) {
+                $errors[] = "Payment card ID $payment_method_id not found.";
+                continue;
+            }
+
+            if ($card->user_id != $user->id) {
+                $errors[] = "Access forbidden for card ID $payment_method_id.";
+                continue;
+            }
+    
+            $card->delete();
+            $this->stripe_service->detach_card($payment_method_id);
+            $deleted_cards[] = $payment_method_id;
         }
 
-        $card->delete();
-        $this->stripe_service->detach_card($payment_method_id);
-
-        return ['message' => 'User card has been successfully detached'];
+        return [
+            'message' => 'User card has been successfully detached',
+            'deleted_cards' => $deleted_cards,
+            'errors' => $errors
+        ];
     }
 
     public function get_onboarding_link(User $user) {

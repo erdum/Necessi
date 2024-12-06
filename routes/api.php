@@ -75,7 +75,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Delete user payment card
     Route::delete(
-        '/user/payment-card/{payment_method_id}',
+        '/user/payment-card',
         [UserController::class, 'delete_payment_card']
     );
 

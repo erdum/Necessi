@@ -495,13 +495,17 @@ class UserController extends Controller
     }
 
     public function delete_payment_card(
-        string $payment_method_id,
         Request $request,
         UserService $user_service
     ) {
+        $request->validate([
+            'payment_method_ids' => 'required|array',
+            'payment_method_ids.*' => 'string'
+        ]);
+
         $response = $user_service->delete_payment_card(
             $request->user(),
-            $payment_method_id
+            $request->payment_method_ids,
         );
 
         return response()->json($response);
