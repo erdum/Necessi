@@ -14,7 +14,7 @@ class UserFactory extends Factory
             'last_name' => fake()->lastName(),
             'uid' => str()->random(28),
             'email' => fake()->unique()->safeEmail(),
-            'phone_number' => fake()->e164PhoneNumber(),
+            'phone_number' => preg_replace('/^\+1/', '', fake()->e164PhoneNumber()),
             'email_verified_at' => fake()->dateTimeBetween('-1 month', 'now'),
             'phone_number_verified_at' => fake()->dateTimeBetween(
                 '-1 month', 'now'
