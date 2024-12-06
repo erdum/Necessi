@@ -25,8 +25,6 @@ class PostCommentObserver implements ShouldQueue
             ->document($postComment->post_id)->collection('comments')
             ->document($postComment->id);
 
-        $user_name = $postComment->user->first_name.' '.$postComment->user->last_name;
-
         $ref->set([
             'id' => $postComment->id,
             'post_id' => $postComment->post_id,
@@ -53,8 +51,6 @@ class PostCommentObserver implements ShouldQueue
         $ref = $db->collection('posts')
             ->document($postComment->post_id)->collection('comments')
             ->document($postComment->id);
-
-        $user_name = $postComment->user->first_name.' '.$postComment->user->last_name;
 
         $ref->set([
             'id' => $postComment->id,

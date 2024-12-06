@@ -118,7 +118,6 @@ class PostService
         int $amount
     ) {
         $post = Post::find($post_id);
-        $user_name = $user->first_name.' '.$user->last_name;
 
         if (! $post) {
             throw new Exceptions\InvalidPostId;
@@ -170,7 +169,7 @@ class PostService
         $this->notification_service->push_notification(
             $receiver_user,
             NotificationType::BID,
-            $user_name,
+            $user->full_name,
             ' has placed bid on your post',
             $user->avatar ?? '',
             [
@@ -197,12 +196,11 @@ class PostService
         $bid->save();
 
         $receiver_user = $bid->user;
-        $user_name = $user->first_name.' '.$user->last_name;
 
         $this->notification_service->push_notification(
             $receiver_user,
             NotificationType::BID,
-            $user_name,
+            $user->full_name,
             ' has accepted your bid request',
             $user->avatar ?? '',
             [
@@ -229,12 +227,11 @@ class PostService
         $bid->save();
 
         $receiver_user = $bid->user;
-        $user_name = $user->first_name.' '.$user->last_name;
 
         $this->notification_service->push_notification(
             $receiver_user,
             NotificationType::BID,
-            $user_name,
+            $user->full_name,
             ' has rejected your bid request',
             $user->avatar ?? '',
             [
@@ -335,7 +332,7 @@ class PostService
                 'rating' => $review->rating,
                 'created_at' => $review->created_at->format('d M'),
                 'user_id' => $review->user->id,
-                'user_name' => $review->user->first_name.' '.$review->user->last_name,
+                'user_name' => $review->user->full_name,
                 'avatar' => $review->user->avatar,
             ];
         }
@@ -366,7 +363,7 @@ class PostService
         return [
             'review_id' => $review->id,
             'user_id' => $review->user_id,
-            'user_name' => $review->user->first_name.' '.$review->user->last_name,
+            'user_name' => $review->user->full_name,
             'avatar' => $review->user->avatar,
             'post_id' => $review->post_id,
             'description' => $review->data,
@@ -480,12 +477,11 @@ class PostService
         if($post->user_id !== $user->id)
         {
             $receiver_user = Post::find($post_id)?->user;
-            $user_name = $user->first_name.' '.$user->last_name;
     
             $this->notification_service->push_notification(
                 $receiver_user,
                 NotificationType::ACTIVITY,
-                $user_name,
+                $user->full_name,
                 ' has liked your post',
                 $user->avatar ?? '',
                 [
@@ -516,8 +512,6 @@ class PostService
         $comment->data = $post_comment;
         $comment->save();
 
-        $user_name = $user->first_name.' '.$user->last_name;
-
         if ($post->user_id !== $user->id) {
             $receiver_user = $post->user;
             $type = 'placed_comment';
@@ -525,7 +519,7 @@ class PostService
             $this->notification_service->push_notification(
                 $receiver_user,
                 NotificationType::ACTIVITY,
-                $user_name,
+                $user->full_name,
                 ' has commented on your post',
                 $user->avatar ?? '',
                 [
@@ -540,7 +534,7 @@ class PostService
             'id' => $comment->id,
             'post_id' => $comment->post_id,
             'user_id' => $comment->user_id,
-            'user_name' => $user_name,
+            'user_name' => $user->full_name,
             'avatar' => $user->avatar,
             'comment' => $comment->data,
             'created_at' => $comment->created_at,
@@ -665,7 +659,7 @@ class PostService
 
         foreach ($post_details->bids as $bid) {
             $bids[] = [
-                'user_name' => $bid->user->first_name.' '.$bid->user->last_name,
+                'user_name' => $bid->user->full_name,
                 'avatar' => $bid->user->avatar,
                 'amount' => $bid->amount,
                 'created_at' => Carbon::parse($bid->created_at)->diffForHumans(),
@@ -684,7 +678,7 @@ class PostService
         foreach ($post_details->comments as $comment) {
             $comments[] = [
                 'avatar' => $comment->user->avatar,
-                'user_name' => $comment->user->first_name.' '.$comment->user->last_name,
+                'user_name' => $comment->user->full_name,
                 'comment' => $comment->data,
                 'created_at' => $comment->created_at->diffForHumans(),
             ];
@@ -723,7 +717,7 @@ class PostService
             'images' => $images,
             'bids' => $bids,
             'comments' => $comments,
-            'current_user_name' => $current_user->first_name.' '.$current_user->last_name,
+            'current_user_name' => $current_user->full_name,
             'current_user_avatar' => $current_user->avatar,
         ];
     }
@@ -731,10 +725,9 @@ class PostService
     public function get_post_preview(int $post_id, User $user)
     {
         $post = Post::findOrFail($post_id);
-        $user_name = $post->user->first_name.' '.$post->user->last_name;
 
         return [
-            'post_user_name' => $user_name,
+            'post_user_name' => $post->user->full_name,
             'post_user_avatar' => $post->user->avatar,
             'post_budget' => $post->budget,
             'post_duration' => $post->start_date->format('d M') . ' - ' . $post->end_date->format('d M Y'),
@@ -757,7 +750,7 @@ class PostService
 
         foreach ($post->bids as $bid) {
             $bids[] = [
-                'user_name' => $bid->user->first_name.' '.$bid->user->last_name,
+                'user_name' => $bid->user->full_name,
                 'avatar' => $bid->user->avatar,
                 'amount' => $bid->amount,
                 'created_at' => Carbon::parse($bid->created_at)->diffForHumans(),
@@ -782,7 +775,7 @@ class PostService
         foreach ($post->reviews as $review) {
             $reviews[] = [
                 'user_id' => $review->user->id,
-                'user_name' => $review->user->first_name.' '.$review->user->last_name,
+                'user_name' => $review->user->full_name,
                 'avatar' => $review->user->avatar,
                 'rating' => $review->rating,
                 'description' => $review->data,
@@ -812,7 +805,7 @@ class PostService
                 'id' => $comment->id,
                 'post_id' => $post->id,
                 'user_id' => $comment->user->id,
-                'user_name' => $comment->user->first_name.' '.$comment->user->last_name,
+                'user_name' => $comment->user->full_name,
                 'avatar' => $comment->user->avatar,
                 'comment' => $comment->data,
                 'created_at' => $comment->created_at->diffForHumans(),
@@ -820,7 +813,7 @@ class PostService
         }
 
         return [
-            'current_user_name' => $user->first_name.' '.$user->last_name,
+            'current_user_name' => $user->full_name,
             'current_user_avatar' => $user->avatar,
             'comments' => $comments,
         ];
@@ -943,7 +936,7 @@ class PostService
                 'type' => 'posts',
                 'post_id' => $post->id,
                 'user_id' => $post->user->id,
-                'user_name' => $post->user->first_name.' '.$post->user->last_name,
+                'user_name' => $post->user->full_name,
                 'avatar' => $post->user->avatar,
                 'post_type' => $post->type,
                 'created_at' => $post->created_at->diffForHumans(),
@@ -969,7 +962,7 @@ class PostService
             $searched_users[] = [
                 'type' => 'peoples',
                 'user_id' => $user->id,
-                'user_name' => $user->first_name.' '.$user->last_name,
+                'user_name' => $user->full_name,
                 'avatar' => $user->avatar,
             ];
         }
@@ -1004,7 +997,7 @@ class PostService
             return [
                 'bid_id' => $user_bid->id,
                 'post_id' => $user_bid->post_id,
-                'user_name' => $user_bid->user->first_name.' '.$user_bid->user->last_name,
+                'user_name' => $user_bid->user->full_name,
                 'avatar' => $user_bid->user->avatar,
                 'type' => $user_bid->post->type,
                 'location' => $user_bid->post->city,
@@ -1014,7 +1007,7 @@ class PostService
                 'budget' => $user_bid->post->budget,
                 'duration' => Carbon::parse($user_bid->post->start_date)->format('d M').' - '.
                               Carbon::parse($user_bid->post->end_date)->format('d M y'),
-                'current_user_name' => $user->first_name.' '.$user->last_name,
+                'current_user_name' => $user->full_name,
                 'curretn_user_avatar' => $user->avatar,
                 'current_user_bid_amount' => $user_bid->amount,
                 'bid_status' => $user_bid->status,
@@ -1045,7 +1038,7 @@ class PostService
                                       Carbon::parse($post->end_date)->format('d M y'),
                         'title' => $post->title,
                         'description' => $post->description,
-                        'user_name' => $post->user->first_name.' '.$post->user->last_name,
+                        'user_name' => $post->user->full_name,
                         'avatar' => $post->user->avatar,
                     ];
 
@@ -1114,7 +1107,7 @@ class PostService
             $bids_data[] = [
                 'post_id' => $post_bid->post_id,
                 'user_id' => $post_bid->user->id,
-                'user_name' => $post_bid->user->first_name.' '.$post_bid->user->last_name,
+                'user_name' => $post_bid->user->full_name,
                 'avatar' => $post->user->avatar,
                 'bid_amount' => $post_bid->amount,
                 'bid_status' => $post_bid->status,
@@ -1126,7 +1119,7 @@ class PostService
 
         return [
             'post_id' => $post->id,
-            'user_name' => $post->user->first_name.' '.$post->user->last_name,
+            'user_name' => $post->user->full_name,
             'avatar' => $post->user->avatar,
             'post_type' => $post->type,
             'location' => $post->city,
@@ -1181,7 +1174,7 @@ class PostService
                 'bid_amount' => $received_bid->amount,
                 'status' => $received_bid->status,
                 'user_id' => $received_bid->user->id,
-                'user_name' => $received_bid->user->first_name.' '.$received_bid->user->last_name,
+                'user_name' => $received_bid->user->full_name,
                 'avatar' => $received_bid->user->avatar,
                 'budget' => $received_bid->post->budget,
                 'duration' => Carbon::parse($received_bid->post->start_date)->format('d M').' - '.

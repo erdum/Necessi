@@ -338,7 +338,7 @@ class UserService
                 if ($user_connection) {
                     $connections_data[] = [
                         'id' => $user_connection->id,
-                        'user_name' => $user_connection->first_name.' '.$user_connection->last_name,
+                        'user_name' => $user_connection->full_name,
                         'avatar' => $user_connection->avatar,
                         'chat_id' => $user_connection->chat_id,
                     ];
@@ -354,7 +354,7 @@ class UserService
                 'rating' => $review->rating,
                 'created_at' => $review->created_at->format('d M'),
                 'user_id' => $review->user->id,
-                'user_name' => $review->user->first_name.' '.$review->user->last_name,
+                'user_name' => $review->user->full_name,
                 'avatar' => $review->user->avatar,
             ];
         }
@@ -553,7 +553,6 @@ class UserService
 
         $receiver_user = User::find($user_id);
         $type = 'accept_connection_request';
-        $user_name = $user->first_name.' '.$user->last_name;
 
         $request_notification = Notification::whereJsonContains(
             'additional_data->connection_request_id',
@@ -588,11 +587,11 @@ class UserService
         $this->notification_service->push_notification(
             $receiver_user,
             NotificationType::ACTIVITY,
-            $user_name,
+            $user->full_name,
             ' has accept your connection request',
             $user->avatar ?? '',
             [
-                'user_name' => $user->first_name.' '.$user->last_name,
+                'user_name' => $user->full_name,
                 'user_avatar' => $user->avatar,
                 'description' => $user->about,
                 'sender_id' => $user->id,
@@ -731,7 +730,6 @@ class UserService
                 $receiver_user = User::find($receiver_id);
                 $user = User::find($sender_id);
                 $type = 'send_connection_request';
-                $user_name = $user->first_name.' '.$user->last_name;
 
                 $request_notification = Notification::whereJsonContains(
                     'additional_data->connection_request_id',
@@ -741,11 +739,11 @@ class UserService
                 $this->notification_service->push_notification(
                     $receiver_user,
                     NotificationType::ACTIVITY,
-                    $user_name,
+                    $user->full_name,
                     ' has sent you a connection request',
                     $user->avatar ?? '',
                     [
-                        'user_name' => $user->first_name.' '.$user->last_name,
+                        'user_name' => $user->full_name,
                         'user_avatar' => $user->avatar,
                         'description' => $user->about,
                         'sender_id' => $user->id,
@@ -768,16 +766,15 @@ class UserService
         $receiver_user = User::find($receiver_id);
         $user = User::find($sender_id);
         $type = 'send_connection_request';
-        $user_name = $user->first_name.' '.$user->last_name;
 
         $this->notification_service->push_notification(
             $receiver_user,
             NotificationType::ACTIVITY,
-            $user_name,
+            $user->full_name,
             ' has sent you a connection request',
             $user->avatar ?? '',
             [
-                'user_name' => $user->first_name.' '.$user->last_name,
+                'user_name' => $user->full_name,
                 'user_avatar' => $user->avatar,
                 'description' => $user->about,
                 'sender_id' => $user->id,
@@ -892,7 +889,7 @@ class UserService
         foreach ($connection_requests as $req) {
             $requests[] = [
                 'user_id' => $req->sender->id,
-                'user_name' => $req->sender->first_name.' '.$req->sender->last_name,
+                'user_name' => $req->sender->full_name,
                 'avatar' => $req->sender->avatar,
                 'status' => $req->status,
                 'request_id' => $req->id,
@@ -989,7 +986,6 @@ class UserService
         string $receiver_uid
     ) {
         $receiver_user = User::where('uid', $receiver_uid)->first();
-        $user_name = $user->first_name.' '.$user->last_name;
 
         if (! $receiver_user) return;
 
@@ -1014,7 +1010,7 @@ class UserService
         $this->notification_service->push_notification(
             $receiver_user,
             NotificationType::MESSAGE,
-            $user_name,
+            $user->full_name,
             ' has sent you a message',
             $user->avatar ?? '',
             [

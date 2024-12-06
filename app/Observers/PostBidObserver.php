@@ -35,7 +35,6 @@ class PostBidObserver implements ShouldQueue
                     'bid_id' => $postBid->user->uid,
                 ]);
 
-                $user_name = $postBid->user->first_name.' '.$postBid->user->last_name;
                 $trx->set($bid_ref, [
                     'user_id' => $postBid->user_id,
                     'post_id' => $postBid->post_id,
@@ -43,7 +42,7 @@ class PostBidObserver implements ShouldQueue
                     'status' => 'pending',
                     'user_uid' => $postBid->user->uid,
                     // 'user_avatar' => $postBid->user->avatar,
-                    // 'user_name' => $user_name,
+                    // 'user_name' => $postBid->user->full_name,
                     'created_at' => FieldValue::serverTimestamp(),
                 ]);
             }
@@ -76,13 +75,12 @@ class PostBidObserver implements ShouldQueue
                     'bid_id' => $postBid->user->uid,
                 ]);
 
-                $user_name = $postBid->user->first_name.' '.$postBid->user->last_name;
                 $trx->set($bid_ref, [
                     'amount' => $postBid->amount,
                     'status' => $postBid->status,
                     'user_uid' => $postBid->user->uid,
                     // 'user_avatar' => $postBid->user->avatar,
-                    // 'user_name' => $user_name,
+                    // 'user_name' => $postBid->user->full_name,
                     'created_at' => FieldValue::serverTimestamp(),
                 ], ['merge' => true]);
             }

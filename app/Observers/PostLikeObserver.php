@@ -25,8 +25,6 @@ class PostLikeObserver implements ShouldQueue
             ->document($postLike->post_id)->collection('likes')
             ->document($postLike->id);
 
-        $user_name = $postLike->user->first_name.' '.$postLike->user->last_name;
-
         $ref->set([
             'id' => $postLike->id,
             'user_id' => $postLike->user_id,
@@ -52,8 +50,6 @@ class PostLikeObserver implements ShouldQueue
         $ref = $db->collection('posts')
             ->document($postLike->post_id)->collection('likes')
             ->document($postLike->id);
-
-        $user_name = $postLike->user->first_name.' '.$postLike->user->last_name;
 
         $ref->set([
             'id' => $postLike->id,

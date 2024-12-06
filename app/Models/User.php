@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 #[ObservedBy([UserObserver::class])]
 class User extends Authenticatable
@@ -53,6 +54,13 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'phone_number_verified_at' => 'datetime',
     ];
+
+    protected function fullName(): Attribute
+    {
+        return Attribute::make(function ($_, $attributes) {
+            return $attributes['first_name'].' '.$attributes['last_name'];
+        });
+    }
 
     public function notification_device()
     {
