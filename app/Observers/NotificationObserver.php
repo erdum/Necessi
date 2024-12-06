@@ -45,9 +45,7 @@ class NotificationObserver implements ShouldQueue
             'sender_id' => $notification->additional_data['sender_id'] ?? null,
         ];
 
-        $user = User::find($notification->additional_data['sender_id']);
-
-        $db->collection('users')->document($user->uid)
+        $db->collection('users')->document($notification->user->uid)
             ->collection('notifications')->document($notification->id)
             ->set($data);
     }
@@ -87,9 +85,7 @@ class NotificationObserver implements ShouldQueue
             'sender_id' => $notification->additional_data['sender_id'] ?? null,
         ];
 
-        $user = User::find($notification->additional_data['sender_id']);
-
-        $db->collection('users')->document($user->uid)
+        $db->collection('users')->document($notification->user->uid)
             ->collection('notifications')->document($notification->id)
             ->set($data);
     }
@@ -107,9 +103,7 @@ class NotificationObserver implements ShouldQueue
         );
         $db = $firebase->createFirestore()->database();
 
-        $user = User::find($notification->additional_data['sender_id']);
-
-        $db->collection('users')->document($user->uid)
+        $db->collection('users')->document($notification->user->uid)
             ->collection('notifications')->document($notification->id)
             ->delete();
     }
