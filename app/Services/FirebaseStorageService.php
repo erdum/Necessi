@@ -26,7 +26,7 @@ class FirebaseStorageService
     }
 
     public function upload_file(
-        resource|string $data,
+        $data,
         string $name,
         string $path
     )
