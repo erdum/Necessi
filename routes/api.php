@@ -373,6 +373,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
     //     [UserController::class, 'create_chat']
     // ); ------- We're creating chat upon connection request being accepted
 
+    // Upload document to Firebase cloud storage
+    Route::post(
+        '/uploads',
+        [UserController::class, 'handle_uploads']
+    );
+
     // Send message notification
     Route::post(
         '/chat/notification',
