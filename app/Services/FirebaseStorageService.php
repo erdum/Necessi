@@ -25,7 +25,11 @@ class FirebaseStorageService
         );
     }
 
-    public function upload_file(string $data, string $name, string $path)
+    public function upload_file(
+        resource|string $data,
+        string $name,
+        string $path
+    )
     {
         $object = $this->bucket->upload(
             $data,

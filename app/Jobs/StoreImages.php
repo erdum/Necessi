@@ -60,7 +60,7 @@ class StoreImages implements ShouldQueue
         FirebaseStorageService $storage
     ) {
         $image = Image::read($image_data);
-        $converted_image = $image->toWebp(75);
+        $converted_image = $image->toWebp(75)->toFilePointer();
 
         if ($disk_driver == 'firestorage') {
             return $storage->upload_file(
