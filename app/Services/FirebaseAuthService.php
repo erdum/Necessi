@@ -108,6 +108,7 @@ class FirebaseAuthService
             'message' => 'Email is successfully verified',
             'token' => $token,
             'uid' => $user->uid,
+            'user' => $user,
         ];
     }
 
