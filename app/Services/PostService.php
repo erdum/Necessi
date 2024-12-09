@@ -103,7 +103,8 @@ class PostService
                 StoreImages::dispatchAfterResponse(
                     $avatar->path(),
                     'avatars',
-                    $avatar_name
+                    $avatar_name,
+                    'firestorage'
                 );
             }
             $post->images;
@@ -879,7 +880,8 @@ class PostService
                 StoreImages::dispatchAfterResponse(
                     $avatar->path(),
                     'avatars',
-                    $avatar_name
+                    $avatar_name,
+                    'firestorage'
                 );
             }
         }

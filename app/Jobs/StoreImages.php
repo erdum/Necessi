@@ -9,6 +9,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Laravel\Facades\Image;
+use App\Services\FirebaseStorageService;
 
 class StoreImages implements ShouldQueue
 {
@@ -40,13 +41,14 @@ class StoreImages implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle()
+    public function handle(FirebaseStorageService $storage)
     {
         $this->save_uploaded_image_to_webp(
             $this->data,
             $this->file_directory,
             $this->file_name,
-            $this->disk_driver
+            $this->disk_driver,
+            $storage
         );
     }
 
@@ -54,13 +56,23 @@ class StoreImages implements ShouldQueue
         $image_data,
         $file_directory,
         $file_name,
-        $disk_driver = 'local'
+        $disk_driver = 'local',
+        FirebaseStorageService $storage
     ) {
         $image = Image::read($image_data);
         $converted_image = $image->toWebp(75);
-        $file_path = "{$file_directory}/{$file_name}.webp";
-        Storage::disk($disk_driver)->put($file_path, $converted_image);
 
-        return $file_path;
+        if ($disk_driver == 'firestorage') {
+            return $storage->upload_file(
+                $converted_image,
+                $file_name.'.webp',
+                $file_directory
+            );
+        } else {
+            $file_path = "{$file_directory}/{$file_name}.webp";
+            Storage::disk($disk_driver)->put($file_path, $converted_image);
+
+            return $file_path;
+        }
     }
 }

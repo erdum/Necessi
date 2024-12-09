@@ -89,7 +89,8 @@ class UserService
             StoreImages::dispatchAfterResponse(
                 $avatar->path(),
                 'avatars',
-                $avatar_name
+                $avatar_name,
+                'firestorage'
             );
         }
         $user->save();
