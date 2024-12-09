@@ -84,7 +84,7 @@ class UserService
             $user->avatar = null;
         } else if ($avatar) {
             $avatar_name = str()->random(15);
-            $user->avatar = "avatars/$avatar_name.webp";
+            $user->avatar = urlencode("avatars/$avatar_name.webp");
 
             StoreImages::dispatchAfterResponse(
                 $avatar->path(),

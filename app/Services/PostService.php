@@ -97,7 +97,7 @@ class PostService
                 $post_image = new PostImage;
                 $avatar_name = str()->random(15);
                 $post_image->post_id = $post->id;
-                $post_image->url = "avatars/$avatar_name.webp";
+                $post_image->url = urlencode("avatars/$avatar_name.webp");
                 $post_image->save();
 
                 StoreImages::dispatchAfterResponse(
@@ -874,7 +874,7 @@ class PostService
                 $new_post_image = new PostImage;
                 $new_post_image->post_id = $post->id;
                 $avatar_name = str()->random(15);
-                $new_post_image->url = "avatars/{$avatar_name}.webp";
+                $new_post_image->url = urlencode("avatars/$avatar_name.webp");
                 $new_post_image->save();
 
                 StoreImages::dispatchAfterResponse(
