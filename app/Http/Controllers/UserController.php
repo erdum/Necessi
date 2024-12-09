@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Services\UserService;
+use App\Services\FirebaseStorageService;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -296,6 +297,15 @@ class UserController extends Controller
 
     //     return response()->json($response);
     // } ------- We're creating chat upon connection request being accepted
+
+    public function handle_uploads(
+        Request $request,
+        FirebaseStorageService $storage_service
+    ) {
+        $response = $storage_service->handle_uploads($request->file('files'));
+
+        return response()->json($response);
+    }
 
     public function send_message_notificatfion(
         Request $request,
