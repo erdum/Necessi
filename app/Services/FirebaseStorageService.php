@@ -24,14 +24,17 @@ class FirebaseStorageService
         $bucket = $this->storage->getBucket(config(
             'firebase.projects.app.storage.default_bucket'
         ));
+        $names = [];
 
         foreach ($files as $file) {
             $name = str()->random().'.'.$file-> clientExtension();
+            $names[] = $name;
             $bucket->upload(
                 $file->get(),
                 ['name' => $name]
             );
         }
 
+        return $names;
     }
 }
