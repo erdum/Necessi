@@ -302,6 +302,10 @@ class UserController extends Controller
         Request $request,
         FirebaseStorageService $storage_service
     ) {
+        $request->validate([
+            'files' => 'required|array',
+            'files.*' => 'file',
+        ]);
         $response = $storage_service->handle_uploads($request->file('files'));
 
         return response()->json($response);
