@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Exceptions;
 use Kreait\Firebase\Factory;
 
 class FirebaseStorageService
@@ -19,7 +18,7 @@ class FirebaseStorageService
             .config('firebase.projects.app.credentials')
         );
         $this->storage = $firebase->createStorage();
-        
+
         $this->bucket = $this->storage->getBucket(
             config('firebase.projects.app.storage.default_bucket')
         );
@@ -29,8 +28,7 @@ class FirebaseStorageService
         mixed $data,
         string $name,
         string $path
-    )
-    {
+    ) {
         $object = $this->bucket->upload(
             $data,
             ['name' => $path.'/'.$name]

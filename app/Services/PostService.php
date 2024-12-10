@@ -7,10 +7,10 @@ use App\Jobs\StoreImages;
 use App\Models\Post;
 use App\Models\PostBid;
 use App\Models\PostComment;
-use App\Models\ReportedPost;
-use App\Models\ReportedComment;
 use App\Models\PostImage;
 use App\Models\PostLike;
+use App\Models\ReportedComment;
+use App\Models\ReportedPost;
 use App\Models\Review;
 use App\Models\User;
 use Carbon\Carbon;
@@ -110,7 +110,7 @@ class PostService
             $post->images;
         }
 
-        return $post;   
+        return $post;
     }
 
     public function place_bid(
@@ -397,10 +397,10 @@ class PostService
     public function get_all_posts(User $user)
     {
         $posts = Post::orderBy('created_at', 'desc')
-            ->with('user:id,first_name,last_name,avatar','bids.order')
+            ->with('user:id,first_name,last_name,avatar', 'bids.order')
             ->paginate(3);
 
-        $posts->getCollection()->transform(function ($post) use ($user){
+        $posts->getCollection()->transform(function ($post) use ($user) {
             $self_liked = $post->likes()->where('user_id', $user->id)->exists();
 
             $order_status = $post->bids->filter(function ($bid) {
@@ -429,9 +429,9 @@ class PostService
                 'distance' => round($distance, 2).' miles away',
                 'budget' => $post->budget,
                 'duration' => ($post->start_time && $post->end_time)
-                    ? Carbon::parse($post->start_time)->format('h:i A') . ' - ' . Carbon::parse($post->end_time)->format('h:i A')
+                    ? Carbon::parse($post->start_time)->format('h:i A').' - '.Carbon::parse($post->end_time)->format('h:i A')
                     : null,
-                'date' => $post->start_date->format('d M') . ' - ' . $post->end_date->format('d M Y'),
+                'date' => $post->start_date->format('d M').' - '.$post->end_date->format('d M Y'),
                 'start_date' => $post->start_date->format('d M Y'),
                 'end_date' => $post->end_date->format('d M Y'),
                 'start_time' => $post->start_time?->format('h:i A'),
@@ -475,10 +475,9 @@ class PostService
         $like->user_id = $user->id;
         $like->save();
 
-        if($post->user_id !== $user->id)
-        {
+        if ($post->user_id !== $user->id) {
             $receiver_user = Post::find($post_id)?->user;
-    
+
             $this->notification_service->push_notification(
                 $receiver_user,
                 NotificationType::ACTIVITY,
@@ -516,7 +515,7 @@ class PostService
         if ($post->user_id !== $user->id) {
             $receiver_user = $post->user;
             $type = 'placed_comment';
-    
+
             $this->notification_service->push_notification(
                 $receiver_user,
                 NotificationType::ACTIVITY,
@@ -559,7 +558,7 @@ class PostService
     }
 
     public function report_post_comment(
-        User $user, 
+        User $user,
         int $comment_id,
         string $reason_type,
         ?string $other_reason,
@@ -575,23 +574,23 @@ class PostService
 
         $reported_comment = ReportedComment::where('reporter_id', $user->id)
             ->where('reported_id', $comment_id)->first();
-        
-        if($reported_comment){
+
+        if ($reported_comment) {
             throw new Exceptions\BaseException(
                 'Comment already reported',
                 400
             );
-        }else{
-            $comment_report = new ReportedComment();
+        } else {
+            $comment_report = new ReportedComment;
             $comment_report->reporter_id = $user->id;
             $comment_report->reported_id = $comment_id;
             $comment_report->reason_type = $reason_type;
-            $comment_report->other_reason =  $other_reason ?: null;
+            $comment_report->other_reason = $other_reason ?: null;
             $comment_report->save();
         }
 
         return [
-            'message' => 'Comment successfully reported'
+            'message' => 'Comment successfully reported',
         ];
     }
 
@@ -600,22 +599,22 @@ class PostService
         string $reason_type,
         ?string $other_reason,
         int $post_id,
-    ){
+    ) {
         $post = Post::find($post_id);
 
         if (! $post) {
             throw new Exceptions\InvalidPostId;
         }
 
-        $post_report = new ReportedPost();
+        $post_report = new ReportedPost;
         $post_report->reporter_id = $user->id;
         $post_report->reported_id = $post_id;
         $post_report->reason_type = $reason_type;
-        $post_report->other_reason =  $other_reason ?: null;
+        $post_report->other_reason = $other_reason ?: null;
         $post_report->save();
 
         return [
-            'message' => 'Post successfully reported'
+            'message' => 'Post successfully reported',
         ];
     }
 
@@ -706,9 +705,9 @@ class PostService
             'created_at' => $post_details->created_at->diffForHumans(),
             'budget' => $post_details->budget,
             'duration' => ($post_details->start_time && $post_details->end_time)
-                ? Carbon::parse($post_details->start_time)->format('h:i A') . ' - ' . Carbon::parse($post_details->end_time)->format('h:i A')
+                ? Carbon::parse($post_details->start_time)->format('h:i A').' - '.Carbon::parse($post_details->end_time)->format('h:i A')
                 : null,
-            'date' => $post_details->start_date->format('d M') . ' - ' . $post_details->end_date->format('d M Y'),
+            'date' => $post_details->start_date->format('d M').' - '.$post_details->end_date->format('d M Y'),
             'location' => $post_details->city,
             'distance' => round($distance, 2).' miles away',
             'title' => $post_details->title,
@@ -731,7 +730,7 @@ class PostService
             'post_user_name' => $post->user->full_name,
             'post_user_avatar' => $post->user->avatar,
             'post_budget' => $post->budget,
-            'post_duration' => $post->start_date->format('d M') . ' - ' . $post->end_date->format('d M Y'),
+            'post_duration' => $post->start_date->format('d M').' - '.$post->end_date->format('d M Y'),
         ];
     }
 

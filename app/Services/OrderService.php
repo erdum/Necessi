@@ -3,10 +3,10 @@
 namespace App\Services;
 
 use App\Exceptions;
+use App\Models\ConnectionRequest;
 use App\Models\OrderHistory;
 use App\Models\Post;
 use App\Models\PostBid;
-use App\Models\ConnectionRequest;
 use App\Models\User;
 use Carbon\Carbon;
 
@@ -19,7 +19,7 @@ class OrderService
     public function __construct(
         StripeService $stripe_service,
         PostService $post_service,
-    ){
+    ) {
         $this->stripe_service = $stripe_service;
         $this->post_service = $post_service;
     }
@@ -53,7 +53,7 @@ class OrderService
         $posts->getCollection()->each(
             function ($post) use ($user, &$items, &$services, $is_active) {
 
-                if($post->end_date <= now()){
+                if ($post->end_date <= now()) {
                     $is_active = true;
                 }
 
@@ -67,7 +67,7 @@ class OrderService
                         && $post->bids[0]->order->received_by_lender == null
                         ? 'past due' : $status;
 
-                    $status = 
+                    $status =
                         $post->bids[0]->order?->received_by_borrower != null
                         && $post->bids[0]->order?->received_by_lender != null
                             ? 'completed' : $status;
@@ -91,7 +91,7 @@ class OrderService
                 } else {
                     $status = $post->start_date->isFuture() ? 'upcoming' : '';
 
-                    $status = 
+                    $status =
                         $post->bids[0]->order?->received_by_borrower != null
                             ? 'completed' : $status;
 
@@ -128,9 +128,9 @@ class OrderService
         // if (! $user->bids->contains('id', $bid_id)) {
         //     throw new Exceptions\BidNotFound;
         // }
-    
+
         $order = OrderHistory::where('bid_id', $bid_id)->first();
-    
+
         if (! $order) {
             throw new Exceptions\BaseException(
                 'Order not found!',
@@ -138,34 +138,32 @@ class OrderService
             );
         }
 
-        if ($order->bid->user_id !== $user->id) 
-        {
+        if ($order->bid->user_id !== $user->id) {
             $order->received_by_lender = now();
-        } 
-        else {
+        } else {
             $order->received_by_borrower = now();
         }
-    
+
         $order->save();
-    
+
         return [
-            'message' => 'Order marked as received successfully!'
+            'message' => 'Order marked as received successfully!',
         ];
-    }    
+    }
 
     public function get_transaction_details(User $user, string $transaction_id)
     {
         $order = OrderHistory::with('bid')->where('transaction_id', $transaction_id)
-          ->first();
-    
+            ->first();
+
         if (! $order || ! $order->bid) {
             throw new Exceptions\BaseException('Order or bid not found!', 404);
         }
-    
+
         $post = Post::with('user:id,first_name,last_name,avatar')
             ->where('id', $order->bid->post_id)
             ->first();
-    
+
         if (! $post) {
             throw new Exceptions\BaseException(
                 'Post or user not found!', 404
@@ -182,10 +180,10 @@ class OrderService
         $distance = round($calculatedDistance, 2).' miles away';
         $is_active = false;
 
-        if($post->end_date <= now()){
+        if ($post->end_date <= now()) {
             $is_active = true;
         }
-    
+
         $chat_id = ConnectionRequest::where([
             ['sender_id', '=', $user->id],
             ['receiver_id', '=', $order->bid->user_id],
@@ -195,7 +193,7 @@ class OrderService
                 ['receiver_id', '=', $user->id],
             ])
             ->value('chat_id');
-    
+
         return [
             'post_id' => $post->id,
             'bid_id' => $order->bid->id,
@@ -209,9 +207,9 @@ class OrderService
             'start_date' => $post->start_date->format('d M Y H:i:s A'),
             'end_date' => $post->end_date->format('d M Y H:i:s A'),
             'description' => $post->description,
-            'duration' => Carbon::parse($post->start_date)->format('d M') . ' - ' . Carbon::parse($post->end_date)->format('d M Y'),
+            'duration' => Carbon::parse($post->start_date)->format('d M').' - '.Carbon::parse($post->end_date)->format('d M Y'),
             'return_date' => Carbon::parse($post->end_date)->format('d M Y'),
-            'chat_id' => $chat_id, 
+            'chat_id' => $chat_id,
             'is_marked' => $is_active,
         ];
     }
@@ -278,26 +276,27 @@ class OrderService
     public function get_revenue_details(User $user, int $order_id)
     {
         $order = OrderHistory::with(['bid.post'])
-        ->whereHas('bid', function ($query) {
-            $query->whereHas('post');
-        })
-        ->where('id', $order_id)
-        ->first();
-    
-        if(! $order){
+            ->whereHas('bid', function ($query) {
+                $query->whereHas('post');
+            })
+            ->where('id', $order_id)
+            ->first();
+
+        if (! $order) {
             throw new Exceptions\BaseException(
                 'Order Not Found',
                 400
             );
         }
+
         return [
-            'created_at' =>  $order->created_at->format('d F Y'),
+            'created_at' => $order->created_at->format('d F Y'),
             'order_id' => $order->id,
             'post_id' => $order->bid->post->id,
             'post_title' => $order->bid->post->title,
             'post_user_name' => $order->bid->post->user->full_name,
             'post_user_avatar' => $order->bid->post->user->avatar,
-            'post_created_at' =>  $order->bid->post->created_at->format('d M Y'),
+            'post_created_at' => $order->bid->post->created_at->format('d M Y'),
             'received_amount' => $order->bid->amount,
         ];
 

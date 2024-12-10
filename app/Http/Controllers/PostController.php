@@ -235,10 +235,10 @@ class PostController extends Controller
     }
 
     public function report_post_comment(
-        Request $request, 
+        Request $request,
         PostService $post_service,
         int $comment_id,
-    ){
+    ) {
         $request->validate([
             'reason_type' => 'required|in:offensive language,harassment or bullying,spam or irrelevance,
                  misleading or false information,violation of community guidelines,other',
@@ -274,7 +274,7 @@ class PostController extends Controller
 
         return response()->json($response);
     }
- 
+
     public function get_post_details(
         Request $request,
         int $post_id,

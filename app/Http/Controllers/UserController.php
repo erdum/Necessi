@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Services\UserService;
 use App\Services\FirebaseStorageService;
+use App\Services\UserService;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -370,10 +370,10 @@ class UserController extends Controller
     }
 
     public function report_user(
-        Request $request, 
+        Request $request,
         UserService $user_service,
         int $user_id
-    ){
+    ) {
         $request->validate([
             'reason_type' => 'required|in:inappropriate behavior,fraudulent activity,harassment or abuse,spam or scamming,violation of platform rules,other',
             'other_reason' => 'required_if:reason_type,other',
@@ -414,7 +414,7 @@ class UserController extends Controller
     public function get_payment_details(
         Request $request,
         UserService $user_service,
-    ){
+    ) {
         $response = $user_service->get_payment_details(
             $request->user(),
         );
@@ -476,9 +476,9 @@ class UserController extends Controller
     }
 
     public function add_bank_details(
-        Request $request, 
+        Request $request,
         UserService $user_service
-    ){
+    ) {
         $request->validate([
             'bank_id' => 'required|unique:user_banks,id',
             'last_digits' => 'required',
@@ -501,16 +501,16 @@ class UserController extends Controller
 
     public function update_bank_details(
         string $bank_id,
-        Request $request, 
-        UserService $user_service 
-    ){
+        Request $request,
+        UserService $user_service
+    ) {
         $response = $user_service->update_bank(
             $request->user(),
             $bank_id,
             $request->last_digits,
-            $request->routing_number
+            $request->routing_number,
             $request->bank_name,
-            $request->holder_name,
+            $request->holder_name
         );
 
         return response()->json($response);

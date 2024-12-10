@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Services\FirebaseStorageService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -9,7 +10,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Laravel\Facades\Image;
-use App\Services\FirebaseStorageService;
 
 class StoreImages implements ShouldQueue
 {
@@ -56,7 +56,7 @@ class StoreImages implements ShouldQueue
         $image_data,
         $file_directory,
         $file_name,
-        $disk_driver = 'local',
+        $disk_driver,
         FirebaseStorageService $storage
     ) {
         $image = Image::read($image_data);

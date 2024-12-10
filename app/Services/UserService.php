@@ -6,20 +6,20 @@ use App\Exceptions;
 use App\Jobs\StoreImages;
 use App\Models\ConnectionRequest;
 use App\Models\Notification;
+use App\Models\Otp;
 use App\Models\PostLike;
+use App\Models\ReportedUser;
 use App\Models\Review;
 use App\Models\User;
-use App\Models\UserPreference;
 use App\Models\UserBank;
-use App\Models\ReportedUser;
-use App\Models\Otp;
 use App\Models\UserCard;
+use App\Models\UserPreference;
 use Carbon\Carbon;
 use Google\Cloud\Firestore\FieldValue;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
-use Kreait\Firebase\Factory;
 use Illuminate\Support\Facades\Storage;
+use Kreait\Firebase\Factory;
 
 class UserService
 {
@@ -82,7 +82,7 @@ class UserService
 
         if ($avatar == 'none') {
             $user->avatar = null;
-        } else if ($avatar) {
+        } elseif ($avatar) {
             $avatar_name = str()->random(15);
             $user->avatar = urlencode("avatars/$avatar_name.webp");
 
@@ -160,7 +160,9 @@ class UserService
                         foreach ($lowest_bids as $lowest) {
                             $id = $lowest->id();
 
-                            if ($id != $user->uid) $next_value = $id;
+                            if ($id != $user->uid) {
+                                $next_value = $id;
+                            }
                         }
                         $trx->update(
                             $lowest_bid_ref,
@@ -811,7 +813,7 @@ class UserService
         }
 
         $connection_request->forceDelete();
-        
+
         $request_notification = Notification::whereJsonContains(
             'additional_data->connection_request_id',
             $connection_request->id
@@ -988,7 +990,9 @@ class UserService
     ) {
         $receiver_user = User::where('uid', $receiver_uid)->first();
 
-        if (! $receiver_user) return;
+        if (! $receiver_user) {
+            return;
+        }
 
         $factory = app(Factory::class);
         $firebase = $factory->withServiceAccount(
@@ -1000,7 +1004,9 @@ class UserService
 
         $chat_snap = $db->collection('chats')->document($chat_id)->snapshot();
 
-        if (! $chat_snap->exists()) return;
+        if (! $chat_snap->exists()) {
+            return;
+        }
 
         $chat_data = $chat_snap->data();
 
@@ -1067,7 +1073,7 @@ class UserService
 
             $chat_snap->reference()->update([[
                 'path' => 'blocked_by',
-                'value' => $user->uid
+                'value' => $user->uid,
             ]]);
 
             return [
@@ -1110,7 +1116,7 @@ class UserService
 
             $chat_snap->reference()->update([[
                 'path' => 'blocked_by',
-                'value' => null
+                'value' => null,
             ]]);
 
             return [
@@ -1125,18 +1131,17 @@ class UserService
 
     public function get_blocked_users(User $user)
     {
-        return $user->blocked_users->map(function ($blocked_user) use ($user) 
-        {
+        return $user->blocked_users->map(function ($blocked_user) use ($user) {
             $chat_id = ConnectionRequest::withTrashed()
-            ->where([
-                ['sender_id', '=', $user->id],
-                ['receiver_id', '=', $blocked_user->id],
-            ])
-            ->orWhere([
-                ['sender_id', '=', $blocked_user->id],
-                ['receiver_id', '=', $user->id],
-            ])
-            ->value('chat_id');
+                ->where([
+                    ['sender_id', '=', $user->id],
+                    ['receiver_id', '=', $blocked_user->id],
+                ])
+                ->orWhere([
+                    ['sender_id', '=', $blocked_user->id],
+                    ['receiver_id', '=', $user->id],
+                ])
+                ->value('chat_id');
 
             return [
                 'user_id' => $blocked_user->id,
@@ -1195,18 +1200,18 @@ class UserService
         string $reason_type,
         ?string $other_reason,
         int $reported_user_id
-    ){
+    ) {
         $user = User::find($reported_user_id);
 
-        if(! $user){
+        if (! $user) {
             throw new Exceptions\UserNotFound;
         }
-        
-        $user_report = new ReportedUser();
+
+        $user_report = new ReportedUser;
         $user_report->reporter_id = $user->id;
         $user_report->reported_id = $reported_user_id;
         $user_report->reason_type = $reason_type;
-        $user_report->other_reason =  $other_reason ?: null;
+        $user_report->other_reason = $other_reason ?: null;
         $user_report->save();
 
         return [
@@ -1233,7 +1238,7 @@ class UserService
         UserCard::updateOrCreate(
             [
                 'id' => $card_id,
-                'user_id' => $user->id
+                'user_id' => $user->id,
             ],
             [
                 'last_digits' => $last_digits,
@@ -1252,8 +1257,7 @@ class UserService
         ?string $expiry_month,
         ?string $expiry_year,
         ?string $brand_name
-    ) {
-    }
+    ) {}
 
     public function delete_payment_card(
         User $user,
@@ -1261,7 +1265,7 @@ class UserService
     ) {
         $card = UserCard::find($card_id);
 
-        if (!$card) {
+        if (! $card) {
             throw new Exceptions\BaseException(
                 'Card not found', 400
             );
@@ -1269,7 +1273,7 @@ class UserService
 
         if ($card->user_id != $user->id) {
             throw new Exceptions\AccessForbidden;
-        }    
+        }
         $card->delete();
 
         return [
@@ -1284,11 +1288,11 @@ class UserService
         string $routing_number,
         string $bank_name,
         string $holder_name
-    ){
+    ) {
         UserBank::updateOrCreate(
             [
                 'id' => $bank_id,
-                'user_id' => $user->id
+                'user_id' => $user->id,
             ],
             [
                 'last_digits' => $last_digits,
@@ -1299,7 +1303,7 @@ class UserService
         );
 
         return [
-            'message' => 'Bank account attached successfully'
+            'message' => 'Bank account attached successfully',
         ];
     }
 
@@ -1310,14 +1314,13 @@ class UserService
         ?int $account_number,
         ?string $bank_name,
         ?string $routing_number
-    ) {
-    }
+    ) {}
 
     public function delete_bank(User $user, string $bank_id)
     {
         $bank = UserBank::find($bank_id);
 
-        if (!$bank) {
+        if (! $bank) {
             throw new Exceptions\BaseException(
                 'Bank not found', 400
             );
@@ -1325,7 +1328,7 @@ class UserService
 
         if ($bank->user_id != $user->id) {
             throw new Exceptions\AccessForbidden;
-        }    
+        }
         $bank->delete();
 
         return [
@@ -1341,7 +1344,8 @@ class UserService
         ];
     }
 
-    public function get_onboarding_link(User $user) {
+    public function get_onboarding_link(User $user)
+    {
         return $this->stripe_service->get_onboarding_link($user);
     }
 }

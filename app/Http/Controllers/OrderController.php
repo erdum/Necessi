@@ -60,10 +60,10 @@ class OrderController extends Controller
     }
 
     public function get_revenue_details(
-        Request $request, 
+        Request $request,
         OrderService $order_service,
         int $order_id
-    ){
+    ) {
         $response = $order_service->get_revenue_details(
             $request->user(),
             $order_id,
@@ -73,7 +73,7 @@ class OrderController extends Controller
     }
 
     public function mark_as_received(
-        Request $request, 
+        Request $request,
         OrderService $order_service,
         int $bid_id
     ) {

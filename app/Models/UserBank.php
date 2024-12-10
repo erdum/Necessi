@@ -16,7 +16,7 @@ class UserBank extends Model
         'holder_name',
         'last_digits',
         'bank_name',
-        'routing_number'
+        'routing_number',
     ];
 
     public function user()

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('reporter_id')->references('id')->on('users')
                 ->onDelete('cascade');
             $table->foreignId('reported_id')->references('id')->on('post_comments')
-                ->onDelete('cascade'); 
+                ->onDelete('cascade');
             $table->enum('reason_type', [
                 'offensive language',
                 'harassment or bullying',

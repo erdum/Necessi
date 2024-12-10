@@ -15,8 +15,8 @@ class UserCard extends Model
         'user_id',
         'last_digits',
         'expiry_month',
-        'expiry_year'
-        'brand'
+        'expiry_year',
+        'brand',
     ];
 
     public function user()

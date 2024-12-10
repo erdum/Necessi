@@ -33,10 +33,10 @@ class StripeService
             ],
             'capabilities' => [
                 'card_payments' => [
-                    'requested' => true
+                    'requested' => true,
                 ],
                 'transfers' => [
-                    'requested' => true
+                    'requested' => true,
                 ],
             ],
         ]);
@@ -53,7 +53,8 @@ class StripeService
         return $stripe_account->id;
     }
 
-    public function get_onboarding_link(User $user) {
+    public function get_onboarding_link(User $user)
+    {
         return $this->client->accountLinks->create([
             'account' => $this->get_account_id($user),
             'refresh_url' => config('services.stripe.onboarding.refresh_url'),
@@ -100,7 +101,8 @@ class StripeService
         )['data'];
     }
 
-    public function add_card(User $user, string $card_id) {
+    public function add_card(User $user, string $card_id)
+    {
         $this->client->accounts->createExternalAccount(
             $this->get_account_id($user),
             ['external_account' => $card_id]
