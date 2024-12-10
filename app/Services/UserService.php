@@ -1292,7 +1292,7 @@ class UserService
             ],
             [
                 'last_digits' => $last_digits,
-                'routing_number' => $routing_number
+                'routing_number' => $routing_number,
                 'bank_name' => $bank_name,
                 'holder_name' => $holder_name,
             ]
