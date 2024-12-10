@@ -500,9 +500,9 @@ class UserController extends Controller
     }
 
     public function update_bank_details(
-        string $bank_id
+        string $bank_id,
         Request $request, 
-        UserService $user_service, 
+        UserService $user_service 
     ){
         $response = $user_service->update_bank(
             $request->user(),
