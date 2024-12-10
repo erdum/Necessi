@@ -112,9 +112,17 @@ class FirebaseAuthService
         ];
     }
 
-    public function resend_otp(string $phone_number)
+    public function resend_otp(string $email)
     {
-        return $this->otp_service->resend_otp($phone_number);
+        $user = $this->is_user_already_registered($email);
+
+        if (! $user) {
+            throw new Exceptions\BaseException(
+                'User is not registered', 400
+            );
+        }
+
+        return $this->otp_service->resend_otp($email);
     }
 
     public function reset_password(string $email, string $password)
@@ -147,11 +155,15 @@ class FirebaseAuthService
         $user = $this->is_user_already_registered($email);
 
         if (! $user) {
-            throw new Exceptions\InvalidCredentials;
+            throw new Exceptions\BaseException(
+                'This email is not registered. Please sign up or use a registered email', 400
+            );
         }
 
         if (! Hash::check($password, $user->password)) {
-            throw new Exceptions\InvalidCredentials;
+            throw new Exceptions\BaseException(
+                'Incorrect password', 400
+            );
         }
 
         if ($user->email_verified_at == null) {

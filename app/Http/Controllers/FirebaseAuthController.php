@@ -54,7 +54,7 @@ class FirebaseAuthController extends Controller
     public function resend_otp(Request $request)
     {
         $request->validate([
-            'email' => 'required|exists:users,email',
+            'email' => 'required|email',
         ]);
 
         $response = $this->auth_service->resend_otp($request->email);
