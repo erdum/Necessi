@@ -2,13 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class UserPaymentCard extends Model
+class UserCard extends Model
 {
-    use HasFactory, HasUuids;
+    use HasFactory;
 
     public function user()
     {

@@ -10,10 +10,10 @@ use App\Models\PostLike;
 use App\Models\Review;
 use App\Models\User;
 use App\Models\UserPreference;
-use App\Models\UserBankDetail;
+use App\Models\UserBank;
 use App\Models\ReportedUser;
 use App\Models\Otp;
-use App\Models\UserPaymentCard;
+use App\Models\UserCard;
 use Carbon\Carbon;
 use Google\Cloud\Firestore\FieldValue;
 use Illuminate\Http\UploadedFile;
@@ -1225,7 +1225,7 @@ class UserService
 
         $stripe_customer_id = $this->stripe_service->get_customer_id($user);
 
-        $card = new UserPaymentCard;
+        $card = new UserCard;
         $card->user_id = $user->id;
         $card->id = $payment_method_id;
         $card->last_digits = $last_digits;
@@ -1249,7 +1249,7 @@ class UserService
         ?string $expiry_year,
         ?string $brand_name
     ) {
-        $card = UserPaymentCard::find($payment_method_id);
+        $card = UserCard::find($payment_method_id);
 
         if ($card->user_id != $user->id) {
             throw new Exceptions\AccessForbidden;
@@ -1271,7 +1271,7 @@ class UserService
         string $bank_name,
         string $routing_number
     ){
-        $bank_details = new UserBankDetail();
+        $bank_details = new UserBank();
         $bank_details->user_id = $user->id;
         $bank_details->holder_name = $holder_name;
         $bank_details->account_number = $account_number;
@@ -1292,7 +1292,7 @@ class UserService
         ?string $bank_name,
         ?string $routing_number
     ) {
-        $bank_details = UserBankDetail::where('user_id', $user->id)
+        $bank_details = UserBank::where('user_id', $user->id)
             ->findOrFail($bank_account_id);
     
         $bank_details->holder_name = $holder_name ?? $bank_details->holder_name;
@@ -1317,7 +1317,7 @@ class UserService
         User $user,
         string $payment_method_id
     ) {
-        $card = UserPaymentCard::find($payment_method_id);
+        $card = UserCard::find($payment_method_id);
 
         if (!$card) {
             throw new Exceptions\BaseException(

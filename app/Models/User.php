@@ -170,11 +170,11 @@ class User extends Authenticatable
 
     public function cards()
     {
-        return $this->hasMany(UserPaymentCard::class);
+        return $this->hasMany(UserCard::class);
     }
 
     public function bank_details()
     {
-        return $this->hasMany(UserBankDetail::class);
+        return $this->hasMany(UserBank::class);
     }
 }

@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user_payment_cards', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+        Schema::create('user_banks', function (Blueprint $table) {
+            $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('last_digits', 4);
-            $table->string('expiry_month', 2);
-            $table->string('expiry_year', 4);
-            $table->string('brand');
+            $table->string('holder_name');
+            $table->integer('account_number');
+            $table->string('bank_name');
+            $table->integer('routing_number');
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('user_payment_cards');
+        Schema::dropIfExists('user_banks');
     }
 };
