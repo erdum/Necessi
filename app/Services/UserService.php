@@ -1281,9 +1281,9 @@ class UserService
         User $user,
         string $bank_id,
         string $last_digits,
-        string $routing_number
+        string $routing_number,
         string $bank_name,
-        string $holder_name,
+        string $holder_name
     ){
         UserBank::updateOrCreate(
             [
