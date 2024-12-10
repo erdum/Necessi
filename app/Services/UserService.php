@@ -635,6 +635,7 @@ class UserService
         )->first();
 
         if ($request_notification) {
+            $request_notification->title = null;
             $request_notification->body = 'Connection request has been canceled';
             $request_notification->save();
         }
