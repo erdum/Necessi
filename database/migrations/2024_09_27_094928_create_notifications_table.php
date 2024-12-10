@@ -22,7 +22,7 @@ return new class extends Migration
                 'activity',
                 'message',
             ])->default('activity');
-            $table->string('title');
+            $table->string('title')->nullable();
             $table->string('body');
             $table->string('image');
             $table->json('additional_data')->nullable();
