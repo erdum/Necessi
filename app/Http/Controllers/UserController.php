@@ -411,12 +411,23 @@ class UserController extends Controller
         return response()->json($response);
     }
 
+    public function get_payment_details(
+        Request $request,
+        UserService $user_service,
+    ){
+        $response = $user_service->get_payment_details(
+            $request->user(),
+        );
+
+        return response()->json($response);
+    }
+
     public function add_payment_card(
         Request $request,
         UserService $user_service
     ) {
         $request->validate([
-            'payment_method_id' => 'required|unique:user_payment_cards,id',
+            'card_id' => 'required|unique:user_cards,id',
             'last_digits' => 'required',
             'expiry_month' => 'required',
             'expiry_year' => 'required',
@@ -425,7 +436,7 @@ class UserController extends Controller
 
         $response = $user_service->add_payment_card(
             $request->user(),
-            $request->payment_method_id,
+            $request->card_id,
             $request->last_digits,
             $request->expiry_month,
             $request->expiry_year,
@@ -436,16 +447,29 @@ class UserController extends Controller
     }
 
     public function update_payment_card(
-        string $payment_method_id,
+        string $card_id,
         Request $request,
         UserService $user_service
     ) {
         $response = $user_service->update_payment_card(
-            $payment_method_id,
+            $card_id,
             $request->last_digits,
             $request->expiry_month,
             $request->expiry_year,
             $request->brand_name
+        );
+
+        return response()->json($response);
+    }
+
+    public function delete_payment_card(
+        string $card_id,
+        Request $request,
+        UserService $user_service
+    ) {
+        $response = $user_service->delete_payment_card(
+            $request->user(),
+            $card_id,
         );
 
         return response()->json($response);
@@ -456,66 +480,50 @@ class UserController extends Controller
         UserService $user_service
     ){
         $request->validate([
-            'holder_name' => 'required',
-            'account_number' => 'required|unique:user_bank_details,account_number',
+            'bank_id' => 'required|unique:user_banks,id',
+            'last_digits' => 'required',
+            'routing_number' => 'required',
             'bank_name' => 'required',
-            'routing_number' => 'required|unique:user_bank_details,routing_number',
+            'holder_name' => 'required',
         ]);
 
-        $response = $user_service->add_bank_details(
+        $response = $user_service->add_bank(
             $request->user(),
-            $request->holder_name,
-            $request->account_number,
+            $request->bank_id,
+            $request->last_digits,
+            $request->routing_number,
             $request->bank_name,
-            $request->routing_number
+            $request->holder_name
         );
 
         return response()->json($response);
     }
 
     public function update_bank_details(
+        string $bank_id
         Request $request, 
         UserService $user_service, 
-        $bank_account_id
     ){
-        $request->validate([
-            'holder_name' => 'string|nullable',
-            'account_number' => 'integer|nullable',
-            'bank_name' => 'string|nullable',
-            'routing_number' => 'string|nullable',
-        ]);
-
-        $response = $user_service->update_bank_details(
+        $response = $user_service->update_bank(
             $request->user(),
-            $bank_account_id,
-            $request->holder_name,
-            $request->account_number,
-            $request->bank_name,
+            $bank_id,
+            $request->last_digits,
             $request->routing_number
+            $request->bank_name,
+            $request->holder_name,
         );
 
         return response()->json($response);
     }
 
-    public function get_payment_card(
-        Request $request,
-        UserService $user_service,
-    ){
-        $response = $user_service->get_payment_card(
-            $request->user(),
-        );
-
-        return response()->json($response);
-    }
-
-    public function delete_payment_card(
-        string $payment_method_id,
+    public function delete_bank_account(
+        string $bank_id,
         Request $request,
         UserService $user_service
     ) {
-        $response = $user_service->delete_payment_card(
+        $response = $user_service->delete_bank(
             $request->user(),
-            $payment_method_id,
+            $bank_id,
         );
 
         return response()->json($response);

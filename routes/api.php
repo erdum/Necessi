@@ -43,6 +43,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [UserController::class, 'delete_user_account']
     );
 
+    // Get user payment details
+    Route::get(
+        '/user/payment-methods',
+        [UserController::class, 'get_payment_details']
+    );
+
     // Add user payment card
     Route::post(
         '/user/payment-card',
@@ -51,32 +57,32 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Update user payment card
     Route::post(
-        '/user/payment-card/{payment_method_id}',
+        '/user/payment-card/{card_id}',
         [UserController::class, 'update_payment_card']
     );
 
-    // Add user Bank Details 
+    // Delete user payment card
+    Route::delete(
+        '/user/payment-card/{card_id}',
+        [UserController::class, 'delete_payment_card']
+    );
+
+    // Add user bank account 
     Route::post(
         '/user/bank-details',
         [UserController::class, 'add_bank_details']
     );
 
-    // Update a specific bank account
+    // Update user bank account
     Route::post(
-        '/user/bank-details/{bank_account_id}', 
+        '/user/bank-details/{bank_id}', 
         [UserController::class, 'update_bank_details']
     );
 
-    // Get user payment card
-    Route::get(
-        '/user/payment-card',
-        [UserController::class, 'get_payment_card']
-    );
-
-    // Delete user payment card
+    // Delete user bank account
     Route::delete(
-        '/user/payment-card/{payment_method_id}',
-        [UserController::class, 'delete_payment_card']
+        '/user/bank-details/{bank_id}',
+        [UserController::class, 'delete_bank_account']
     );
 
     // Get Stripe account onboarding link

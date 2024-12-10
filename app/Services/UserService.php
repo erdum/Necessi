@@ -1214,98 +1214,7 @@ class UserService
         ];
     }
 
-    public function add_payment_card(
-        User $user,
-        string $payment_method_id,
-        string $last_digits,
-        string $expiry_month,
-        string $expiry_year,
-        string $brand_name
-    ) {
-
-        $stripe_customer_id = $this->stripe_service->get_customer_id($user);
-
-        $card = new UserCard;
-        $card->user_id = $user->id;
-        $card->id = $payment_method_id;
-        $card->last_digits = $last_digits;
-        $card->expiry_month = $expiry_month;
-        $card->expiry_year = $expiry_year;
-        $card->brand = $brand_name;
-        $card->save();
-
-        $this->stripe_service->add_card(
-            $payment_method_id,
-            $stripe_customer_id
-        );
-
-        return ['message' => 'User card has been successfully attached'];
-    }
-
-    public function update_payment_card(
-        string $payment_method_id,
-        ?string $last_digits,
-        ?string $expiry_month,
-        ?string $expiry_year,
-        ?string $brand_name
-    ) {
-        $card = UserCard::find($payment_method_id);
-
-        if ($card->user_id != $user->id) {
-            throw new Exceptions\AccessForbidden;
-        }
-
-        $card->last_digits = $last_digits ?? $card->last_digits;
-        $card->expiry_month = $expiry_month ?? $card->expiry_month;
-        $card->expiry_year = $expiry_year ?? $card->expiry_year;
-        $card->brand = $brand_name ?? $card->brand_name;
-        $card->save();
-
-        return ['message' => 'User card has been successfully updated'];
-    }
-
-    public function add_bank_details(
-        User $user,
-        string $holder_name,
-        int $account_number,
-        string $bank_name,
-        string $routing_number
-    ){
-        $bank_details = new UserBank();
-        $bank_details->user_id = $user->id;
-        $bank_details->holder_name = $holder_name;
-        $bank_details->account_number = $account_number;
-        $bank_details->bank_name = $bank_name;
-        $bank_details->routing_number = $routing_number;
-        $bank_details->save();
-
-        return [
-            'message' => 'Bank account added successfully'
-        ];
-    }
-
-    public function update_bank_details(
-        User $user,
-        int $bank_account_id,
-        ?string $holder_name,
-        ?int $account_number,
-        ?string $bank_name,
-        ?string $routing_number
-    ) {
-        $bank_details = UserBank::where('user_id', $user->id)
-            ->findOrFail($bank_account_id);
-    
-        $bank_details->holder_name = $holder_name ?? $bank_details->holder_name;
-        $bank_details->account_number = $account_number ?? $bank_details->account_number;
-        $bank_details->bank_name = $bank_name ?? $bank_details->bank_name;
-        $bank_details->routing_number = $routing_number ?? $bank_details->routing_number;
-    
-        $bank_details->save();
-    
-        return ['message' => 'Bank account updated successfully'];
-    }
-
-    public function get_payment_card(User $user)
+    public function get_payment_details(User $user)
     {
         return [
             'cards' => $user->cards,
@@ -1313,11 +1222,44 @@ class UserService
         ];
     }
 
+    public function add_payment_card(
+        User $user,
+        string $card_id,
+        string $last_digits,
+        string $expiry_month,
+        string $expiry_year,
+        string $brand_name
+    ) {
+        UserCard::updateOrCreate(
+            [
+                'id' => $card_id,
+                'user_id' => $user->id
+            ],
+            [
+                'last_digits' => $last_digits,
+                'expiry_month' => $expiry_month,
+                'expiry_year' => $expiry_year,
+                'brand' => $brand_name,
+            ]
+        );
+
+        return ['message' => 'User card has been successfully attached'];
+    }
+
+    public function update_payment_card(
+        string $card_id,
+        ?string $last_digits,
+        ?string $expiry_month,
+        ?string $expiry_year,
+        ?string $brand_name
+    ) {
+    }
+
     public function delete_payment_card(
         User $user,
-        string $payment_method_id
+        string $card_id
     ) {
-        $card = UserCard::find($payment_method_id);
+        $card = UserCard::find($card_id);
 
         if (!$card) {
             throw new Exceptions\BaseException(
@@ -1327,13 +1269,75 @@ class UserService
 
         if ($card->user_id != $user->id) {
             throw new Exceptions\AccessForbidden;
-        }
-    
+        }    
         $card->delete();
-        $this->stripe_service->detach_card($payment_method_id);
 
         return [
             'message' => 'User card has been successfully detached',
+        ];
+    }
+
+    public function add_bank(
+        User $user,
+        string $bank_id,
+        string $last_digits,
+        string $routing_number
+        string $bank_name,
+        string $holder_name,
+    ){
+        UserBank::updateOrCreate(
+            [
+                'id' => $bank_id,
+                'user_id' => $user->id
+            ],
+            [
+                'last_digits' => $last_digits,
+                'routing_number' => $routing_number
+                'bank_name' => $bank_name,
+                'holder_name' => $holder_name,
+            ]
+        );
+
+        return [
+            'message' => 'Bank account attached successfully'
+        ];
+    }
+
+    public function update_bank(
+        User $user,
+        int $bank_account_id,
+        ?string $holder_name,
+        ?int $account_number,
+        ?string $bank_name,
+        ?string $routing_number
+    ) {
+    }
+
+    public function delete_bank(User $user, string $bank_id)
+    {
+        $bank = UserBank::find($bank_id);
+
+        if (!$bank) {
+            throw new Exceptions\BaseException(
+                'Bank not found', 400
+            );
+        }
+
+        if ($bank->user_id != $user->id) {
+            throw new Exceptions\AccessForbidden;
+        }    
+        $bank->delete();
+
+        return [
+            'message' => 'User bank has been successfully detached',
+        ];
+    }
+
+    public function get_payment_card(User $user)
+    {
+        return [
+            'cards' => $user->cards,
+            'bank_details' => $user->bank_details,
         ];
     }
 

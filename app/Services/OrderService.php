@@ -235,8 +235,8 @@ class OrderService
         }
 
         $receipt = $this->stripe_service->charge_card(
+            $user,
             $payment_method_id,
-            $this->stripe_service->get_customer_id($user),
             $bid->amount
         );
 

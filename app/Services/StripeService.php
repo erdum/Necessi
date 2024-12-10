@@ -16,18 +16,6 @@ class StripeService
         $this->client = new StripeClient(config('services.stripe.secret'));
     }
 
-    public function get_onboarding_link(User $user) {
-        $acc_id = $this->get_account_id($user);
-
-        return $this->client->accountLinks->create([
-            'account' => $acc_id,
-            'refresh_url' => config('services.stripe.onboarding.refresh_url'),
-            'return_url' => config('services.stripe.onboarding.return_url'),
-            'type' => 'account_onboarding',
-            'collection_options' => ['fields' => 'eventually_due'],
-        ]);
-    }
-
     public function get_account_id(User $user)
     {
         if (! empty($user->stripe_account_id)) {
@@ -40,7 +28,16 @@ class StripeService
             'controller' => [
                 'fees' => ['payer' => 'application'],
                 'losses' => ['payments' => 'application'],
-                'stripe_dashboard' => ['type' => 'express'],
+                'stripe_dashboard' => ['type' => 'none'],
+                'requirement_collection' => 'application',
+            ],
+            'capabilities' => [
+                'card_payments' => [
+                    'requested' => true
+                ],
+                'transfers' => [
+                    'requested' => true
+                ],
             ],
         ]);
 
@@ -56,13 +53,113 @@ class StripeService
         return $stripe_account->id;
     }
 
+    public function get_onboarding_link(User $user) {
+        return $this->client->accountLinks->create([
+            'account' => $this->get_account_id($user),
+            'refresh_url' => config('services.stripe.onboarding.refresh_url'),
+            'return_url' => config('services.stripe.onboarding.return_url'),
+            'type' => 'account_onboarding',
+            'collection_options' => ['fields' => 'eventually_due'],
+        ]);
+    }
+
+    public function get_bank_accounts(User $user)
+    {
+        return $this->client->accounts->allExternalAccounts(
+            $this->get_account_id($user),
+            ['object' => 'bank_account']
+        )['data'];
+    }
+
+    public function add_bank(User $user, string $bank_id)
+    {
+        $this->client->accounts->createExternalAccount(
+            $this->get_account_id($user),
+            ['external_account' => $bank_id]
+        );
+
+        return true;
+    }
+
+    public function detach_bank(User $user, string $bank_id)
+    {
+        $stripe->accounts->deleteExternalAccount(
+            $this->get_account_id($user),
+            $bank_id,
+            []
+        );
+
+        return true;
+    }
+
+    public function get_cards(User $user)
+    {
+        return $stripe->accounts->allExternalAccounts(
+            $this->get_account_id($user),
+            ['object' => 'card']
+        )['data'];
+    }
+
+    public function add_card(User $user, string $card_id) {
+        $this->client->accounts->createExternalAccount(
+            $this->get_account_id($user),
+            ['external_account' => $card_id]
+        );
+
+        return true;
+    }
+
+    public function detach_card(User $user, string $card_id)
+    {
+        $this->client->accounts->deleteExternalAccount(
+            $this->get_account_id($user),
+            $card_id,
+            []
+        );
+
+        return true;
+    }
+
     public function get_account_balance(User $user)
     {
         $balance = $this->client->balance->retrieve([], [
-            'stripe_account' => $user->stripe_account_id,
+            'stripe_account' => $this->get_account_id($user),
         ]);
 
         return $balance;
+    }
+
+    public function charge_card(
+        string $payment_method_id,
+        string $stripe_customer_id,
+        float $amount
+    ) {
+        try {
+            $payment = $this->client->paymentIntents->create([
+                'amount' => $amount * 100,
+                'currency' => 'usd',
+                'customer' => $stripe_customer_id,
+                'payment_method' => $payment_method_id,
+                'off_session' => true,
+                'confirm' => true,
+            ]);
+        } catch (CardException $e) {
+            $error = $e->getError();
+
+            return response()->json(['error' => [
+                'message' => 'Transaction failed',
+                'type' => $error->code,
+            ]], 500);
+        } catch (Exception $e) {
+            $error = $e->getMessage();
+
+            return response()->json(['error' => [
+                'message' => 'Transaction failed',
+                'type' => $error,
+            ]], 500);
+        }
+
+        return $payment;
     }
 
     public function charge_card_on_behalf(
@@ -114,7 +211,7 @@ class StripeService
                     'currency' => 'usd',
                     'source_type' => 'bank_account',
                 ],
-                ['stripe_account' => $user->stripe_account_id]
+                ['stripe_account' => $this->get_account_id($user)]
             );
         } catch (Exception $e) {
             $error = $e->getMessage();
@@ -126,84 +223,6 @@ class StripeService
         }
 
         return $transaction;
-    }
-
-    public function get_customer_id(User $user)
-    {
-        if (! empty($user->stripe_customer_id)) {
-            return $user->stripe_customer_id;
-        }
-
-        $result = $this->client->customers->search([
-            'query' => "email:'{$user->email}'",
-        ]);
-
-        if (count($result->data) > 0) {
-            $user->stripe_customer_id = $result->data[0]->id;
-            $user->save();
-
-            return $user->stripe_customer_id;
-        }
-
-        $stripe_customer = $this->client->customers->create([
-            'name' => $user->name,
-            'email' => $user->email,
-        ]);
-
-        $user->stripe_customer_id = $stripe_customer->id;
-        $user->save();
-
-        return $stripe_customer->id;
-    }
-
-    public function add_card(
-        string $payment_method_id,
-        string $stripe_customer_id
-    ) {
-        $payment_method = $this->client->paymentMethods->attach(
-            $payment_method_id,
-            ['customer' => $stripe_customer_id]
-        );
-
-        return true;
-    }
-
-    public function detach_card(string $payment_method_id)
-    {
-        $this->client->paymentMethods->detach($payment_method_id);
-    }
-
-    public function charge_card(
-        string $payment_method_id,
-        string $stripe_customer_id,
-        float $amount
-    ) {
-        try {
-            $payment = $this->client->paymentIntents->create([
-                'amount' => $amount * 100,
-                'currency' => 'usd',
-                'customer' => $stripe_customer_id,
-                'payment_method' => $payment_method_id,
-                'off_session' => true,
-                'confirm' => true,
-            ]);
-        } catch (CardException $e) {
-            $error = $e->getError();
-
-            return response()->json(['error' => [
-                'message' => 'Transaction failed',
-                'type' => $error->code,
-            ]], 500);
-        } catch (Exception $e) {
-            $error = $e->getMessage();
-
-            return response()->json(['error' => [
-                'message' => 'Transaction failed',
-                'type' => $error,
-            ]], 500);
-        }
-
-        return $payment;
     }
 
     public function refund_charge(string $charge_id)
