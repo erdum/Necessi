@@ -96,7 +96,7 @@ class StripeService
 
     public function detach_bank(User $user, string $bank_id)
     {
-        $stripe->accounts->deleteExternalAccount(
+        $this->client->accounts->deleteExternalAccount(
             $this->get_account_id($user),
             $bank_id,
             []
@@ -107,7 +107,7 @@ class StripeService
 
     public function get_cards(User $user)
     {
-        return $stripe->accounts->allExternalAccounts(
+        return $this->client->accounts->allExternalAccounts(
             $this->get_account_id($user),
             ['object' => 'card']
         )['data'];
@@ -238,7 +238,7 @@ class StripeService
     public function payout_to_account(User $user, float $amount)
     {
         try {
-            $transaction = $stripe->payouts->create(
+            $transaction = $this->client->payouts->create(
                 [
                     'amount' => $amount * 100,
                     'currency' => 'usd',
