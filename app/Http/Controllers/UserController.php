@@ -484,8 +484,7 @@ class UserController extends Controller
         UserService $user_service
     ) {
         $request->validate([
-            'bank_id' => 'required|unique:user_banks,id',
-            'last_digits' => 'required',
+            'account_number' => 'required',
             'routing_number' => 'required',
             'bank_name' => 'required',
             'holder_name' => 'required',
@@ -493,8 +492,7 @@ class UserController extends Controller
 
         $response = $user_service->add_bank(
             $request->user(),
-            $request->bank_id,
-            $request->last_digits,
+            $request->account_number,
             $request->routing_number,
             $request->bank_name,
             $request->holder_name
@@ -508,16 +506,6 @@ class UserController extends Controller
         Request $request,
         UserService $user_service
     ) {
-        $response = $user_service->update_bank(
-            $request->user(),
-            $bank_id,
-            $request->last_digits,
-            $request->routing_number,
-            $request->bank_name,
-            $request->holder_name
-        );
-
-        return response()->json($response);
     }
 
     public function delete_bank_account(

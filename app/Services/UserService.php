@@ -1311,19 +1311,25 @@ class UserService
 
     public function add_bank(
         User $user,
-        string $bank_id,
-        string $last_digits,
+        string $account_number,
         string $routing_number,
         string $bank_name,
         string $holder_name
     ) {
+        $bank_id = $this->stripe_service->add_bank(
+            $user,
+            $account_number,
+            $routing_number,
+            $holder_name
+        );
+
         UserBank::updateOrCreate(
             [
                 'id' => $bank_id,
                 'user_id' => $user->id,
             ],
             [
-                'last_digits' => $last_digits,
+                'last_digits' => substr($account_number, -4),
                 'routing_number' => $routing_number,
                 'bank_name' => $bank_name,
                 'holder_name' => $holder_name,
@@ -1334,15 +1340,6 @@ class UserService
             'message' => 'Bank account attached successfully',
         ];
     }
-
-    public function update_bank(
-        User $user,
-        int $bank_account_id,
-        ?string $holder_name,
-        ?int $account_number,
-        ?string $bank_name,
-        ?string $routing_number
-    ) {}
 
     public function delete_bank(User $user, string $bank_id)
     {

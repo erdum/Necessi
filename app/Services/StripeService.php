@@ -72,14 +72,26 @@ class StripeService
         )['data'];
     }
 
-    public function add_bank(User $user, string $bank_id)
+    public function add_bank(
+        User $user,
+        string $account_number,
+        string $routing_number,
+        string $holder_name
+    )
     {
-        $this->client->accounts->createExternalAccount(
+        return $this->client->accounts->createExternalAccount(
             $this->get_account_id($user),
-            ['external_account' => $bank_id]
-        );
-
-        return true;
+            [
+                'external_account' => [
+                    'account_number' => $account_number,
+                    'routing_number' => $routing_number,
+                    'country' => 'US',
+                    'currency' => 'usd',
+                    'object' => 'bank_account',
+                    'account_holder_name' => $holder_name
+                ]
+            ]
+        )['id'];
     }
 
     public function detach_bank(User $user, string $bank_id)

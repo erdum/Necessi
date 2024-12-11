@@ -74,10 +74,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     );
 
     // Update user bank account
-    Route::post(
-        '/user/bank-details/{bank_id}',
-        [UserController::class, 'update_bank_details']
-    );
+    // Route::post(
+    //     '/user/bank-details/{bank_id}',
+    //     [UserController::class, 'update_bank_details']
+    // );
 
     // Delete user bank account
     Route::delete(
