@@ -87,6 +87,13 @@ class UserObserver implements ShouldQueue
         foreach ($ref->collection('notifications')->listDocuments() as $doc) {
             $doc->delete();
         }
+
+        foreach (
+            $ref->collection('connection_requests')->listDocuments() as $doc
+        ) {
+            $doc->delete();
+        }
+
         $ref->delete();
     }
 

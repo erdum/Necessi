@@ -92,8 +92,15 @@ class DatabaseSeeder extends Seeder
                 $notifications = $user->collection('notifications')
                     ->listDocuments();
 
+                $reqs = $user->collection('connection_requests')
+                    ->listDocuments();
+
                 foreach ($notifications as $notification) {
                     $notification->delete();
+                }
+
+                foreach ($reqs as $req) {
+                    $req->delete();
                 }
             }
 

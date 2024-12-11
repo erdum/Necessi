@@ -777,6 +777,7 @@ class UserService
         $connection_request = new ConnectionRequest;
         $connection_request->sender_id = $sender_id;
         $connection_request->receiver_id = $receiver_id;
+        $connection_request->status = 'pending';
         $connection_request->save();
 
         $receiver_user = User::find($receiver_id);
