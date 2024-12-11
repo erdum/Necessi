@@ -675,15 +675,17 @@ class UserService
 
     public function get_connections(User $user)
     {
-        $connections = ConnectionRequest::where('receiver_id', $user->id)
-            ->orWhere('sender_id', $user->id)
-            ->where('status', 'accepted')
-            ->with([
-                'sender',
-                'receiver',
-            ])
-            ->get();
-
+        $connections = ConnectionRequest::where(function ($query) use ($user) {
+            $query->where('sender_id', $user->id)
+                  ->orWhere('receiver_id', $user->id);
+        })
+        ->where('status', 'accepted')
+        ->with([
+            'sender',
+            'receiver',
+        ])
+        ->get();
+        
         $connection_list = [];
 
         foreach ($connections as $con) {
