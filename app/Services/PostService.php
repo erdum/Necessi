@@ -995,10 +995,22 @@ class PostService
                 $user_bid->post->long,
             );
 
+            $chat_id = ConnectionRequest::where([
+                ['sender_id', '=', $user->id],
+                ['receiver_id', '=', $user_bid->user->id],
+            ])
+                ->orWhere([
+                    ['sender_id', '=', $user_bid->user->id],
+                    ['receiver_id', '=', $user->id],
+                ])
+                ->value('chat_id');
+
             return [
                 'bid_id' => $user_bid->id,
                 'post_id' => $user_bid->post_id,
-                'user_name' => $user_bid->user->full_name,
+                'bid_user_id' => $user_bid->user->id,
+                'bid_user_uid' => $user_bid->user->uid,
+                'bid_user_name' => $user_bid->user->full_name,
                 'avatar' => $user_bid->user->avatar,
                 'type' => $user_bid->post->type,
                 'location' => $user_bid->post->city,
@@ -1012,6 +1024,7 @@ class PostService
                 'curretn_user_avatar' => $user->avatar,
                 'current_user_bid_amount' => $user_bid->amount,
                 'bid_status' => $user_bid->status,
+                'chat_id' => $chat_id,
             ];
         }
 

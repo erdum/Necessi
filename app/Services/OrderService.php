@@ -57,6 +57,16 @@ class OrderService
                     $is_active = true;
                 }
 
+                $chat_id = ConnectionRequest::where([
+                    ['sender_id', '=', $user->id],
+                    ['receiver_id', '=', $post->user->id],
+                ])
+                    ->orWhere([
+                        ['sender_id', '=', $post->user->id],
+                        ['receiver_id', '=', $user->id],
+                    ])
+                    ->value('chat_id');
+
                 if ($post->type == 'item') {
                     $status = $post->start_date->isFuture() ? 'upcoming' : '';
 
@@ -87,6 +97,7 @@ class OrderService
                         'status' => $status,
                         'transaction_id' => $post->bids[0]->order?->transaction_id,
                         'is_marked' => $is_active,
+                        'chat_id' => $chat_id,
                     ]);
                 } else {
                     $status = $post->start_date->isFuture() ? 'upcoming' : '';
@@ -197,7 +208,9 @@ class OrderService
         return [
             'post_id' => $post->id,
             'bid_id' => $order->bid->id,
-            'user_name' => $post->user->full_name,
+            'post_user_name' => $post->user->full_name,
+            'post_user_uid' => $post->user->uid,
+            'post_user_id' => $post->user->id,
             'avatar' => $post->user->avatar,
             'location' => $post->city,
             'distance' => $distance,
