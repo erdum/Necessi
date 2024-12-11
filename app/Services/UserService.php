@@ -1242,12 +1242,14 @@ class UserService
 
     public function add_payment_card(
         User $user,
-        string $card_id,
+        string $card_token,
         string $last_digits,
         string $expiry_month,
         string $expiry_year,
         string $brand_name
     ) {
+        $card_id = $this->stripe_service->add_card($user, $card_token);
+
         UserCard::updateOrCreate(
             [
                 'id' => $card_id,
@@ -1265,12 +1267,25 @@ class UserService
     }
 
     public function update_payment_card(
+        User $user,
         string $card_id,
-        ?string $last_digits,
         ?string $expiry_month,
-        ?string $expiry_year,
-        ?string $brand_name
-    ) {}
+        ?string $expiry_year
+    ) {
+        $this->stripe_service->update_card(
+            $user,
+            $card_id,
+            $expiry_month,
+            $expiry_year
+        );
+
+        $card = UserCard::find($card_id);
+        $card->expiry_month = $expiry_month ?? $card->expiry_month;
+        $card->expiry_year = $expiry_year ?? $card->expiry_year;
+        $card->save();
+
+        return $card;
+    }
 
     public function delete_payment_card(
         User $user,

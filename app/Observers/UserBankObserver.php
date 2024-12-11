@@ -2,9 +2,10 @@
 
 namespace App\Observers;
 
+use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Models\UserBank;
 
-class UserBankObserver
+class UserBankObserver implements ShouldQueue
 {
     /**
      * Handle the UserBank "created" event.

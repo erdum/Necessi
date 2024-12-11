@@ -101,11 +101,30 @@ class StripeService
         )['data'];
     }
 
-    public function add_card(User $user, string $card_id)
+    public function add_card(User $user, string $card_token)
     {
-        $this->client->accounts->createExternalAccount(
+        return $this->client->accounts->createExternalAccount(
             $this->get_account_id($user),
-            ['external_account' => $card_id]
+            ['external_account' => $card_token]
+        )['id'];
+    }
+
+    public function update_card(
+        User $user,
+        string $card_id,
+        ?string $expiry_month,
+        ?string $expiry_year
+    ) {
+        $data = [];
+
+        if ($expiry_month != null) $data['exp_month'] = $expiry_month;
+
+        if ($expiry_year != null) $data['exp_year'] = $expiry_year;
+
+        $this->client->accounts->updateExternalAccount(
+            $this->get_account_id($user),
+            $card_id,
+            $data
         );
 
         return true;

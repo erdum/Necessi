@@ -2,17 +2,18 @@
 
 namespace App\Observers;
 
+use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Models\UserCard;
 
-class UserCardObserver
+class UserCardObserver implements ShouldQueue
 {
     /**
      * Handle the UserCard "created" event.
      */
     public function created(UserCard $userCard): void
     {
-        $stripe_service = app(App\Services\StripeService::class);
-        $stripe_service->add_card($userCard->user, $userCard->id);
+        // $stripe_service = app(App\Services\StripeService::class);
+        // $stripe_service->add_card($userCard->user, $userCard->id);
     }
 
     /**

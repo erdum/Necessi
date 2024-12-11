@@ -451,12 +451,16 @@ class UserController extends Controller
         Request $request,
         UserService $user_service
     ) {
+        $request->validate([
+            'expiry_month' => 'nullable|size:2',
+            'expiry_year' => 'nullable|size:4'
+        ]);
+
         $response = $user_service->update_payment_card(
+            $request->user(),
             $card_id,
-            $request->last_digits,
             $request->expiry_month,
-            $request->expiry_year,
-            $request->brand_name
+            $request->expiry_year
         );
 
         return response()->json($response);
