@@ -12,7 +12,7 @@ class UserCardObserver implements ShouldQueue
      */
     public function created(UserCard $userCard): void
     {
-        // $stripe_service = app(App\Services\StripeService::class);
+        // $stripe_service = app(\App\Services\StripeService::class);
         // $stripe_service->add_card($userCard->user, $userCard->id);
     }
 
@@ -29,7 +29,7 @@ class UserCardObserver implements ShouldQueue
      */
     public function deleted(UserCard $userCard): void
     {
-        $stripe_service = app(App\Services\StripeService::class);
+        $stripe_service = app(\App\Services\StripeService::class);
         $stripe_service->detach_bank($userCard->user, $userCard->id);
     }
 
