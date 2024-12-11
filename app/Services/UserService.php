@@ -376,7 +376,7 @@ class UserService
             'about' => $user->about,
             'city' => $user->city,
             'state' => $user->state,
-            'location' => $user->city,
+            'location' => $user->location,
             'lat' => $user->lat,
             'long' => $user->long,
             'who_can_see_connection' => $connection_visibility,
