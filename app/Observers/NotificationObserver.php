@@ -84,7 +84,7 @@ class NotificationObserver implements ShouldQueue
             'is_connection_request_accepted' => $is_request_accepted,
             'is_connection_request_rejected' => $is_request_rejected,
             'sender_id' => $notification->additional_data['sender_id'] ?? null,
-            'is_read' => false,
+            'is_read' => true,
             'notification_id' => $notification->id,
         ];
 
