@@ -367,6 +367,7 @@ class UserService
             'first_name' => $user->first_name,
             'last_name' => $user->last_name,
             'uid' => $user->uid,
+            'stripe_account_id' => $user->stripe_account_id,
             'email' => $user->email,
             'email_verified_at' => $user->email_verified_at,
             'phone_number' => $user->phone_number,
