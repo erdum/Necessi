@@ -115,10 +115,12 @@ class StripeService
 
     public function add_card(User $user, string $card_token)
     {
-        return $this->client->accounts->createExternalAccount(
-            $this->get_account_id($user),
-            ['external_account' => $card_token]
-        )['id'];
+        return $this->client->paymentMethods->create([
+            'type' => 'card',
+            'card' => [
+                'token' => $card_token
+            ]
+        ])['id'];
     }
 
     public function update_card(
@@ -196,26 +198,28 @@ class StripeService
     }
 
     public function charge_card_on_behalf(
-        string $payment_method_id,
-        string $stripe_customer_id,
-        string $stripe_account_id,
+        User $sender_user,
+        string $card_id,
+        User $receiver_user,
         float $amount
     ) {
         try {
             $payment = $this->client->paymentIntents->create([
                 'amount' => $amount * 100,
                 'currency' => 'usd',
-                'customer' => $stripe_customer_id,
-                'payment_method' => $payment_method_id,
+                'payment_method' => $card_id,
+                'confirmation_method' => 'automatic',
+                'confirm' => true,
+                'off_session' => true,
                 'application_fee_amount' => (
                     ($amount * config('services.stripe.application_fee')) * 100
                 ),
                 'transfer_data' => [
-                    'destination' => $stripe_account_id,
+                    'destination' => $this->get_account_id($receiver_user),
                 ],
-                'off_session' => true,
-                'confirm' => true,
-            ]);
+            ], ['stripe_account' => $this->get_account_id($sender_user)]);
+
+            return $payment;
         } catch (CardException $e) {
             $error = $e->getError();
 
@@ -231,8 +235,6 @@ class StripeService
                 'type' => $error,
             ]], 500);
         }
-
-        return $payment;
     }
 
     public function payout_to_account(User $user, float $amount)
