@@ -537,7 +537,7 @@ class PostService
             'user_name' => $user->full_name,
             'avatar' => $user->avatar,
             'comment' => $comment->data,
-            'created_at' => $comment->created_at,
+            'created_at' => $comment->created_at->diffForHumans(),
         ];
     }
 
