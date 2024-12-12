@@ -247,27 +247,20 @@ class StripeService
         return $payment;
     }
 
-    public function payout_to_account(User $user, float $amount)
-    {
-        try {
-            $transaction = $this->client->payouts->create(
-                [
-                    'amount' => $amount * 100,
-                    'currency' => 'usd',
-                    'source_type' => 'bank_account',
-                ],
-                ['stripe_account' => $this->get_account_id($user)]
-            );
-        } catch (Exception $e) {
-            $error = $e->getMessage();
-
-            return response()->json(['error' => [
-                'message' => 'Transaction failed',
-                'type' => $error,
-            ]], 500);
-        }
-
-        return $transaction;
+    public function payout_to_account(
+        User $user,
+        string $bank_id,
+        float $amount
+    ) {
+        return $this->client->payouts->create(
+            [
+                'amount' => $amount * 100,
+                'currency' => 'usd',
+                'source_type' => 'bank_account',
+                'destination' => $bank_id,
+            ],
+            ['stripe_account' => $this->get_account_id($user)]
+        );
     }
 
     public function refund_charge(string $charge_id)

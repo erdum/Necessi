@@ -91,6 +91,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [UserController::class, 'get_onboarding_link']
     );
 
+    // Withdraw funds to bank account
+    Route::post(
+        '/user/funds/withdraw',
+        [UserController::class, 'withdraw_funds']
+    );
+
     // Get uses notifications list
     Route::get(
         '/user/notifications',

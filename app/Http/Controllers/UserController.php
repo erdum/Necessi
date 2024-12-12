@@ -529,4 +529,20 @@ class UserController extends Controller
 
         return response()->json($response);
     }
+
+    public function withdraw_funds(Request $request, UserService $user_service)
+    {
+        $request->validate([
+            'bank_id' => 'required|exists:user_banks,id',
+            'amount' => 'required'
+        ]);
+
+        $response = $user_service->withdraw_funds(
+            $request->user(),
+            $request->bank_id,
+            $request->amount
+        );
+
+        return response()->json($response);
+    }
 }

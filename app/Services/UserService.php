@@ -1376,4 +1376,22 @@ class UserService
     {
         return $this->stripe_service->get_onboarding_link($user);
     }
+
+    public function withdraw_funds(
+        User $user,
+        string $bank_id,
+        float $amount
+    ) {
+        $balance = $this->stripe_service->get_account_balance(
+            $user
+        )['available'][0]['amount'];
+
+        if ($balance < $amount) {
+            throw new Exceptions\BaseException('Insufficient funds', 400);
+        }
+
+        $this->stripe_service->payout_to_accounts($user, $bank_id, $amount);
+
+        return ['message' => 'Funds successfully transferred'];
+    }
 }
