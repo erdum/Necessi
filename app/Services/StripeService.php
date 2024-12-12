@@ -120,7 +120,7 @@ class StripeService
             'card' => [
                 'token' => $card_token
             ]
-        ])['id'];
+        ], ['stripe_account' => $this->get_account_id($user)])['id'];
     }
 
     public function update_card(
