@@ -53,6 +53,27 @@ class StripeService
         return $stripe_account->id;
     }
 
+    public function get_customer_id(User $user)
+    {
+        if (! empty($user->stripe_customer_id)) {
+            return $user->stripe_customer_id;
+        }
+
+        try {
+            $stripe_customer = $this->client->customers->create([
+                'name' => $user->name,
+                'email' => $user->email,
+            ]);
+
+            $user->stripe_customer_id = $stripe_customer->id;
+            $user->save();
+
+            return $stripe_customer->id;
+        } catch (Throwable $e) {
+            throw new StripeApiException($e->getMessage());
+        }
+    }
+
     public function get_onboarding_link(User $user)
     {
         return $this->client->accountLinks->create([
@@ -107,20 +128,21 @@ class StripeService
 
     public function get_cards(User $user)
     {
-        return $this->client->accounts->allExternalAccounts(
-            $this->get_account_id($user),
-            ['object' => 'card']
-        )['data'];
     }
 
     public function add_card(User $user, string $card_token)
     {
-        return $this->client->paymentMethods->create([
+        $pm_id = $this->client->paymentMethods->create([
             'type' => 'card',
             'card' => [
                 'token' => $card_token
             ]
-        ], ['stripe_account' => $this->get_account_id($user)])['id'];
+        ])['id'];
+
+        return $this->client->paymentMethods->attach(
+            $pm_id,
+            ['customer' => $this->get_customer_id($user)]
+        )['id'];
     }
 
     public function update_card(
@@ -135,10 +157,14 @@ class StripeService
 
         if ($expiry_year != null) $data['exp_year'] = $expiry_year;
 
-        $this->client->accounts->updateExternalAccount(
-            $this->get_account_id($user),
+        $this->client->paymentMethods->update(
             $card_id,
-            $data
+            [
+                'card' => [
+                    'exp_month' => $expiry_month,
+                    'exp_year' => $expiry_year,
+                ]
+            ]
         );
 
         return true;
@@ -146,8 +172,7 @@ class StripeService
 
     public function detach_card(User $user, string $card_id)
     {
-        $this->client->accounts->deleteExternalAccount(
-            $this->get_account_id($user),
+        $this->client->paymentMethods->detach(
             $card_id,
             []
         );
