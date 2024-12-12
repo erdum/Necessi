@@ -238,6 +238,10 @@ class OrderService
             throw new Exceptions\BidNotFound;
         }
 
+        if ($bid->post->user_id != $user->id) {
+            throw new Exceptions\AccessForbidden;
+        }
+
         if ($bid->status != 'accepted') {
             throw new Exceptions\BaseException(
                 'Bid is not accepted',
@@ -245,9 +249,10 @@ class OrderService
             );
         }
 
-        $receipt = $this->stripe_service->charge_card(
+        $receipt = $this->stripe_service->charge_card_on_behalf(
             $user,
             $payment_method_id,
+            $bid->user,
             $bid->amount
         );
 

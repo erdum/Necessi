@@ -189,42 +189,42 @@ class StripeService
         return $balance;
     }
 
-    public function charge_card(
-        string $payment_method_id,
-        string $stripe_customer_id,
-        float $amount
-    ) {
-        try {
-            $payment = $this->client->paymentIntents->create([
-                'amount' => $amount * 100,
-                'currency' => 'usd',
-                'customer' => $stripe_customer_id,
-                'payment_method' => $payment_method_id,
-                'off_session' => true,
-                'confirm' => true,
-            ]);
-        } catch (CardException $e) {
-            $error = $e->getError();
+    // public function charge_card(
+    //     string $payment_method_id,
+    //     string $stripe_customer_id,
+    //     float $amount
+    // ) {
+    //     try {
+    //         $payment = $this->client->paymentIntents->create([
+    //             'amount' => $amount * 100,
+    //             'currency' => 'usd',
+    //             'customer' => $stripe_customer_id,
+    //             'payment_method' => $payment_method_id,
+    //             'off_session' => true,
+    //             'confirm' => true,
+    //         ]);
+    //     } catch (CardException $e) {
+    //         $error = $e->getError();
 
-            return response()->json(['error' => [
-                'message' => 'Transaction failed',
-                'type' => $error->code,
-            ]], 500);
-        } catch (Exception $e) {
-            $error = $e->getMessage();
+    //         return response()->json(['error' => [
+    //             'message' => 'Transaction failed',
+    //             'type' => $error->code,
+    //         ]], 500);
+    //     } catch (Exception $e) {
+    //         $error = $e->getMessage();
 
-            return response()->json(['error' => [
-                'message' => 'Transaction failed',
-                'type' => $error,
-            ]], 500);
-        }
+    //         return response()->json(['error' => [
+    //             'message' => 'Transaction failed',
+    //             'type' => $error,
+    //         ]], 500);
+    //     }
 
-        return $payment;
-    }
+    //     return $payment;
+    // }
 
     public function charge_card_on_behalf(
         User $sender_user,
-        string $card_id,
+        string $payment_method_id,
         User $receiver_user,
         float $amount
     ) {
@@ -232,17 +232,18 @@ class StripeService
             $payment = $this->client->paymentIntents->create([
                 'amount' => $amount * 100,
                 'currency' => 'usd',
-                'payment_method' => $card_id,
+                'payment_method' => $payment_method_id,
                 'confirmation_method' => 'automatic',
                 'confirm' => true,
                 'off_session' => true,
                 'application_fee_amount' => (
                     ($amount * config('services.stripe.application_fee')) * 100
                 ),
+                'customer' => $this->get_customer_id($sender_user),
                 'transfer_data' => [
                     'destination' => $this->get_account_id($receiver_user),
                 ],
-            ], ['stripe_account' => $this->get_account_id($sender_user)]);
+            ]);
 
             return $payment;
         } catch (CardException $e) {
