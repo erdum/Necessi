@@ -28,11 +28,13 @@ class OrderController extends Controller
     }
 
     public function make_bid_payment(
-        int $bid_id,
+        string $bid_id,
         Request $request,
         OrderService $order_service
     ) {
-        $request->validate(['payment_method_id' => 'required']);
+        $request->validate([
+            'payment_method_id' => 'required|exists:user_cards,id'
+        ]);
 
         $response = $order_service->make_bid_payment(
             $request->user(),

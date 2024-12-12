@@ -228,39 +228,23 @@ class StripeService
         User $receiver_user,
         float $amount
     ) {
-        try {
-            $payment = $this->client->paymentIntents->create([
-                'amount' => $amount * 100,
-                'currency' => 'usd',
-                'payment_method' => $payment_method_id,
-                'confirmation_method' => 'automatic',
-                'confirm' => true,
-                'off_session' => true,
-                'application_fee_amount' => (
-                    ($amount * config('services.stripe.application_fee')) * 100
-                ),
-                'customer' => $this->get_customer_id($sender_user),
-                'transfer_data' => [
-                    'destination' => $this->get_account_id($receiver_user),
-                ],
-            ]);
+        $payment = $this->client->paymentIntents->create([
+            'amount' => $amount * 100,
+            'currency' => 'usd',
+            'payment_method' => $payment_method_id,
+            'confirmation_method' => 'automatic',
+            'confirm' => true,
+            'off_session' => true,
+            'application_fee_amount' => (
+                ($amount * config('services.stripe.application_fee')) * 100
+            ),
+            'customer' => $this->get_customer_id($sender_user),
+            'transfer_data' => [
+                'destination' => $this->get_account_id($receiver_user),
+            ],
+        ]);
 
-            return $payment;
-        } catch (CardException $e) {
-            $error = $e->getError();
-
-            return response()->json(['error' => [
-                'message' => 'Transaction failed',
-                'type' => $error->code,
-            ]], 500);
-        } catch (Exception $e) {
-            $error = $e->getMessage();
-
-            return response()->json(['error' => [
-                'message' => 'Transaction failed',
-                'type' => $error,
-            ]], 500);
-        }
+        return $payment;
     }
 
     public function payout_to_account(User $user, float $amount)

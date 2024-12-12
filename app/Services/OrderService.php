@@ -8,6 +8,7 @@ use App\Models\OrderHistory;
 use App\Models\Post;
 use App\Models\PostBid;
 use App\Models\User;
+use App\Models\Transaction;
 use Carbon\Carbon;
 
 class OrderService
@@ -229,7 +230,7 @@ class OrderService
 
     public function make_bid_payment(
         User $user,
-        int $bid_id,
+        string $bid_id,
         string $payment_method_id
     ) {
         $bid = PostBid::find($bid_id);
@@ -263,8 +264,10 @@ class OrderService
 
         $order = new OrderHistory;
         $order->bid_id = $bid_id;
-        $order->transaction_id = $transaction_id;
+        $order->transaction_id = $transaction->id;
         $order->save();
+
+        return ['message' => 'Payment successful'];
     }
 
     public function get_revenue(User $user, ?string $year, ?string $month)
