@@ -24,7 +24,6 @@ class UserObserver implements ShouldQueue
         $data = [
             'id' => $user->id,
             'uid' => $user->uid,
-            'stripe_account_id' => $user->stripe_account_id,
             'email' => $user->email,
             'phone_number' => $user->phone_number,
             'first_name' => $user->first_name,
@@ -55,7 +54,6 @@ class UserObserver implements ShouldQueue
         $data = [
             'id' => $user->id,
             'uid' => $user->uid,
-            'stripe_account_id' => $user->stripe_account_id,
             'email' => $user->email,
             'phone_number' => $user->phone_number,
             'first_name' => $user->first_name,
