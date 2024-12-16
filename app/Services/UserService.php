@@ -1390,7 +1390,7 @@ class UserService
             throw new Exceptions\BaseException('Insufficient funds', 400);
         }
 
-        $this->stripe_service->payout_to_accounts($user, $bank_id, $amount);
+        $this->stripe_service->payout_to_account($user, $bank_id, $amount);
 
         return ['message' => 'Funds successfully transferred'];
     }
