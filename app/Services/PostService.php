@@ -36,7 +36,7 @@ class PostService
         if ($bid->status == 'accepted') {
 
             if ($bid->order?->transaction_id == null) {
-                $check_time = Carbon::parse($bid->order->created_at)->addDay();
+                $check_time = Carbon::parse($bid->order?->created_at)->addDay();
 
                 if ($check_time->isPast()) {
                     return 'canceled';
