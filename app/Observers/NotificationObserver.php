@@ -34,6 +34,7 @@ class NotificationObserver implements ShouldQueue
         );
 
         $data = [
+            'type' => $notification->type,
             'title' => $notification->title,
             'body' => $notification->body,
             'image' => $notification->image,
@@ -76,6 +77,7 @@ class NotificationObserver implements ShouldQueue
         );
 
         $data = [
+            'type' => $notification->type,
             'title' => $notification->title,
             'body' => $notification->body,
             'image' => $notification->image,
