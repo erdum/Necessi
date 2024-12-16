@@ -7,6 +7,7 @@ use App\Jobs\StoreImages;
 use App\Models\Post;
 use App\Models\PostBid;
 use App\Models\PostComment;
+use App\Models\ConnectionRequest;
 use App\Models\PostImage;
 use App\Models\PostLike;
 use App\Models\ReportedComment;
