@@ -402,6 +402,7 @@ class PostService
 
         $posts->getCollection()->transform(function ($post) use ($user) {
             $self_liked = $post->likes()->where('user_id', $user->id)->exists();
+            $self_bid = $post->bids()->where('user_id', $user->id)->where('post_id', $post->id)->exists();
 
             $order_status = $post->bids->filter(function ($bid) {
                 return $bid->order !== null;
@@ -443,6 +444,7 @@ class PostService
                     $post->created_at->diffForHumans()
                 ),
                 'current_user_like' => $self_liked,
+                'current_user_bid' => $self_bid,
                 'likes' => $post->likes->count(),
                 'bids' => $post->bids->count(),
                 'images' => $post->images,
