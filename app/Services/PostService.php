@@ -123,21 +123,21 @@ class PostService
         if (! $post) {
             throw new Exceptions\InvalidPostId;
         }
-        $lowest_bid = $post->bids()->orderBy('amount')->first();
+        // $lowest_bid = $post->bids()->orderBy('amount')->first();
 
-        if ($lowest_bid) {
-            if ($amount >= $lowest_bid?->amount) {
-                throw new Exceptions\BaseException(
-                    'New bid amount must be less than the previous bids', 400
-                );
-            }
-        }
+        // if ($lowest_bid) {
+        //     if ($amount >= $lowest_bid?->amount) {
+        //         throw new Exceptions\BaseException(
+        //             'New bid amount must be less than the previous bids', 400
+        //         );
+        //     }
+        // }
 
-        if ($amount > $post->budget) {
-            throw new Exceptions\BaseException(
-                'The bid amount should be less than the budget amount', 400
-            );
-        }
+        // if ($amount > $post->budget) {
+        //     throw new Exceptions\BaseException(
+        //         'The bid amount should be less than the budget amount', 400
+        //     );
+        // }
 
         if ($post->user_id == $user->id) {
             throw new Exceptions\BaseException(
