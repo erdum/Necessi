@@ -895,11 +895,8 @@ class UserService
 
     public function get_connection_requests(User $user)
     {
-        $connection_requests = ConnectionRequest::where(
-            'receiver_id',
-            $user->id
-        )
-            ->whereNot('status', 'rejected')
+        $connection_requests = ConnectionRequest::where('receiver_id', $user->id)
+            ->whereNotIn('status', ['rejected', 'accepted'])
             ->with('sender:id,first_name,last_name,avatar')
             ->get();
 
