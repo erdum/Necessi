@@ -275,7 +275,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post(
         '/posts/{post_id}/like',
         [PostController::class, 'toggle_like']
-    );
+    )->withoutMiddleware(['throttle:api']);
 
     // Place comment on a post
     Route::post(
