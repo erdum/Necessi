@@ -708,6 +708,7 @@ class PostService
         foreach ($post_details->comments as $comment) {
             $comments[] = [
                 'id' => $comment->id,
+                'user_id' => $comment->user->id,
                 'avatar' => $comment->user->avatar,
                 'user_name' => $comment->user->full_name,
                 'comment' => $comment->data,
