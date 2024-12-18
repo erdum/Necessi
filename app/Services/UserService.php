@@ -844,6 +844,8 @@ class UserService
         }
     
         if ($connection_request->chat_id) {
+            $connection_request->status = 'accepted';
+            $connection_request->save();
             $connection_request->delete();
     
             $this->remove_chat($connection_request->chat_id);
