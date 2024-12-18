@@ -19,7 +19,7 @@ class PostController extends Controller
             'city' => 'required|string',
             'state' => 'required|string',
             'location' => 'required',
-            'budget' => 'required|gt:5|lt:1000',
+            'budget' => 'required|gte:5|lt:1000',
             'type' => 'required|string|in:item,service',
             'start_date' => 'required|date_format:Y-m-d|after_or_equal:today',
             'end_date' => 'required|date_format:Y-m-d|after:start_date',
@@ -66,7 +66,7 @@ class PostController extends Controller
             'amount' => [
                 'required', 
                 'integer', 
-                'gt:5', 
+                'gte:5', 
                 'lt:1000'
             ],
         ]);
