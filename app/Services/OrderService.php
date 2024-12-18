@@ -7,8 +7,8 @@ use App\Models\ConnectionRequest;
 use App\Models\OrderHistory;
 use App\Models\Post;
 use App\Models\PostBid;
-use App\Models\User;
 use App\Models\Transaction;
+use App\Models\User;
 use Carbon\Carbon;
 
 class OrderService

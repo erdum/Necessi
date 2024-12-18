@@ -33,7 +33,7 @@ class OrderController extends Controller
         OrderService $order_service
     ) {
         $request->validate([
-            'payment_method_id' => 'required|exists:user_cards,id'
+            'payment_method_id' => 'required|exists:user_cards,id',
         ]);
 
         $response = $order_service->make_bid_payment(

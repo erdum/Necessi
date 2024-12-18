@@ -173,7 +173,7 @@ class User extends Authenticatable
         return $this->hasMany(UserCard::class);
     }
 
-    public function bank_details()
+    public function banks()
     {
         return $this->hasMany(UserBank::class);
     }

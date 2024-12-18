@@ -4,10 +4,10 @@ namespace App\Services;
 
 use App\Exceptions;
 use App\Jobs\StoreImages;
+use App\Models\ConnectionRequest;
 use App\Models\Post;
 use App\Models\PostBid;
 use App\Models\PostComment;
-use App\Models\ConnectionRequest;
 use App\Models\PostImage;
 use App\Models\PostLike;
 use App\Models\ReportedComment;
@@ -29,9 +29,13 @@ class PostService
     protected function make_bid_status(PostBid $bid)
     {
 
-        if ($bid->status == 'pending') return 'pending';
+        if ($bid->status == 'pending') {
+            return 'pending';
+        }
 
-        if ($bid->status == 'rejected') return 'rejected';
+        if ($bid->status == 'rejected') {
+            return 'rejected';
+        }
 
         if ($bid->status == 'accepted') {
 

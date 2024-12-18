@@ -2,8 +2,8 @@
 
 namespace App\Observers;
 
-use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Models\UserCard;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 class UserCardObserver implements ShouldQueue
 {

@@ -16,6 +16,23 @@ class StripeService
         $this->client = new StripeClient(config('services.stripe.secret'));
     }
 
+    public function is_account_active(User $user)
+    {
+        $is_transfers_active = $this->client->accounts->retrieveCapability(
+            $this->get_account_id($user),
+            'transfers',
+            []
+        )['status'] == 'active';
+
+        $is_card_payments_active = $this->client->accounts->retrieveCapability(
+            $this->get_account_id($user),
+            'card_payments',
+            []
+        )['status'] == 'active';
+
+        return $is_transfers_active && $is_card_payments_active;
+    }
+
     public function get_account_id(User $user)
     {
         if (! empty($user->stripe_account_id)) {
@@ -98,8 +115,7 @@ class StripeService
         string $account_number,
         string $routing_number,
         string $holder_name
-    )
-    {
+    ) {
         return $this->client->accounts->createExternalAccount(
             $this->get_account_id($user),
             [
@@ -109,8 +125,8 @@ class StripeService
                     'country' => 'US',
                     'currency' => 'usd',
                     'object' => 'bank_account',
-                    'account_holder_name' => $holder_name
-                ]
+                    'account_holder_name' => $holder_name,
+                ],
             ]
         )['id'];
     }
@@ -126,17 +142,15 @@ class StripeService
         return true;
     }
 
-    public function get_cards(User $user)
-    {
-    }
+    public function get_cards(User $user) {}
 
     public function add_card(User $user, string $card_token)
     {
         $pm_id = $this->client->paymentMethods->create([
             'type' => 'card',
             'card' => [
-                'token' => $card_token
-            ]
+                'token' => $card_token,
+            ],
         ])['id'];
 
         return $this->client->paymentMethods->attach(
@@ -153,9 +167,13 @@ class StripeService
     ) {
         $data = [];
 
-        if ($expiry_month != null) $data['exp_month'] = $expiry_month;
+        if ($expiry_month != null) {
+            $data['exp_month'] = $expiry_month;
+        }
 
-        if ($expiry_year != null) $data['exp_year'] = $expiry_year;
+        if ($expiry_year != null) {
+            $data['exp_year'] = $expiry_year;
+        }
 
         $this->client->paymentMethods->update(
             $card_id,
@@ -163,7 +181,7 @@ class StripeService
                 'card' => [
                     'exp_month' => $expiry_month,
                     'exp_year' => $expiry_year,
-                ]
+                ],
             ]
         );
 
