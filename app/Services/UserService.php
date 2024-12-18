@@ -362,6 +362,8 @@ class UserService
             ];
         }
 
+        $is_account_active = $this->stripe_service->is_account_active($user);
+
         return [
             'user_id' => $user->id,
             'first_name' => $user->first_name,
@@ -379,6 +381,10 @@ class UserService
             'location' => $user->location,
             'lat' => $user->lat,
             'long' => $user->long,
+            'has_active_bank' =>
+                $is_account_active && $user->banks->count() > 0;
+            'has_active_card' =>
+                $is_account_active && $user->cards->count() > 0;
             'who_can_see_connection' => $connection_visibility,
             'is_connection' => $this->is_connected($current_user, $user) ? true : false,
             'connection_request_status' => $connection_request_status,
@@ -1238,7 +1244,7 @@ class UserService
     {
         return [
             'cards' => $user->cards,
-            'bank_details' => $user->bank_details,
+            'bank_details' => $user->banks,
         ];
     }
 
@@ -1367,7 +1373,7 @@ class UserService
     {
         return [
             'cards' => $user->cards,
-            'bank_details' => $user->bank_details,
+            'bank_details' => $user->banks,
         ];
     }
 

@@ -16,6 +16,23 @@ class StripeService
         $this->client = new StripeClient(config('services.stripe.secret'));
     }
 
+    public function is_account_active(User $user)
+    {
+        $is_transfers_active = $this->client->accounts->retrieveCapability(
+            $this->get_account_id($user),
+            'transfers',
+            []
+        )['status'] == 'active';
+
+        $is_card_payments_active = $this->client->accounts->retrieveCapability(
+            $this->get_account_id($user),
+            'card_payments',
+            []
+        )['status'] == 'active';
+
+        return $is_transfers_active && $is_card_payments_active;
+    }
+
     public function get_account_id(User $user)
     {
         if (! empty($user->stripe_account_id)) {
