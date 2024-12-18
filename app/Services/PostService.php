@@ -602,22 +602,12 @@ class PostService
             );
         }
 
-        $reported_comment = ReportedComment::where('reporter_id', $user->id)
-            ->where('reported_id', $comment_id)->first();
-
-        if ($reported_comment) {
-            throw new Exceptions\BaseException(
-                'Comment already reported',
-                400
-            );
-        } else {
-            $comment_report = new ReportedComment;
-            $comment_report->reporter_id = $user->id;
-            $comment_report->reported_id = $comment_id;
-            $comment_report->reason_type = $reason_type;
-            $comment_report->other_reason = $other_reason ?: null;
-            $comment_report->save();
-        }
+        $comment_report = new ReportedComment;
+        $comment_report->reporter_id = $user->id;
+        $comment_report->reported_id = $comment_id;
+        $comment_report->reason_type = $reason_type;
+        $comment_report->other_reason = $other_reason ?: null;
+        $comment_report->save();
 
         return [
             'message' => 'Comment successfully reported',
