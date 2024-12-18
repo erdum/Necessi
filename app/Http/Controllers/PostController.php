@@ -63,7 +63,12 @@ class PostController extends Controller
         PostService $post_service
     ) {
         $request->validate([
-            'amount' => 'required|integer',
+            'amount' => [
+                'required', 
+                'integer', 
+                'gt:5', 
+                'lt:1000'
+            ],
         ]);
 
         $response = $post_service->place_bid(
