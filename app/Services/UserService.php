@@ -742,6 +742,8 @@ class UserService
             }
 
             if ($existing_request->status == 'rejected') {
+                $existing_request->sender_id = $sender_id;
+                $existing_request->receiver_id = $receiver_id;
                 $existing_request->status = 'pending';
                 $existing_request->save();
 
@@ -821,24 +823,36 @@ class UserService
 
     public function cancel_connection_request(User $user, int $user_id)
     {
-        // dd($user->id, $user_id);
-        $connection_request = ConnectionRequest::where('sender_id', $user->id)
-        ->where('receiver_id', $user_id)
-        ->first();
-
+        $connection_request = ConnectionRequest::withTrashed()
+            ->where([
+                ['sender_id', '=', $user->id],
+                ['receiver_id', '=', $user_id],
+            ])
+            ->orWhere([
+                ['sender_id', '=', $user_id],
+                ['receiver_id', '=', $user->id],
+            ])
+            ->first();
+    
         if (! $connection_request) {
             throw new Exceptions\ConnectionRequestNotFound;
         }
-
-        $connection_request->forceDelete();
-
-        $request_notification = Notification::whereJsonContains(
+    
+        if ($connection_request->chat_id) {
+            $connection_request->delete();
+    
+            $this->remove_chat($connection_request->chat_id);
+        } else {
+            $connection_request->forceDelete();
+        }
+    
+        Notification::whereJsonContains(
             'additional_data->connection_request_id',
             $connection_request->id
         )->delete();
-
+    
         return [
-            'message' => 'Canceled Connection request',
+            'mesage' => 'Canceled Connection request',
         ];
     }
 
