@@ -379,6 +379,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [UserController::class, 'get_connections']
     );
 
+    // Get chat users
+    Route::get(
+        '/user/chats',
+        [UserController::class, 'get_chat_users']
+    );
+
     // Create chat
     // Route::post(
     //     '/chat',

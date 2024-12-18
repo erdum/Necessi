@@ -709,6 +709,18 @@ class UserService
         return $connection_list;
     }
 
+    public function get_chat_users(User $user)
+    {
+        $users = ConnectionRequest::whereNotNull('chat_id')
+            ->whereNull('deleted_at')
+            ->where('status', 'accepted')
+            ->where('sender_id', $user->id)
+            ->orWhere('receiver_id', $user->id)
+            ->get();
+
+        return $users;
+    }
+
     private function send_request(
         int $sender_id,
         int $receiver_id,
