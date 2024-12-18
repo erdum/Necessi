@@ -452,7 +452,7 @@ class PostService
                 'type' => $post->type,
                 'title' => $post->title,
                 'description' => $post->description,
-                'location' => $post->city,
+                'location' => $post->location,
                 'lat' => $post->lat,
                 'long' => $post->long,
                 'distance' => round($distance, 2).' miles away',
