@@ -245,8 +245,7 @@ class PostController extends Controller
         int $comment_id,
     ) {
         $request->validate([
-            'reason_type' => 'required|in:offensive language,harassment or bullying,spam or irrelevance,
-                 misleading or false information,violation of community guidelines,other',
+            'reason_type' => 'required|in:offensive language,harassment or bullying,spam or irrelevance,misleading or false information,violation of community guidelines,other',
             'other_reason' => 'required_if:reason_type,other',
         ]);
 
