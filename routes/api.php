@@ -211,7 +211,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [PostController::class, 'get_placed_bids']
     );
 
-    // romove user rejected bid on a post
+    // Remove user rejected bid on a post
     Route::delete(
         '/user/bid/{bid_id}',
         [PostController::class, 'remove_rejected_bid']
@@ -223,7 +223,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [PostController::class, 'get_received_bids']
     );
 
-    // Get user palced bid status on a post
+    // Get user placed bid status on a post
     Route::get(
         '/posts/{post_id}/user/bid/status',
         [PostController::class, 'get_placed_bid_status']
@@ -313,7 +313,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [OrderController::class, 'get_revenue']
     );
 
-    // Get Speicfic revenue Details
+    // Get specific revenue Details
     Route::get(
         '/user/revenue-details/{order_id}',
         [OrderController::class, 'get_revenue_details']
