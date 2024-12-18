@@ -381,10 +381,8 @@ class UserService
             'location' => $user->location,
             'lat' => $user->lat,
             'long' => $user->long,
-            'has_active_bank' =>
-                $is_account_active && $user->banks->count() > 0;
-            'has_active_card' =>
-                $is_account_active && $user->cards->count() > 0;
+            'has_active_bank' => $is_account_active && $user->banks->count() > 0,
+            'has_active_card' => $is_account_active && $user->cards->count() > 0,
             'who_can_see_connection' => $connection_visibility,
             'is_connection' => $this->is_connected($current_user, $user) ? true : false,
             'connection_request_status' => $connection_request_status,
@@ -559,7 +557,7 @@ class UserService
                 ['sender_id', '=', $user->id],
                 ['receiver_id', '=', $user_id],
             ])->first();
-        
+
         if (! $connection_request) {
             throw new Exceptions\ConnectionRequestNotFound;
         }
@@ -627,7 +625,7 @@ class UserService
                 ['sender_id', '=', $current_user->id],
                 ['receiver_id', '=', $user_id],
             ])->first();
-            
+
         if (! $connection_request) {
             throw new Exceptions\ConnectionRequestNotFound;
         }
@@ -683,15 +681,15 @@ class UserService
     {
         $connections = ConnectionRequest::where(function ($query) use ($user) {
             $query->where('sender_id', $user->id)
-                  ->orWhere('receiver_id', $user->id);
+                ->orWhere('receiver_id', $user->id);
         })
-        ->where('status', 'accepted')
-        ->with([
-            'sender',
-            'receiver',
-        ])
-        ->get();
-        
+            ->where('status', 'accepted')
+            ->with([
+                'sender',
+                'receiver',
+            ])
+            ->get();
+
         $connection_list = [];
 
         foreach ($connections as $con) {
@@ -829,8 +827,8 @@ class UserService
     {
         // dd($user->id, $user_id);
         $connection_request = ConnectionRequest::where('sender_id', $user->id)
-        ->where('receiver_id', $user_id)
-        ->first();
+            ->where('receiver_id', $user_id)
+            ->first();
 
         if (! $connection_request) {
             throw new Exceptions\ConnectionRequestNotFound;

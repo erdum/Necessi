@@ -453,7 +453,7 @@ class UserController extends Controller
     ) {
         $request->validate([
             'expiry_month' => 'nullable|size:2',
-            'expiry_year' => 'nullable|size:4'
+            'expiry_year' => 'nullable|size:4',
         ]);
 
         $response = $user_service->update_payment_card(
@@ -505,8 +505,7 @@ class UserController extends Controller
         string $bank_id,
         Request $request,
         UserService $user_service
-    ) {
-    }
+    ) {}
 
     public function delete_bank_account(
         string $bank_id,
@@ -534,7 +533,7 @@ class UserController extends Controller
     {
         $request->validate([
             'bank_id' => 'required|exists:user_banks,id',
-            'amount' => 'required'
+            'amount' => 'required',
         ]);
 
         $response = $user_service->withdraw_funds(

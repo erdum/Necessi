@@ -2,8 +2,8 @@
 
 namespace App\Observers;
 
-use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Models\UserBank;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 class UserBankObserver implements ShouldQueue
 {
