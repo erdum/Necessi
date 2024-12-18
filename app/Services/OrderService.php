@@ -213,7 +213,7 @@ class OrderService
             'post_user_uid' => $post->user->uid,
             'post_user_id' => $post->user->id,
             'avatar' => $post->user->avatar,
-            'location' => $post->city,
+            'location' => $post->location,
             'distance' => $distance,
             'transaction_id' => $order->transaction_id,
             'title' => $post->title,
