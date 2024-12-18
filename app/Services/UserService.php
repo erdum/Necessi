@@ -853,10 +853,12 @@ class UserService
             $connection_request->forceDelete();
         }
     
-        Notification::whereJsonContains(
+        $notification = Notification::whereJsonContains(
             'additional_data->connection_request_id',
             $connection_request->id
-        )->delete();
+        )->first();
+
+        $notification->delete();
     
         return [
             'mesage' => 'Canceled Connection request',
