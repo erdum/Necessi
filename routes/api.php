@@ -4,6 +4,7 @@ use App\Http\Controllers\FirebaseAuthController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\StripeWebhookController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -482,3 +483,6 @@ Route::middleware(['throttle:100,1'])->group(function () {
     Route::post('/dev-login', [FirebaseAuthController::class, 'dev_login']);
 
 });
+
+// Stripe webhook
+Route::post('/stripe-webhook', [StripeWebhookController::class, 'handle']);

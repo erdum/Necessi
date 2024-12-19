@@ -33,6 +33,7 @@ return [
 
     'stripe' => [
         'secret' => env('STRIPE_SECRET'),
+        'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
         'application_fee' => env('STRIPE_APPLICATION_FEE'),
         'onboarding' => [
             'refresh_url' => env('STRIPE_REFRESH_URL'),

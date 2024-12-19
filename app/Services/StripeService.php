@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\User;
+use App\Models\UserBank;
 use Exception;
 use Stripe\Exception\CardException;
 use Stripe\StripeClient;
@@ -304,5 +305,30 @@ class StripeService
         $charge = $this->client->refunds->create(['charge' => $charge_id]);
 
         return $charge->id;
+    }
+
+    public function handle_external_account_creation($data)
+    {
+        $user = User::where('stripe_account_id', $data['account'])->first();
+
+        if (! $user) return;
+
+        $accounts = $this->client->accounts->allExternalAccounts(
+            $data['account'],
+            ['object' => 'bank_account']
+        );
+
+        foreach ($accounts as $acc) {
+            UserBank::updateOrCreate(
+                ['id' => $data['id']],
+                [
+                    'user_id' => $user->id,
+                    'holder_name' => $data['account_holder_name'],
+                    'last_digits' => $data['last4'],
+                    'bank_name' => $data['bank_name'],
+                    'routing_number' => $data['routing_number'],
+                ]
+            );
+        }
     }
 }
