@@ -5,7 +5,9 @@ namespace App\Services;
 use App\Models\User;
 use App\Models\UserBank;
 use Exception;
+use App\Exceptions;
 use Stripe\Exception\CardException;
+use Stripe\Exception\InvalidRequestException;
 use Stripe\StripeClient;
 
 class StripeService
@@ -265,23 +267,27 @@ class StripeService
         User $receiver_user,
         float $amount
     ) {
-        $payment = $this->client->paymentIntents->create([
-            'amount' => $amount * 100,
-            'currency' => 'usd',
-            'payment_method' => $payment_method_id,
-            'confirmation_method' => 'automatic',
-            'confirm' => true,
-            'off_session' => true,
-            'application_fee_amount' => (
-                ($amount * config('services.stripe.application_fee')) * 100
-            ),
-            'customer' => $this->get_customer_id($sender_user),
-            'transfer_data' => [
-                'destination' => $this->get_account_id($receiver_user),
-            ],
-        ]);
+        try {
+            $payment = $this->client->paymentIntents->create([
+                'amount' => $amount * 100,
+                'currency' => 'usd',
+                'payment_method' => $payment_method_id,
+                'confirmation_method' => 'automatic',
+                'confirm' => true,
+                'off_session' => true,
+                'application_fee_amount' => (
+                    ($amount * config('services.stripe.application_fee')) * 100
+                ),
+                'customer' => $this->get_customer_id($sender_user),
+                'transfer_data' => [
+                    'destination' => $this->get_account_id($receiver_user),
+                ],
+            ]);
 
-        return $payment;
+            return $payment;
+        } catch (InvalidRequestException $error) {
+            throw new Exceptions\BaseException('The bid user does not have an active account to receive the funds', 400);
+        }
     }
 
     public function payout_to_account(
