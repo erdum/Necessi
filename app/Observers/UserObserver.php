@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Kreait\Firebase\Factory;
+use App\Services\StripeService;
 
 class UserObserver implements ShouldQueue
 {
@@ -33,6 +34,9 @@ class UserObserver implements ShouldQueue
             'about' => $user->about,
             'chat_unread' => 0,
             'is_online' => true,
+            'has_active_stripe_connect' => false,
+            'has_active_bank' => false,
+            'has_active_card' => false,
         ];
 
         $db->collection('users')->document($user->uid)->set($data);
@@ -50,6 +54,7 @@ class UserObserver implements ShouldQueue
             .config('firebase.projects.app.credentials')
         );
         $db = $firebase->createFirestore()->database();
+        $stripe_service = app(StripeService::class);
 
         $data = [
             'id' => $user->id,
@@ -61,6 +66,10 @@ class UserObserver implements ShouldQueue
             'avatar' => $user->avatar,
             'age' => $user->age,
             'about' => $user->about,
+            'has_active_stripe_connect' =>
+                $stripe_service->is_account_active($user),
+            'has_active_bank' => $user->banks->count() > 0,
+            'has_active_card' => $user->cards->count() > 0,
         ];
 
         $db->collection('users')->document($user->uid)->set(
