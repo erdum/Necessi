@@ -75,7 +75,7 @@ class UserService
         $user->last_name = $last_name ?? $user->last_name ?? null;
         $user->about = $about ?? $user->about ?? null;
         $user->age = $age ?? $user->age ?? null;
-        $user->phone_number = preg_replace('/^\+1/', '', $phone_number) ?? $user->phone_number ?? null;
+        $user->phone_number = $phone_number ? preg_replace('/^\+1/', '', $phone_number) : ($user->phone_number ?? null);
         $user->lat = $lat ?? $user->lat ?? null;
         $user->long = $long ?? $user->long ?? null;
         $user->location = $location ?? $user->location ?? null;
