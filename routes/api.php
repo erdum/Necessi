@@ -149,7 +149,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get(
         '/user/posts',
         [PostController::class, 'get_user_posts']
-    );
+    )->middleware(['throttle:100:1']);
 
     // Get user posts reviews
     Route::get(
@@ -275,7 +275,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post(
         '/posts/{post_id}/like',
         [PostController::class, 'toggle_like']
-    )->withoutMiddleware(['throttle:api']);
+    )->middleware(['throttle:100:1']);
 
     // Place comment on a post
     Route::post(
