@@ -16,6 +16,24 @@ class StripeService
         $this->client = new StripeClient(config('services.stripe.secret'));
     }
 
+    public function delete_all_accounts()
+    {
+        $accounts = $this->client->accounts->all();
+
+        foreach ($accounts as $acc) {
+            $this->client->accounts->delete($acc->id, []);
+        }
+    }
+
+    public function delete_all_customers()
+    {
+        $customers = $this->client->customers->all();
+
+        foreach ($customers as $cus) {
+            $this->client->customers->delete($cus->id, []);
+        }
+    }
+
     public function is_account_active(User $user)
     {
         $is_transfers_active = $this->client->accounts->retrieveCapability(
