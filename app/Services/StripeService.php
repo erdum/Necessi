@@ -337,5 +337,7 @@ class StripeService
                 ]
             );
         }
+
+        $user->save();
     }
 }
