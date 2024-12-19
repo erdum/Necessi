@@ -32,10 +32,24 @@ class StripeWebhookController extends Controller
                     $event->data->object
                 );
                 break;
+            case 'account.updated':
+                update_user_capabilities($event->data->object);
+                break;
             default:
                 break;
         }
 
         return ['status' => 'success'];
+    }
+
+    protected function update_user_capabilities($data)
+    {
+        if (
+            $data['capabilities']['card_payments'] == 'active'
+            && $data['capabilities']['transfers'] == 'active'
+        ) {
+            $user = User::where('stripe_account_id', $data['account'])->first();
+            $user->save();
+        }
     }
 }
