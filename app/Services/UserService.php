@@ -381,6 +381,7 @@ class UserService
             'location' => $user->location,
             'lat' => $user->lat,
             'long' => $user->long,
+            'has_active_stripe_connect' => $is_account_active,
             'has_active_bank' => $is_account_active && $user->banks->count() > 0,
             'has_active_card' => $user->cards->count() > 0,
             'who_can_see_connection' => $connection_visibility,
