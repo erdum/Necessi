@@ -323,7 +323,8 @@ class StripeService
                 ['id' => $data['id']],
                 [
                     'user_id' => $user->id,
-                    'holder_name' => $data['account_holder_name'],
+                    'holder_name' =>
+                        $data['account_holder_name'] ?? $user->full_name,
                     'last_digits' => $data['last4'],
                     'bank_name' => $data['bank_name'],
                     'routing_number' => $data['routing_number'],
