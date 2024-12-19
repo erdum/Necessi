@@ -33,7 +33,7 @@ class StripeWebhookController extends Controller
                 );
                 break;
             case 'account.updated':
-                update_user_capabilities($event->data->object);
+                $this->update_user_capabilities($event->data->object);
                 break;
             default:
                 break;
