@@ -21,13 +21,13 @@ class PostImageFactory extends Factory
         return [
             'post_id' => fake()->randomElement($post_ids),
             'url' => fake()->randomElement([
-                'avatars/0Nue4XZJ3Go7zCB.webp',
-                'avatars/yTsRcDF6FUetPkD.webp',
-                'avatars/tjha9ShkYsg86Qi.webp',
-                'avatars/t4mjGxPmVmO2lPh.webp',
-                'avatars/gz1ZD1PzDNOuIqZ.webp',
-                'avatars/mOHtO1CtiLptPJU.webp',
-                'avatars/D7dcQp2snyJbZkA.webp',
+                'avatars%2FqBlpSaEWHHat6oD.webp',
+                'avatars%2FM4HxT2tH0s1uGZA.webp',
+                'avatars%2FIDDLRzfuXTXPOAn.webp',
+                'avatars%2Fnv9gVZwthrdcgWE.webp',
+                'avatars%2Fq1vc0DjeavO0OZY.webp',
+                'avatars%2FECv2R7ecEDymlh2.webp',
+                'avatars%2FY74AYZBDSF7hOwT.webp',
             ]),
         ];
     }

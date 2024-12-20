@@ -31,7 +31,7 @@ class DatabaseSeeder extends Seeder
             'last_name' => 'Adnan',
             'email' => 'erdumadnan@gmail.com',
             'stripe_customer_id' => 'cus_RG0sykdYAzc17P',
-            'avatar' => 'avatars/m64z1YLnlynd1iB.webp',
+            'avatar' => 'avatars%2F2h5mEIeB4CTu5fR.webp',
             'lat' => 24.8599499,
             'long' => 67.0525505,
         ]);
