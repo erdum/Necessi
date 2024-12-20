@@ -280,6 +280,9 @@ class OrderService
             }
         )
         ->whereYear('created_at', $year)
+        ->when($month, function ($query) use ($month) {
+            $query->whereMonth('created_at', $month);
+        })
         ->whereNotNull('transaction_id')
         ->paginate();
 
@@ -293,7 +296,13 @@ class OrderService
         });
 
         if (! $month) {
-            $graph_data = PostBid::selectRaw('created_at, SUM(amount) as value')
+            $points = PostBid::withWhereHas('post:id,type')->selectRaw(
+                'SUM(amount) as value,
+                YEAR(created_at) as year,
+                MONTH(created_at) as month,
+                DAY(created_at) as day,
+                post_id'
+            )
             ->whereHas('order', function ($query) {
                 $query->whereNotNull('transaction_id');
             })
@@ -301,10 +310,16 @@ class OrderService
             ->where('status', 'accepted')
             ->whereYear('created_at', $year)
             ->groupByRaw('MONTH(`created_at`)')
-            ->get()
-            ->toArray();
+            ->orderByRaw('MONTH(`created_at`)')
+            ->get();
         } else {
-            $graph_data = PostBid::selectRaw('created_at, SUM(amount) as value')
+            $points = PostBid::withWhereHas('post:id,type')->selectRaw(
+                'SUM(amount) as value,
+                YEAR(created_at) as year,
+                MONTH(created_at) as month,
+                DAY(created_at) as day,
+                post_id'
+            )
             ->whereHas('order', function ($query) {
                 $query->whereNotNull('transaction_id');
             })
@@ -313,13 +328,43 @@ class OrderService
             ->whereYear('created_at', $year)
             ->whereMonth('created_at', $month)
             ->groupByRaw('DAY(`created_at`)')
-            ->get()
-            ->toArray();
+            ->orderByRaw('DAY(`created_at`)')
+            ->get();
+        }
+
+        $items_points = [];
+        $services_points = [];
+
+        foreach ($points as $point) {
+
+            if ($point->post->type == 'item') array_push(
+                $items_points,
+                [
+                    'value' => $point->value,
+                    'year' => $point->year,
+                    'month' => $point->month,
+                    'day' => $point->day,
+                ]
+            );
+
+            if ($point->post->type == 'service') array_push(
+                $services_points,
+                [
+                    'value' => $point->value,
+                    'year' => $point->year,
+                    'month' => $point->month,
+                    'day' => $point->day,
+                ]
+            );
         }
 
         return [
             'orders' => $orders,
-            'graph' => $graph_data,
+            'graph' => [
+                'view' => $month ? 'monthly' : 'yearly',
+                'items' => $items_points,
+                'services' => $services_points,
+            ],
         ];
     }
 
