@@ -98,6 +98,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [UserController::class, 'withdraw_funds']
     );
 
+    // Get user account funds
+    Route::get(
+        '/user/funds',
+        [UserController::class, 'get_user_funds']
+    );
+
     // Get uses notifications list
     Route::get(
         '/user/notifications',

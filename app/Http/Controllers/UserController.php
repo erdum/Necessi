@@ -551,4 +551,13 @@ class UserController extends Controller
 
         return response()->json($response);
     }
+
+    public function get_user_funds(Request $request, UserService $user_service)
+    {
+        $response = $user_service->get_user_funds(
+            $request->user()
+        );
+
+        return response()->json($response);
+    }
 }

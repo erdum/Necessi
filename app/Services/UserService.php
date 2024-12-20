@@ -1429,4 +1429,11 @@ class UserService
 
         return ['message' => 'Funds successfully transferred'];
     }
+
+    public function get_user_funds(User $user)
+    {
+        return $this->stripe_service->get_account_balance(
+            $user
+        )['available'][0]['amount'];
+    }
 }
