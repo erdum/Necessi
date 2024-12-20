@@ -270,7 +270,7 @@ class OrderService
         return ['message' => 'Payment successful'];
     }
 
-    public function get_revenue(User $user, ?string $year, ?string $month)
+    public function get_revenue(User $user, string $year, ?string $month)
     {
         $orders = OrderHistory::withWhereHas(
             'bid',
@@ -279,8 +279,9 @@ class OrderService
                     ->withWhereHas('post');
             }
         )
-            ->whereNotNull('transaction_id')
-            ->paginate();
+        ->whereYear('created_at', $year)
+        ->whereNotNull('transaction_id')
+        ->paginate();
 
         $orders->getCollection()->transform(function ($order) {
             return [
@@ -291,7 +292,35 @@ class OrderService
             ];
         });
 
-        return $orders;
+        if (! $month) {
+            $graph_data = PostBid::selectRaw('created_at, SUM(amount) as value')
+            ->whereHas('order', function ($query) {
+                $query->whereNotNull('transaction_id');
+            })
+            ->where('user_id', $user->id)
+            ->where('status', 'accepted')
+            ->whereYear('created_at', $year)
+            ->groupByRaw('MONTH(`created_at`)')
+            ->get()
+            ->toArray();
+        } else {
+            $graph_data = PostBid::selectRaw('created_at, SUM(amount) as value')
+            ->whereHas('order', function ($query) {
+                $query->whereNotNull('transaction_id');
+            })
+            ->where('user_id', $user->id)
+            ->where('status', 'accepted')
+            ->whereYear('created_at', $year)
+            ->whereMonth('created_at', $month)
+            ->groupByRaw('DAY(`created_at`)')
+            ->get()
+            ->toArray();
+        }
+
+        return [
+            'orders' => $orders,
+            'graph' => $graph_data,
+        ];
     }
 
     public function get_revenue_details(User $user, int $order_id)

@@ -54,8 +54,8 @@ class OrderController extends Controller
 
         $response = $order_service->get_revenue(
             $request->user(),
-            $request->year,
-            $request->month,
+            $request->year ?? date('Y'),
+            $request->month
         );
 
         return response()->json($response);
