@@ -58,9 +58,9 @@ class DatabaseSeeder extends Seeder
                 'post_id' => $post->id,
             ]);
 
-            \App\Models\OrderHistory::factory()->create([
-                'bid_id' => $bid->id,
-            ]);
+            // \App\Models\OrderHistory::factory()->create([
+            //     'bid_id' => $bid->id,
+            // ]);
 
             \App\Models\Review::factory()->create([
                 'user_id' => $dev->id,
