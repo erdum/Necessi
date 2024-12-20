@@ -1432,8 +1432,10 @@ class UserService
 
     public function get_user_funds(User $user)
     {
-        return $this->stripe_service->get_account_balance(
+        $balance = $this->stripe_service->get_account_balance(
             $user
-        )['available'][0]['amount'];
+        )['available'][0]['amount'] / 100;
+
+        return ['balance' => $balance];
     }
 }
