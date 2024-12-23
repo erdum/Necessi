@@ -238,13 +238,20 @@ class PostService
     {
         $bid = PostBid::find($bid_id);
 
+        if (! $bid) {
+            throw new Exceptions\BaseException(
+                'Bid not found.',
+                400
+            );
+        }
+
         if ($bid->post->user_id != $user->id) {
             throw new Exceptions\PostOwnership;
         }
 
         if (
-            PostBid::where('post_id', $post_id)->where('status', 'accepted')
-                ->exists()
+            PostBid::where('post_id', $bid->post->id)
+                ->where('status', 'accepted')->exists()
         ) {
             throw new Exceptions\BaseException(
                 'This post have an already accepted bid.',
@@ -278,6 +285,13 @@ class PostService
     public function decline_post_bid(User $user, int $bid_id)
     {
         $bid = PostBid::find($bid_id);
+
+        if (! $bid) {
+            throw new Exceptions\BaseException(
+                'Bid not found.',
+                400
+            );
+        }
 
         if ($bid->post->user_id != $user->id) {
             throw new Exceptions\PostOwnership;
