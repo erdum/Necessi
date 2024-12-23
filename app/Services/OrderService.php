@@ -153,7 +153,7 @@ class OrderService
             );
         }
 
-        if ($order->post->user_id == $user->id) {
+        if ($order->bid->post->user_id == $user->id) {
             $order->received_by_borrower = now();
         } else {
             $order->received_by_lender = now();
