@@ -20,10 +20,14 @@ class PostService
 {
     protected $notification_service;
 
+    protected $stripe_service;
+
     public function __construct(
-        FirebaseNotificationService $notification_service
+        FirebaseNotificationService $notification_service,
+        StripeService $stripe_service
     ) {
         $this->notification_service = $notification_service;
+        $this->stripe_service = $stripe_service;
     }
 
     protected function make_bid_status(PostBid $bid)
@@ -173,6 +177,23 @@ class PostService
             );
         }
 
+        if (! $this->stripe_service->is_account_active($user)) {
+            throw new Exceptions\BaseException(
+                'User does not have an active Stripe Connect account.',
+                400
+            );
+        }
+
+        if (
+            Post::where('post_id', $post_id)->where('status', 'accepted')
+                ->exists()
+        ) {
+            throw new Exceptions\BaseException(
+                'Biding closed on this post.',
+                400
+            );
+        }
+
         $existing_bid = PostBid::where('user_id', $user->id)
             ->where('post_id', $post_id)->first();
 
@@ -221,6 +242,16 @@ class PostService
             throw new Exceptions\PostOwnership;
         }
 
+        if (
+            Post::where('post_id', $post_id)->where('status', 'accepted')
+                ->exists()
+        ) {
+            throw new Exceptions\BaseException(
+                'This post have an already accepted bid.',
+                400
+            );
+        }
+
         $bid->status = 'accepted';
         $bid->save();
 
@@ -250,6 +281,13 @@ class PostService
 
         if ($bid->post->user_id != $user->id) {
             throw new Exceptions\PostOwnership;
+        }
+
+        if ($bid->order?->transaction_id) {
+            throw new Exceptions\BaseException(
+                'Payment has been made on this bid, it cannot be declined.',
+                400
+            );
         }
 
         $bid->status = 'rejected';
