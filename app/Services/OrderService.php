@@ -255,6 +255,20 @@ class OrderService
             );
         }
 
+        if (
+            PostBid::where('post_id', $bid->post->id)
+                ->where('status', 'accepted')
+                ->whereHas('order', function ($query) {
+                    $query->whereNotNull('transaction_id');
+                })
+                ->exists()
+        ) {
+            throw new Exceptions\BaseException(
+                'Payment has been already made on this post.',
+                400
+            );
+        }
+
         $receipt = $this->stripe_service->charge_card_on_behalf(
             $user,
             $payment_method_id,
