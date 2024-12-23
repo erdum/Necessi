@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('post_bids', function (Blueprint $table) {
-            $table->id();
+        Schema::create('withdraws', function (Blueprint $table) {
+            $table->uuid('id')->primary();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('post_id')->constrained()->onDelete('cascade');
             $table->float('amount', 6, 2);
-            $table->enum('status', ['accepted', 'rejected', 'pending']);
+            $table->foreignUuid('bank_id')->references('id')->on('user_banks')
+                ->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('post_bids');
+        Schema::dropIfExists('withdraws');
     }
 };

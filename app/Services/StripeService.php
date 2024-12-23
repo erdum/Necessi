@@ -299,7 +299,6 @@ class StripeService
             [
                 'amount' => $amount * 100,
                 'currency' => 'usd',
-                'source_type' => 'bank_account',
                 'destination' => $bank_id,
             ],
             ['stripe_account' => $this->get_account_id($user)]

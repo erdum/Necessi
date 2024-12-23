@@ -22,7 +22,7 @@ return new class extends Migration
             $table->double('long')->nullable();
             $table->string('city')->nullable();
             $table->string('state')->nullable();
-            $table->integer('budget');
+            $table->float('budget', 6, 2);
             $table->timestamp('start_date');
             $table->timestamp('end_date');
             $table->time('start_time')->nullable();

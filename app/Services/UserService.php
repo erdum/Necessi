@@ -14,6 +14,7 @@ use App\Models\User;
 use App\Models\UserBank;
 use App\Models\UserCard;
 use App\Models\UserPreference;
+use App\Models\Withdraw;
 use Carbon\Carbon;
 use Google\Cloud\Firestore\FieldValue;
 use Illuminate\Http\UploadedFile;
@@ -1427,7 +1428,18 @@ class UserService
             throw new Exceptions\BaseException('Insufficient funds', 400);
         }
 
-        $this->stripe_service->payout_to_account($user, $bank_id, $amount);
+        $payout_id = $this->stripe_service->payout_to_account(
+            $user,
+            $bank_id,
+            $amount
+        )['id'];
+
+        $withdraw = new Withdraw;
+        $withdraw->id = $payout_id;
+        $withdraw->user_id = $user->id;
+        $withdraw->amount = $amount;
+        $withdraw->bank_id = $bank_id;
+        $withdraw->save();
 
         return ['message' => 'Funds successfully transferred'];
     }
@@ -1438,6 +1450,11 @@ class UserService
             $user
         )['available'][0]['amount'] / 100;
 
-        return ['balance' => $balance];
+        $withdraws = Withdraw::where('user_id', $user->id)->latest()->get();
+
+        return [
+            'balance' => $balance,
+            'withdraws' => $withdraws,
+        ];
     }
 }
