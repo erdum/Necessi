@@ -104,11 +104,11 @@ class OrderService
                         'chat_id' => $chat_id,
                     ]);
                 } else {
-                    $status = $post->start_date->isFuture() ? 'upcoming' : '';
+                    // $status = $post->start_date->isFuture() ? 'upcoming' : '';
 
                     $status =
                         $post->bids[0]->order?->received_by_borrower != null
-                            ? 'completed' : $status;
+                            ? 'completed' : 'upcoming';
 
                     array_push($services, [
                         'post_id' => $post->id,
