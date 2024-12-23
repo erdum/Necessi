@@ -52,13 +52,13 @@ class OrderService
         $services = [
         ];
 
-        $is_active = false;
+        $is_started = false;
 
         $posts->getCollection()->each(
-            function ($post) use ($user, &$items, &$services, $is_active) {
+            function ($post) use ($user, &$items, &$services, $is_started) {
 
-                if ($post->end_date <= now()) {
-                    $is_active = true;
+                if ($post->start_date->isPast()) {
+                    $is_started = true;
                 }
 
                 $chat_id = ConnectionRequest::where([
@@ -100,7 +100,7 @@ class OrderService
                         'is_provided' => $post->user_id == $user->id,
                         'status' => $status,
                         'transaction_id' => $post->bids[0]->order?->transaction_id,
-                        'is_marked' => $is_active,
+                        'is_marked' => $is_started,
                         'chat_id' => $chat_id,
                     ]);
                 } else {
@@ -124,7 +124,7 @@ class OrderService
                         'is_provided' => $post->user_id == $user->id,
                         'status' => $status,
                         'transaction_id' => $post->bids[0]->order?->transaction_id,
-                        'is_marked' => $is_active,
+                        'is_marked' => $is_started,
                     ]);
                 }
             }
@@ -195,10 +195,10 @@ class OrderService
         );
 
         $distance = round($calculatedDistance, 2).' miles away';
-        $is_active = false;
+        $is_started = false;
 
-        if ($post->end_date <= now()) {
-            $is_active = true;
+        if ($post->start_date->isPast()) {
+            $is_started = true;
         }
 
         $chat_id = ConnectionRequest::where([
@@ -229,7 +229,7 @@ class OrderService
             'duration' => Carbon::parse($post->start_date)->format('d M').' - '.Carbon::parse($post->end_date)->format('d M Y'),
             'return_date' => Carbon::parse($post->end_date)->format('d M Y'),
             'chat_id' => $chat_id,
-            'is_marked' => $is_active,
+            'is_marked' => $is_started,
         ];
     }
 
