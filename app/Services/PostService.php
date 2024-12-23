@@ -185,7 +185,7 @@ class PostService
         }
 
         if (
-            Post::where('post_id', $post_id)->where('status', 'accepted')
+            PostBid::where('post_id', $post_id)->where('status', 'accepted')
                 ->exists()
         ) {
             throw new Exceptions\BaseException(
@@ -243,7 +243,7 @@ class PostService
         }
 
         if (
-            Post::where('post_id', $post_id)->where('status', 'accepted')
+            PostBid::where('post_id', $post_id)->where('status', 'accepted')
                 ->exists()
         ) {
             throw new Exceptions\BaseException(
