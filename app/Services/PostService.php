@@ -479,7 +479,10 @@ class PostService
 
     public function get_all_posts(User $user)
     {
-        $posts = Post::orderBy('created_at', 'desc')
+        $posts = Post::whereHas('bids', function ($query) {
+            $query->whereNot('status', 'accepted');
+        })
+            ->orderBy('created_at', 'desc')
             ->with('user:id,first_name,last_name,avatar', 'bids.order')
             ->paginate(3);
 
