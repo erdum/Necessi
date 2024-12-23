@@ -2,10 +2,10 @@
 
 namespace App\Services;
 
+use App\Exceptions;
 use App\Models\User;
 use App\Models\UserBank;
 use Exception;
-use App\Exceptions;
 use Stripe\Exception\CardException;
 use Stripe\Exception\InvalidRequestException;
 use Stripe\StripeClient;
@@ -317,7 +317,9 @@ class StripeService
     {
         $user = User::where('stripe_account_id', $data['account'])->first();
 
-        if (! $user) return;
+        if (! $user) {
+            return;
+        }
 
         $accounts = $this->client->accounts->allExternalAccounts(
             $data['account'],
@@ -329,8 +331,7 @@ class StripeService
                 ['id' => $data['id']],
                 [
                     'user_id' => $user->id,
-                    'holder_name' =>
-                        $data['account_holder_name'] ?? $user->full_name,
+                    'holder_name' => $data['account_holder_name'] ?? $user->full_name,
                     'last_digits' => $data['last4'],
                     'bank_name' => $data['bank_name'],
                     'routing_number' => $data['routing_number'],

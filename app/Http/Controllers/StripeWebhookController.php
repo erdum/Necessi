@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Services\StripeService;
 use Illuminate\Http\Request;
 use Stripe\Webhook;
-use App\Services\StripeService;
-use App\Models\User;
 
 class StripeWebhookController extends Controller
 {

@@ -3,8 +3,8 @@
 use App\Http\Controllers\FirebaseAuthController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PostController;
-use App\Http\Controllers\UserController;
 use App\Http\Controllers\StripeWebhookController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*

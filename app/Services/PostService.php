@@ -348,6 +348,7 @@ class PostService
 
         foreach ($reviews as $review) {
             $rating = (string) $review->rating;
+
             if (array_key_exists($rating, $stats)) {
                 $stats[$rating] += 1;
                 $rating_sum += $review->rating;
@@ -382,8 +383,10 @@ class PostService
             throw new Exceptions\InvalidPostId;
         }
 
-        $review = Review::where('user_id', $user->id)->where('post_id', $post_id)
-            ->with('user:id,first_name,last_name,avatar')->first();
+        $review = Review::where('user_id', $user->id)
+            ->where('post_id', $post_id)
+            ->with('user:id,first_name,last_name,avatar')
+            ->first();
 
         if (! $review) {
             return [];
@@ -430,7 +433,8 @@ class PostService
 
         $posts->getCollection()->transform(function ($post) use ($user) {
             $self_liked = $post->likes()->where('user_id', $user->id)->exists();
-            $self_bid = $post->bids()->where('user_id', $user->id)->where('post_id', $post->id)->exists();
+            $self_bid = $post->bids()->where('user_id', $user->id)
+                ->where('post_id', $post->id)->exists();
 
             $order_status = $post->bids->filter(function ($bid) {
                 return $bid->order !== null;
@@ -646,8 +650,8 @@ class PostService
             throw new Exceptions\InvalidPostId;
         }
 
-        $post_like = PostLike::where('post_id', $post_id)->where(
-            'user_id', $user->id)->first();
+        $post_like = PostLike::where('post_id', $post_id)
+            ->where('user_id', $user->id)->first();
 
         if ($post_like) {
             $post_like->delete();
@@ -744,7 +748,7 @@ class PostService
         ];
     }
 
-    public function get_post_preview(int $post_id, User $user)
+    public function get_post_preview(User $user, int $post_id)
     {
         $post = Post::findOrFail($post_id);
 
@@ -996,7 +1000,7 @@ class PostService
         ];
     }
 
-    public function get_placed_bids(User $user, ?string $bid_id)
+    public function get_placed_bids(User $user, ?int $bid_id)
     {
         if (! $user) {
             throw new Exceptions\UserNotFound;

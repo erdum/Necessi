@@ -34,6 +34,8 @@ class FirebaseNotificationService
         $this->messaging = $firebase->createMessaging();
     }
 
+    protected function make_status(PostBid $bid) {}
+
     public function store_fcm_token(User $user, string $token)
     {
         try {

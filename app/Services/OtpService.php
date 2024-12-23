@@ -15,10 +15,12 @@ class OtpService
     private function check_abuse(User $user, string $identifier, Closure $send)
     {
         $otp = Otp::where('user_id', $user->id)
-            ->where('identifier', $identifier)->orderBy('sent_at', 'desc')
+            ->where('identifier', $identifier)
+            ->orderBy('sent_at', 'desc')
             ->first();
 
         if ($otp) {
+
             if ($otp->retries >= config('otp.retries')) {
 
                 $expiry = Carbon::parse($otp->sent_at)->addSeconds(

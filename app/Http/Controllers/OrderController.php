@@ -28,7 +28,7 @@ class OrderController extends Controller
     }
 
     public function make_bid_payment(
-        string $bid_id,
+        int $bid_id,
         Request $request,
         OrderService $order_service
     ) {
@@ -62,9 +62,9 @@ class OrderController extends Controller
     }
 
     public function get_revenue_details(
+        int $order_id,
         Request $request,
-        OrderService $order_service,
-        int $order_id
+        OrderService $order_service
     ) {
         $response = $order_service->get_revenue_details(
             $request->user(),
@@ -75,9 +75,9 @@ class OrderController extends Controller
     }
 
     public function mark_as_received(
+        int $bid_id,
         Request $request,
-        OrderService $order_service,
-        int $bid_id
+        OrderService $order_service
     ) {
         $response = $order_service->mark_as_received(
             $request->user(),

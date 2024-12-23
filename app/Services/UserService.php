@@ -477,6 +477,7 @@ class UserService
 
         foreach ($users as $user) {
             $nearby_users[] = $user;
+
             if (count($nearby_users) >= 9) {
                 return $nearby_users;
             }
@@ -496,9 +497,11 @@ class UserService
                 'lat',
                 'long',
                 'location'
-            )->whereNot('id', $current_user->id
-            )->where('city', '!=', $current_user->city
-            )->orWhere('state', '!=', $current_user->state)->get();
+            )
+                ->whereNot('id', $current_user->id)
+                ->where('city', '!=', $current_user->city)
+                ->orWhere('state', '!=', $current_user->state)
+                ->get();
 
             foreach ($remaining_users as $user) {
                 $distance = $this->haversineDistance(
@@ -850,29 +853,28 @@ class UserService
                 ['receiver_id', '=', $user->id],
             ])
             ->first();
-    
 
         if (! $connection_request) {
             throw new Exceptions\ConnectionRequestNotFound;
         }
-    
+
         if ($connection_request->chat_id) {
             $connection_request->status = 'accepted';
             $connection_request->save();
             $connection_request->delete();
-    
+
             $this->remove_chat($connection_request->chat_id);
         } else {
             $connection_request->forceDelete();
         }
-    
+
         $notification = Notification::whereJsonContains(
             'additional_data->connection_request_id',
             $connection_request->id
         )->first();
 
         $notification->delete();
-    
+
         return [
             'mesage' => 'Canceled Connection request',
         ];

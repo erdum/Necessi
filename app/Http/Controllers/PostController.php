@@ -8,7 +8,8 @@ use Illuminate\Http\Request;
 
 class PostController extends Controller
 {
-    public function create_post(Request $request,
+    public function create_post(
+        Request $request,
         PostService $post_service
     ) {
         $request->validate([
@@ -19,7 +20,7 @@ class PostController extends Controller
             'city' => 'required|string',
             'state' => 'required|string',
             'location' => 'required',
-            'budget' => 'required|gte:5|lt:1000',
+            'budget' => 'required|gte:5|lte:1000',
             'type' => 'required|string|in:item,service',
             'start_date' => 'required|date_format:Y-m-d|after_or_equal:today',
             'end_date' => 'required|date_format:Y-m-d|after:start_date',
@@ -63,12 +64,7 @@ class PostController extends Controller
         PostService $post_service
     ) {
         $request->validate([
-            'amount' => [
-                'required', 
-                'integer', 
-                'gte:5', 
-                'lt:1000'
-            ],
+            'amount' => 'required|integer|gte:5|lte:1000',
         ]);
 
         $response = $post_service->place_bid(
@@ -116,9 +112,7 @@ class PostController extends Controller
 
         if ($request->user_id) {
             $user_model = User::findOrFail($request->user_id);
-            $user = $post_service->get_user_posts(
-                $user_model
-            );
+            $user = $post_service->get_user_posts($user_model);
         }
 
         return response()->json($user);
@@ -138,9 +132,9 @@ class PostController extends Controller
     }
 
     public function get_user_review(
+        int $post_id,
         Request $request,
-        PostService $post_service,
-        int $post_id
+        PostService $post_service
     ) {
         $response = $post_service->get_user_review(
             $request->user(),
@@ -240,9 +234,9 @@ class PostController extends Controller
     }
 
     public function report_post_comment(
-        Request $request,
-        PostService $post_service,
         int $comment_id,
+        Request $request,
+        PostService $post_service
     ) {
         $request->validate([
             'reason_type' => 'required|in:offensive language,harassment or bullying,spam or irrelevance,misleading or false information,violation of community guidelines,other',
@@ -260,9 +254,9 @@ class PostController extends Controller
     }
 
     public function report_post(
+        int $post_id,
         Request $request,
-        PostService $post_service,
-        int $post_id
+        PostService $post_service
     ) {
         $request->validate([
             'reason_type' => 'required|in:inappropriate content,misleading or fraudulent,prohibited items or services,spam or irrelevance,harassment or harmful behavior,other',
@@ -280,9 +274,9 @@ class PostController extends Controller
     }
 
     public function get_post_details(
-        Request $request,
         int $post_id,
-        PostService $post_service,
+        Request $request,
+        PostService $post_service
     ) {
         $response = $post_service->get_post_details(
             $request->user(),
@@ -311,8 +305,8 @@ class PostController extends Controller
         PostService $post_service
     ) {
         $response = $post_service->get_post_preview(
-            $post_id,
-            $request->user()
+            $request->user(),
+            $post_id
         );
 
         return response()->json($response);
@@ -341,9 +335,9 @@ class PostController extends Controller
     }
 
     public function edit_post(
-        Request $request,
-        PostService $post_service,
         int $post_id,
+        Request $request,
+        PostService $post_service
     ) {
         $request->validate([
             'title' => 'nullable|string',
@@ -391,7 +385,7 @@ class PostController extends Controller
     }
 
     public function delete_post(
-        string $post_id,
+        int $post_id,
         Request $request,
         PostService $post_service
     ) {
@@ -404,9 +398,9 @@ class PostController extends Controller
     }
 
     public function get_placed_bids(
+        ?int $bid_id,
         Request $request,
-        PostService $post_service,
-        ?string $bid_id = null
+        PostService $post_service
     ) {
         $response = $post_service->get_placed_bids(
             $request->user(),
@@ -417,9 +411,9 @@ class PostController extends Controller
     }
 
     public function remove_rejected_bid(
+        int $bid_id,
         Request $request,
         PostService $post_service,
-        string $bid_id,
     ) {
         $response = $post_service->remove_rejected_bid(
             $request->user(),
@@ -430,9 +424,9 @@ class PostController extends Controller
     }
 
     public function get_placed_bid_status(
+        int $post_id,
         Request $request,
         PostService $post_service,
-        $post_id,
     ) {
         $response = $post_service->get_placed_bid_status(
             $request->user(),
@@ -443,9 +437,9 @@ class PostController extends Controller
     }
 
     public function cancel_placed_bid(
+        int $post_id,
         Request $request,
-        PostService $post_service,
-        $post_id
+        PostService $post_service
     ) {
         $response = $post_service->cancel_placed_bid(
             $request->user(),

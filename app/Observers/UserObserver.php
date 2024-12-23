@@ -3,9 +3,9 @@
 namespace App\Observers;
 
 use App\Models\User;
+use App\Services\StripeService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Kreait\Firebase\Factory;
-use App\Services\StripeService;
 
 class UserObserver implements ShouldQueue
 {
@@ -66,8 +66,7 @@ class UserObserver implements ShouldQueue
             'avatar' => $user->avatar,
             'age' => $user->age,
             'about' => $user->about,
-            'has_active_stripe_connect' =>
-                $stripe_service->is_account_active($user),
+            'has_active_stripe_connect' => $stripe_service->is_account_active($user),
             'has_active_bank' => $user->banks->count() > 0,
             'has_active_card' => $user->cards->count() > 0,
         ];

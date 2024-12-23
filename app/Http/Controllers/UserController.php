@@ -89,9 +89,7 @@ class UserController extends Controller
 
         if ($request->user_id) {
             $user_model = User::findOrFail($request->user_id);
-            $user = $user_service->get_profile(
-                $user_model,
-            );
+            $user = $user_service->get_profile($user_model);
         }
 
         return response()->json($user);
@@ -377,9 +375,9 @@ class UserController extends Controller
     }
 
     public function report_user(
+        int $user_id,
         Request $request,
-        UserService $user_service,
-        int $user_id
+        UserService $user_service
     ) {
         $request->validate([
             'reason_type' => 'required|in:inappropriate behavior,fraudulent activity,harassment or abuse,spam or scamming,violation of platform rules,other',

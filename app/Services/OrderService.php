@@ -32,7 +32,10 @@ class OrderService
             ->withWhereHas('bids', function ($query) {
                 $query->where('status', 'accepted')
                     ->withWhereHas('order')
-                    ->with('user:id,uid,first_name,last_name,avatar', 'reviews');
+                    ->with(
+                        'user:id,uid,first_name,last_name,avatar',
+                        'reviews'
+                    );
             })
             ->where(function ($query) use ($user) {
                 $query->where('user_id', $user->id)
@@ -165,8 +168,10 @@ class OrderService
 
     public function get_transaction_details(User $user, string $transaction_id)
     {
-        $order = OrderHistory::with('bid')->where('transaction_id', $transaction_id)
-            ->first();
+        $order = OrderHistory::with('bid')->where(
+            'transaction_id',
+            $transaction_id
+        )->first();
 
         if (! $order || ! $order->bid) {
             throw new Exceptions\BaseException('Order or bid not found!', 404);
@@ -230,7 +235,7 @@ class OrderService
 
     public function make_bid_payment(
         User $user,
-        string $bid_id,
+        int $bid_id,
         string $payment_method_id
     ) {
         $bid = PostBid::find($bid_id);
@@ -279,12 +284,12 @@ class OrderService
                     ->withWhereHas('post');
             }
         )
-        ->whereYear('created_at', $year)
-        ->when($month, function ($query) use ($month) {
-            $query->whereMonth('created_at', $month);
-        })
-        ->whereNotNull('transaction_id')
-        ->paginate();
+            ->whereYear('created_at', $year)
+            ->when($month, function ($query) use ($month) {
+                $query->whereMonth('created_at', $month);
+            })
+            ->whereNotNull('transaction_id')
+            ->paginate();
 
         $orders->getCollection()->transform(function ($order) {
             return [
@@ -303,15 +308,15 @@ class OrderService
                 DAY(created_at) as day,
                 post_id'
             )
-            ->whereHas('order', function ($query) {
-                $query->whereNotNull('transaction_id');
-            })
-            ->where('user_id', $user->id)
-            ->where('status', 'accepted')
-            ->whereYear('created_at', $year)
-            ->groupByRaw('MONTH(`created_at`)')
-            ->orderByRaw('MONTH(`created_at`)')
-            ->get();
+                ->whereHas('order', function ($query) {
+                    $query->whereNotNull('transaction_id');
+                })
+                ->where('user_id', $user->id)
+                ->where('status', 'accepted')
+                ->whereYear('created_at', $year)
+                ->groupByRaw('MONTH(`created_at`)')
+                ->orderByRaw('MONTH(`created_at`)')
+                ->get();
         } else {
             $points = PostBid::withWhereHas('post:id,type')->selectRaw(
                 'SUM(amount) as value,
@@ -320,16 +325,16 @@ class OrderService
                 DAY(created_at) as day,
                 post_id'
             )
-            ->whereHas('order', function ($query) {
-                $query->whereNotNull('transaction_id');
-            })
-            ->where('user_id', $user->id)
-            ->where('status', 'accepted')
-            ->whereYear('created_at', $year)
-            ->whereMonth('created_at', $month)
-            ->groupByRaw('DAY(`created_at`)')
-            ->orderByRaw('DAY(`created_at`)')
-            ->get();
+                ->whereHas('order', function ($query) {
+                    $query->whereNotNull('transaction_id');
+                })
+                ->where('user_id', $user->id)
+                ->where('status', 'accepted')
+                ->whereYear('created_at', $year)
+                ->whereMonth('created_at', $month)
+                ->groupByRaw('DAY(`created_at`)')
+                ->orderByRaw('DAY(`created_at`)')
+                ->get();
         }
 
         $items_points = [];
@@ -337,25 +342,29 @@ class OrderService
 
         foreach ($points as $point) {
 
-            if ($point->post->type == 'item') array_push(
-                $items_points,
-                [
-                    'value' => $point->value,
-                    'year' => $point->year,
-                    'month' => $point->month,
-                    'day' => $point->day,
-                ]
-            );
+            if ($point->post->type == 'item') {
+                array_push(
+                    $items_points,
+                    [
+                        'value' => $point->value,
+                        'year' => $point->year,
+                        'month' => $point->month,
+                        'day' => $point->day,
+                    ]
+                );
+            }
 
-            if ($point->post->type == 'service') array_push(
-                $services_points,
-                [
-                    'value' => $point->value,
-                    'year' => $point->year,
-                    'month' => $point->month,
-                    'day' => $point->day,
-                ]
-            );
+            if ($point->post->type == 'service') {
+                array_push(
+                    $services_points,
+                    [
+                        'value' => $point->value,
+                        'year' => $point->year,
+                        'month' => $point->month,
+                        'day' => $point->day,
+                    ]
+                );
+            }
         }
 
         return [
@@ -394,6 +403,5 @@ class OrderService
             'post_created_at' => $order->bid->post->created_at->format('d M Y'),
             'received_amount' => $order->bid->amount,
         ];
-
     }
 }
