@@ -234,6 +234,7 @@ class OrderService
             'is_marked' => $is_started,
             'received_by_borrower' => $order->received_by_borrower != null,
             'received_by_lender' => $order->received_by_lender != null,
+            'is_provided' => $post->user_id != $user->id
         ];
     }
 
