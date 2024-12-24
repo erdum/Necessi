@@ -40,8 +40,8 @@ class FirebaseNotificationService
     {
         try {
             $user->notification_device()->updateOrCreate(
-                ['user_id' => $user->id],
-                ['fcm_token' => $token]
+                ['fcm_token' => $token],
+                ['user_id' => $user->id]
             );
         } catch (\Exception $error) {
             throw new Exceptions\TokenAlreadyLinked;
