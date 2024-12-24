@@ -213,6 +213,26 @@ class OrderService
             ])
             ->value('chat_id');
 
+        if ($post->type == 'item') {
+            $status = $post->start_date->isFuture() ? 'upcoming' : '';
+
+            $status = $post->start_date->isPast() ? 'underway'
+                : $status;
+
+            $status = $post->end_date->isPast()
+                && $post->bids[0]->order->received_by_lender == null
+                ? 'past due' : $status;
+
+            $status =
+                $post->bids[0]->order?->received_by_borrower != null
+                && $post->bids[0]->order?->received_by_lender != null
+                    ? 'completed' : $status;
+        } else {
+            $status =
+                $post->bids[0]->order?->received_by_borrower != null
+                    ? 'completed' : 'upcoming';
+        }
+
         return [
             'post_id' => $post->id,
             'bid_id' => $order->bid->id,
@@ -235,7 +255,7 @@ class OrderService
             'received_by_borrower' => $order->received_by_borrower != null,
             'received_by_lender' => $order->received_by_lender != null,
             'is_provided' => $post->user_id != $user->id,
-            'bid_status' => $this->post_service->make_bid_status($order->bid),
+            'status' => $status,
         ];
     }
 

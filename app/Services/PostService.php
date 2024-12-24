@@ -30,7 +30,7 @@ class PostService
         $this->stripe_service = $stripe_service;
     }
 
-    public function make_bid_status(PostBid $bid)
+    protected function make_bid_status(PostBid $bid)
     {
 
         if ($bid->status == 'pending') {
