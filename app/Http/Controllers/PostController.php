@@ -398,9 +398,9 @@ class PostController extends Controller
     }
 
     public function get_placed_bids(
-        ?int $bid_id = null,
         Request $request,
-        PostService $post_service
+        PostService $post_service,
+        ?int $bid_id = null
     ) {
         $response = $post_service->get_placed_bids(
             $request->user(),
