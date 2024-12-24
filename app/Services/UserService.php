@@ -436,6 +436,7 @@ class UserService
                 'likes' => $recent_post->likes->count(),
             ]] : [],
             'reviews' => $reviews_data,
+            'is_social' => $user->password == null,
         ];
     }
 

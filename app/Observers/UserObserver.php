@@ -37,6 +37,7 @@ class UserObserver implements ShouldQueue
             'has_active_stripe_connect' => false,
             'has_active_bank' => false,
             'has_active_card' => false,
+            'is_social' => $user->password == null,
         ];
 
         $db->collection('users')->document($user->uid)->set($data);
@@ -69,6 +70,7 @@ class UserObserver implements ShouldQueue
             'has_active_stripe_connect' => $stripe_service->is_account_active($user),
             'has_active_bank' => $user->banks->count() > 0,
             'has_active_card' => $user->cards->count() > 0,
+            'is_social' => $user->password == null,
         ];
 
         $db->collection('users')->document($user->uid)->set(
