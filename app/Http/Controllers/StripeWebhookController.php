@@ -49,7 +49,7 @@ class StripeWebhookController extends Controller
             $data['capabilities']['card_payments'] == 'active'
             && $data['capabilities']['transfers'] == 'active'
         ) {
-            $user = User::where('stripe_account_id', $data['account'])->first();
+            $user = User::where('stripe_account_id', $data['id'])->first();
             $user->updated_at = now();
             $user->save();
         }
