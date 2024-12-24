@@ -191,25 +191,27 @@ class FirebaseAuthService
             $firebaseUid = $verifiedIdToken->claims()->get('sub');
             $email_verified_at = now();
 
-            $user = User::firstOrCreate(
+            $user = User::updateOrCreate(
                 ['uid' => $firebaseUid],
                 [
-                    'first_name' => $verifiedIdToken->claims()->get('name'),
-                    'last_name' => $verifiedIdToken->claims()->get('family_name'),
                     'email' => $verifiedIdToken->claims()->get('email'),
-                    'email_verified_at' => $email_verified_at,
-                    // 'avatar' => $verifiedIdToken->claims()->get('picture'),
-                    'uid' => $firebaseUid,
+                    'first_name' => $verifiedIdToken->claims()->get('name'),
+                    'first_name' =>
+                        $verifiedIdToken->claims()->get('family_name'),
                 ]
             );
 
+            if ($user->email_verified_at == null) {
+                $user->email_verified_at = now();
+                $user->save();
+            }
+
             $token = $this->generate_token($user);
-            $user_details = User::find($user->id);
 
             return [
                 'token' => $token,
                 'uid' => $user->uid,
-                'user_details' => $user_details,
+                'user_details' => $user,
             ];
 
         } catch (FailedToVerifyToken $e) {
