@@ -17,6 +17,7 @@ use App\Models\UserPreference;
 use App\Models\Withdraw;
 use Carbon\Carbon;
 use Google\Cloud\Firestore\FieldValue;
+use Google\Cloud\Firestore\Filter;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -58,6 +59,34 @@ class UserService
                 return false;
             }
         }
+    }
+
+    public function chat_exists(User $user, string $other_party_uid)
+    {
+        $factory = app(Factory::class);
+        $firebase = $factory->withServiceAccount(
+            base_path()
+            .DIRECTORY_SEPARATOR
+            .config('firebase.projects.app.credentials')
+        );
+        $db = $firebase->createFirestore()->database();
+
+        $ref = $db->collection('chats');
+
+        $data = $ref->where(Filter::or([
+            Filter::and([
+                Filter::field('first_party', '=', $user->uid),
+                Filter::field('second_party', '=', $other_party_uid),
+            ]),
+            Filter::and([
+                Filter::field('first_party', '=', $other_party_uid),
+                Filter::field('second_party', '=', $user->uid),
+            ]),
+        ]))->documents()->rows();
+
+        if (count($data) > 0) return $data[0]->id();
+
+        return false;
     }
 
     public function update_profile(
@@ -994,6 +1023,11 @@ class UserService
             .config('firebase.projects.app.credentials')
         );
         $db = $firebase->createFirestore()->database();
+
+        $existing_chat_id = $this->chat_exists($user, $other_party_uid);
+
+        if ($existing_chat_id) return ['chat_id' => $existing_chat_id];
+
         $chat_id = str()->random(20);
 
         $unseen_count = [];
@@ -1001,6 +1035,7 @@ class UserService
         $unseen_count[$other_party_uid] = 0;
 
         $data = [
+            'id' => $chat_id,
             'blocked_by' => null,
             'created_at' => FieldValue::serverTimestamp(),
             'last_msg' => '',
@@ -1010,6 +1045,8 @@ class UserService
             ],
             'unseen_counts' => $unseen_count,
             'connection_removed' => false,
+            'first_party' => $user->uid,
+            'second_party' => $other_party_uid,
         ];
 
         $db->collection('chats')->document($chat_id)->set($data);
