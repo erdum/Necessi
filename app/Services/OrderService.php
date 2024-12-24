@@ -179,7 +179,7 @@ class OrderService
             throw new Exceptions\BaseException('Order or bid not found!', 404);
         }
 
-        $post = Post::with('user:id,first_name,last_name,avatar')
+        $post = Post::with('user:id,uid,first_name,last_name,avatar')
             ->where('id', $order->bid->post_id)
             ->first();
 
@@ -232,8 +232,8 @@ class OrderService
             'return_date' => Carbon::parse($post->end_date)->format('d M Y'),
             'chat_id' => $chat_id,
             'is_marked' => $is_started,
-            'received_by_borrower' => $order->received_by_borrower,
-            'received_by_lender' => $order->received_by_lender,
+            'received_by_borrower' => $order->received_by_borrower != null,
+            'received_by_lender' => $order->received_by_lender != null,
         ];
     }
 
