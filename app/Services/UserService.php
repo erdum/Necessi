@@ -1014,6 +1014,19 @@ class UserService
         ];
     }
 
+    public function initiate_chat(User $user, string $other_party_uid)
+    {
+        $other_user = User::where('uid', $other_party_uid)->first();
+
+        $chat_id = $this->create_chat($user, $other_party_uid)['chat_id'];
+
+        return [
+            'user_id' => $other_user->id,
+            'user_uid' => $other_user->uid,
+            'chat_id' => $chat_id,
+        ];
+    }
+
     public function create_chat(User $user, string $other_party_uid)
     {
         $factory = app(Factory::class);

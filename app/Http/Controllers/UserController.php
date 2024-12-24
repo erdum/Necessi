@@ -190,6 +190,20 @@ class UserController extends Controller
         return response()->json($response);
     }
 
+    public function initiate_chat(
+        string $uid,
+        Request $request,
+        UserService $user_service
+    )
+    {
+        $response = $user_service->initiate_chat(
+            $request->user(),
+            $uid
+        );
+
+        return response()->json($response);
+    }
+
     public function send_connection_requests(
         Request $request,
         UserService $user_service
