@@ -102,6 +102,7 @@ class OrderService
                         'transaction_id' => $post->bids[0]->order?->transaction_id,
                         'is_marked' => $is_started,
                         'chat_id' => $chat_id,
+                        'is_feedback' => !$post->reviews->isEmpty(),
                     ]);
                 } else {
                     // $status = $post->start_date->isFuture() ? 'upcoming' : '';
@@ -125,6 +126,7 @@ class OrderService
                         'status' => $status,
                         'transaction_id' => $post->bids[0]->order?->transaction_id,
                         'is_marked' => $is_started,
+                        'is_feedback' => !$post->reviews->isEmpty(),
                     ]);
                 }
             }
