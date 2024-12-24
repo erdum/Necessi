@@ -151,7 +151,7 @@ class PostController extends Controller
         $request->validate([
             'post_id' => 'required|integer',
             'description' => 'required|string',
-            'rating' => 'required|integer',
+            'rating' => 'required|numeric',
         ]);
         $response = $post_service->place_post_review(
             $request->user(),
