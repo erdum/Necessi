@@ -16,56 +16,86 @@ class DatabaseSeeder extends Seeder
         $this->clear_firestore();
 
         \App\Models\User::factory(5)->create();
-        \App\Models\User::factory()->create([
+
+        $test_user_provider = \App\Models\User::factory()->create([
             'first_name' => 'Anahi',
             'last_name' => 'Smith',
+            'stripe_account_id' => 'acct_1QZ8eJ2YugRvxApi',
+            'stripe_customer_id' => 'cus_RS6LoLC4rF6VcK',
             'email' => 'anahi.smith@example.org',
-            'avatar' => 'avatars/m64z1YLnlynd1iB.webp',
+            'avatar' => 'avatars%2Fm64z1YLnlynd1iB.webp',
             'lat' => 24.8599499,
             'long' => 67.0525505,
         ]);
-        $dev = \App\Models\User::factory()->create([
+        $test_user_borrower = \App\Models\User::factory()->create([
             'first_name' => 'Erdum',
             'last_name' => 'Adnan',
+            'stripe_account_id' => 'acct_1QZ7lhFTymRFSFeG',
+            'stripe_customer_id' => 'cus_RS2Zf0KLp7gngU',
             'email' => 'erdumadnan@gmail.com',
             'avatar' => 'avatars%2F2h5mEIeB4CTu5fR.webp',
             'lat' => 24.8599499,
             'long' => 67.0525505,
         ]);
 
-        $posts = \App\Models\Post::factory(7)->create();
+        $card = new \App\Models\UserCard;
+        $card->id = 'pm_1QZ8U9FTifuzbav1S4emzCqH';
+        $card->user_id = $test_user_borrower->id;
+        $card->last_digits = '0077';
+        $card->expiry_month = '07';
+        $card->expiry_year = '2044';
+        $card->brand = 'visa';
+        $card->save();
 
-        $posts->each(function ($post) use ($dev) {
-            \App\Models\PostImage::factory()->create([
-                'post_id' => $post->id,
-            ]);
+        $bank = new \App\Models\UserBank;
+        $bank->id = 'ba_1QZ7oaFTymRFSFeG2g4oPVhw';
+        $bank->user_id = $test_user_borrower->id;
+        $bank->holder_name = 'Anahi Smith';
+        $bank->last_digits = '4321';
+        $bank->bank_name = 'STRIPE TEST BANK';
+        $bank->routing_number = '110000000';
+        $bank->save();
 
-            \App\Models\PostLike::factory()->create([
-                'user_id' => $dev->id,
-                'post_id' => $post->id,
-            ]);
+        $posts = \App\Models\Post::factory(7)->create([
+            'user_id' => $test_user_borrower->id
+        ]);
 
-            \App\Models\PostComment::factory()->create([
-                'user_id' => $dev->id,
-                'post_id' => $post->id,
-            ]);
+        $posts->each(
+            function ($post) use ($test_user_provider, $test_user_borrower) {
+                \App\Models\PostImage::factory()->create([
+                    'post_id' => $post->id,
+                ]);
 
-            $bid = \App\Models\PostBid::factory()->create([
-                'user_id' => $dev->id,
-                'post_id' => $post->id,
-            ]);
+                \App\Models\PostLike::factory()->create([
+                    'post_id' => $post->id,
+                ]);
 
-            // \App\Models\OrderHistory::factory()->create([
-            //     'bid_id' => $bid->id,
-            // ]);
+                \App\Models\PostComment::factory()->create([
+                    'post_id' => $post->id,
+                ]);
 
-            \App\Models\Review::factory()->create([
-                'user_id' => $dev->id,
-                'post_id' => $post->id,
-            ]);
+                $bid = \App\Models\PostBid::factory()->create([
+                    'user_id' => $test_user_provider->id,
+                    'post_id' => $post->id,
+                    'status' => 'accepted',
+                ]);
 
-            \App\Models\UserPreference::factory()->create();
-        });
+                $transaction = \App\Models\Transaction::factory()->create([
+                    'user_id' => $test_user_borrower->id
+                ]);
+
+                \App\Models\OrderHistory::factory()->create([
+                    'bid_id' => $bid->id,
+                    'transaction_id' => $transaction->id,
+                ]);
+
+                \App\Models\Review::factory()->create([
+                    'post_id' => $post->id,
+                ]);
+
+                // \App\Models\UserPreference::factory()->create();
+            }
+        );
     }
 
     protected function clear_firestore()
@@ -130,5 +160,14 @@ class DatabaseSeeder extends Seeder
                 }
             }
         });
+    }
+
+    protected function random_unique(&$elements)
+    {
+        if (empty($elements)) {
+            return null;
+        }
+
+        return array_pop($elements);
     }
 }

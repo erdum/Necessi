@@ -22,7 +22,7 @@ class PostBidFactory extends Factory
         return [
             'user_id' => fake()->randomElement($user_ids),
             'post_id' => fake()->randomElement($post_ids),
-            'amount' => fake()->numberBetween(1, 200),
+            'amount' => fake()->numberBetween(1, 1000),
             'status' => fake()->randomElement([
                 'accepted',
                 'rejected',

@@ -16,12 +16,11 @@ class UserPreferenceFactory extends Factory
      */
     public function definition(): array
     {
-        do {
-            $users = \App\Models\User::inRandomOrder()->first();
-        } while (\App\Models\UserPreference::where('user_id', $users->id)->exists());
+        // $user_ids = \App\Models\User::pluck('id')->toArray();
 
         return [
-            'user_id' => $users->id,
+            // 'user_id' => fake()->randomElement($user_ids),
+            'user_id' => \App\Models\User::factory()->create()->id,
             'general_notifications' => 1,
             'biding_notifications' => 1,
             'transaction_notifications' => 1,

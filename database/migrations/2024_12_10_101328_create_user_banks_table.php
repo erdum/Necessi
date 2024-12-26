@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('holder_name');
             $table->string('last_digits', 4);
             $table->string('bank_name');
-            $table->integer('routing_number');
+            $table->string('routing_number');
             $table->timestamps();
         });
     }
