@@ -134,12 +134,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
         [UserController::class, 'update_password']
     );
 
-    // Get all posts
-    Route::get(
-        '/posts',
-        [PostController::class, 'get_all_posts']
-    );
-
     // Get post preview link
     Route::get(
         '/posts/{post_id}/preview',
@@ -455,6 +449,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
 });
 
 Route::middleware(['throttle:100,1'])->group(function () {
+
+    // Get all posts
+    Route::get(
+        '/posts',
+        [PostController::class, 'get_all_posts']
+    );
 
     // Register user
     Route::post(
