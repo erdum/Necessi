@@ -321,6 +321,7 @@ class OrderService
         $orders->getCollection()->transform(function ($order) {
             return [
                 'order_id' => $order->id,
+                'transaction_id' => $order->transaction_id,
                 'type' => $order->bid->post->type,
                 'created_at' => $order->created_at->format('d F Y'),
                 'amount' => $order->bid->amount,
