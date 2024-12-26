@@ -25,6 +25,32 @@ class OrderService
         $this->post_service = $post_service;
     }
 
+    protected function make_transaction_status(Post $post)
+    {
+
+        if ($post->type == 'item') {
+            $status = $post->start_date->isFuture() ? 'upcoming' : '';
+
+            $status = $post->start_date->isPast() ? 'underway'
+                : $status;
+
+            $status = $post->end_date->isPast()
+                && $post->bids[0]->order->received_by_lender == null
+                ? 'past due' : $status;
+
+            $status =
+                $post->bids[0]->order?->received_by_borrower != null
+                && $post->bids[0]->order?->received_by_lender != null
+                    ? 'completed' : $status;
+        } else {
+            $status =
+                $post->bids[0]->order?->received_by_borrower != null
+                    ? 'completed' : 'upcoming';
+        }
+
+        return $status;
+    }
+
     public function get_all(User $user)
     {
         $posts = Post::query()
@@ -72,20 +98,6 @@ class OrderService
                     ->value('chat_id');
 
                 if ($post->type == 'item') {
-                    $status = $post->start_date->isFuture() ? 'upcoming' : '';
-
-                    $status = $post->start_date->isPast() ? 'underway'
-                        : $status;
-
-                    $status = $post->end_date->isPast()
-                        && $post->bids[0]->order->received_by_lender == null
-                        ? 'past due' : $status;
-
-                    $status =
-                        $post->bids[0]->order?->received_by_borrower != null
-                        && $post->bids[0]->order?->received_by_lender != null
-                            ? 'completed' : $status;
-
                     array_push($items, [
                         'post_id' => $post->id,
                         'bid_id' => $post->bids[0]->id,
@@ -98,19 +110,13 @@ class OrderService
                         'post_user_name' => $post->user->full_name,
                         'post_user_avatar' => $post->user->avatar,
                         'is_provided' => $post->user_id != $user->id,
-                        'status' => $status,
+                        'status' => $this->make_transaction_status($post),
                         'transaction_id' => $post->bids[0]->order?->transaction_id,
                         'is_marked' => $is_started,
                         'chat_id' => $chat_id,
                         'is_feedback' => !$post->reviews->isEmpty(),
                     ]);
                 } else {
-                    // $status = $post->start_date->isFuture() ? 'upcoming' : '';
-
-                    $status =
-                        $post->bids[0]->order?->received_by_borrower != null
-                            ? 'completed' : 'upcoming';
-
                     array_push($services, [
                         'post_id' => $post->id,
                         'bid_id' => $post->bids[0]->id,
@@ -123,7 +129,7 @@ class OrderService
                         'post_user_name' => $post->user->full_name,
                         'post_user_avatar' => $post->user->avatar,
                         'is_provided' => $post->user_id != $user->id,
-                        'status' => $status,
+                        'status' => $this->make_transaction_status($post),
                         'transaction_id' => $post->bids[0]->order?->transaction_id,
                         'is_marked' => $is_started,
                         'is_feedback' => !$post->reviews->isEmpty(),
@@ -213,26 +219,6 @@ class OrderService
             ])
             ->value('chat_id');
 
-        if ($post->type == 'item') {
-            $status = $post->start_date->isFuture() ? 'upcoming' : '';
-
-            $status = $post->start_date->isPast() ? 'underway'
-                : $status;
-
-            $status = $post->end_date->isPast()
-                && $post->bids[0]->order->received_by_lender == null
-                ? 'past due' : $status;
-
-            $status =
-                $post->bids[0]->order?->received_by_borrower != null
-                && $post->bids[0]->order?->received_by_lender != null
-                    ? 'completed' : $status;
-        } else {
-            $status =
-                $post->bids[0]->order?->received_by_borrower != null
-                    ? 'completed' : 'upcoming';
-        }
-
         return [
             'post_id' => $post->id,
             'bid_id' => $order->bid->id,
@@ -255,7 +241,7 @@ class OrderService
             'received_by_borrower' => $order->received_by_borrower != null,
             'received_by_lender' => $order->received_by_lender != null,
             'is_provided' => $post->user_id != $user->id,
-            'status' => $status,
+            'status' => $this->make_transaction_status($post),
         ];
     }
 
