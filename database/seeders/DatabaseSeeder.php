@@ -93,9 +93,14 @@ class DatabaseSeeder extends Seeder
                     'post_id' => $post->id,
                 ]);
 
-                // \App\Models\UserPreference::factory()->create();
             }
         );
+
+        \App\Models\User::all()->each(function ($user) {
+            \App\Models\UserPreference::factory()->create([
+                'user_id' => $user->id,
+            ]);
+        });
     }
 
     protected function clear_firestore()

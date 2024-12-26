@@ -16,11 +16,10 @@ class UserPreferenceFactory extends Factory
      */
     public function definition(): array
     {
-        // $user_ids = \App\Models\User::pluck('id')->toArray();
+        $user_ids = \App\Models\User::pluck('id')->toArray();
 
         return [
-            // 'user_id' => fake()->randomElement($user_ids),
-            'user_id' => \App\Models\User::factory()->create()->id,
+            'user_id' => fake()->randomElement($user_ids),
             'general_notifications' => 1,
             'biding_notifications' => 1,
             'transaction_notifications' => 1,
