@@ -242,6 +242,7 @@ class OrderService
             'received_by_lender' => $order->received_by_lender != null,
             'is_provided' => $post->user_id != $user->id,
             'status' => $this->make_transaction_status($post),
+            'is_feedback' => !$post->reviews->isEmpty(),
         ];
     }
 
