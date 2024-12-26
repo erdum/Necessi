@@ -29,10 +29,8 @@ class OrderService
     {
 
         if ($post->type == 'item') {
-            $status = $post->start_date->isFuture() ? 'upcoming' : '';
-
-            $status = $post->start_date->isPast() ? 'underway'
-                : $status;
+            $status = $post->start_date->isPast() && $post->bids[0]->order?->received_by_borrower ? 'underway'
+                : 'upcoming';
 
             $status = $post->end_date->isPast()
                 && $post->bids[0]->order->received_by_lender == null
