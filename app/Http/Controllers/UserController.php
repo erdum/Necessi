@@ -240,7 +240,7 @@ class UserController extends Controller
     public function update_user_fcm(Request $request, UserService $user_service)
     {
         $request->validate([
-            'fcm_token' => 'required|unique:user_notification_devices,fcm_token',
+            'fcm_token' => 'required',
         ]);
 
         $response = $user_service->store_fcm(
