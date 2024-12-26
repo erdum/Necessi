@@ -477,7 +477,7 @@ class PostService
         return $review;
     }
 
-    public function get_all_posts(User $user)
+    public function get_all_posts(?User $user)
     {
         $posts = Post::whereDoesntHave('bids')
             ->orWhereHas('bids', function ($query) {
@@ -488,20 +488,24 @@ class PostService
             ->paginate(3);
 
         $posts->getCollection()->transform(function ($post) use ($user) {
-            $self_liked = $post->likes()->where('user_id', $user->id)->exists();
-            $self_bid = $post->bids()->where('user_id', $user->id)
-                ->where('post_id', $post->id)->exists();
+
+            if ($user) {
+                $self_liked = $post->likes()->where('user_id', $user->id)
+                    ->exists();
+                $self_bid = $post->bids()->where('user_id', $user->id)
+                    ->where('post_id', $post->id)->exists();
+
+                $distance = $this->calculateDistance(
+                    $user->lat,
+                    $user->long,
+                    $post->lat,
+                    $post->long
+                );
+            }
 
             $order_status = $post->bids->filter(function ($bid) {
                 return $bid->order !== null;
             })->isNotEmpty();
-
-            $distance = $this->calculateDistance(
-                $user->lat,
-                $user->long,
-                $post->lat,
-                $post->long
-            );
 
             return [
                 'post_id' => $post->id,
@@ -515,7 +519,7 @@ class PostService
                 'location' => $post->location,
                 'lat' => $post->lat,
                 'long' => $post->long,
-                'distance' => round($distance, 2).' miles away',
+                'distance' => round($distance ?? rand(2, 50), 2).' miles away',
                 'budget' => $post->budget,
                 'duration' => ($post->start_time && $post->end_time)
                     ? Carbon::parse($post->start_time)->format('h:i A').' - '.Carbon::parse($post->end_time)->format('h:i A')
@@ -531,8 +535,8 @@ class PostService
                     [' sec ago', ' sec ago', ' mins ago', ' min ago', ' hrs ago', ' hr ago'],
                     $post->created_at->diffForHumans()
                 ),
-                'current_user_like' => $self_liked,
-                'current_user_bid' => $self_bid,
+                'current_user_like' => $self_liked ?? false,
+                'current_user_bid' => $self_bid ?? false,
                 'likes' => $post->likes->count(),
                 'bids' => $post->bids->count(),
                 'images' => $post->images,

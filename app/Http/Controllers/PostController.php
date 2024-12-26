@@ -168,7 +168,7 @@ class PostController extends Controller
         PostService $post_service,
     ) {
         $response = $post_service->get_all_posts(
-            $request->user(),
+            auth('sanctum')->user() ?? null,
         );
 
         return response()->json($response);
