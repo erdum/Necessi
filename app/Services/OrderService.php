@@ -25,7 +25,7 @@ class OrderService
         $this->post_service = $post_service;
     }
 
-    protected function make_transaction_status(Post $post)
+    protected function make_order_status(Post $post)
     {
 
         if ($post->type == 'item') {
@@ -39,8 +39,8 @@ class OrderService
                 ? 'past due' : $status;
 
             $status =
-                $post->bids[0]->order?->received_by_borrower != null
-                && $post->bids[0]->order?->received_by_lender != null
+                $post->bids[0]->order?->received_by_borrower
+                && $post->bids[0]->order?->received_by_lender
                     ? 'completed' : $status;
         } else {
             $status =
@@ -110,7 +110,7 @@ class OrderService
                         'post_user_name' => $post->user->full_name,
                         'post_user_avatar' => $post->user->avatar,
                         'is_provided' => $post->user_id != $user->id,
-                        'status' => $this->make_transaction_status($post),
+                        'status' => $this->make_order_status($post),
                         'transaction_id' => $post->bids[0]->order?->transaction_id,
                         'is_marked' => $is_started,
                         'chat_id' => $chat_id,
@@ -129,7 +129,7 @@ class OrderService
                         'post_user_name' => $post->user->full_name,
                         'post_user_avatar' => $post->user->avatar,
                         'is_provided' => $post->user_id != $user->id,
-                        'status' => $this->make_transaction_status($post),
+                        'status' => $this->make_order_status($post),
                         'transaction_id' => $post->bids[0]->order?->transaction_id,
                         'is_marked' => $is_started,
                         'is_feedback' => !$post->reviews->isEmpty(),
@@ -241,7 +241,7 @@ class OrderService
             'received_by_borrower' => $order->received_by_borrower != null,
             'received_by_lender' => $order->received_by_lender != null,
             'is_provided' => $post->user_id != $user->id,
-            'status' => $this->make_transaction_status($post),
+            'status' => $this->make_order_status($post),
             'is_feedback' => !$post->reviews->isEmpty(),
         ];
     }
