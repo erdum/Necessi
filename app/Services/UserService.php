@@ -14,6 +14,7 @@ use App\Models\User;
 use App\Models\UserBank;
 use App\Models\UserCard;
 use App\Models\UserPreference;
+use App\Models\UserNotificationDevice;
 use App\Models\Withdraw;
 use Carbon\Carbon;
 use Google\Cloud\Firestore\FieldValue;
@@ -913,9 +914,9 @@ class UserService
 
     public function store_fcm(string $fcm_token, User $user)
     {
-        $user->notification_device()->updateOrCreate(
+        UserNotificationDevice::updateOrCreate(
             ['fcm_token' => $fcm_token],
-            ['user_id' => $user->id],
+            ['user_id' => $user->id]
         );
 
         return ['message' => 'FCM token successfully stored'];
