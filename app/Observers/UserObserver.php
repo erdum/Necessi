@@ -34,9 +34,9 @@ class UserObserver implements ShouldQueue
             'about' => $user->about,
             'chat_unread' => 0,
             'is_online' => true,
-            'has_active_stripe_connect' => false,
-            'has_active_bank' => false,
-            'has_active_card' => false,
+            'has_active_stripe_connect' => $stripe_service->is_account_active($user),
+            'has_active_bank' => $user->banks->count() > 0,
+            'has_active_card' => $user->cards->count() > 0,
             'is_social' => $user->password == null,
         ];
 
