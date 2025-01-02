@@ -62,6 +62,11 @@ class User extends Authenticatable
         });
     }
 
+    public function fire_updated_observer()
+    {
+        return $this->fireModelEvent('updated', false);
+    }
+
     public function notification_device()
     {
         return $this->hasOne(UserNotificationDevice::class);

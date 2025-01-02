@@ -1358,8 +1358,7 @@ class UserService
             ]
         );
 
-        $user->updated_at = now();
-        $user->save();
+        $user->fire_updated_observer();
 
         return ['message' => 'User card has been successfully attached'];
     }
@@ -1402,8 +1401,7 @@ class UserService
         }
         $card->delete();
 
-        $user->updated_at = now();
-        $user->save();
+        $user->fire_updated_observer();
 
         return [
             'message' => 'User card has been successfully detached',
