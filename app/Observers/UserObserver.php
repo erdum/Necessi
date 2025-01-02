@@ -21,6 +21,7 @@ class UserObserver implements ShouldQueue
             .config('firebase.projects.app.credentials')
         );
         $db = $firebase->createFirestore()->database();
+        $stripe_service = app(StripeService::class);
 
         $data = [
             'id' => $user->id,
