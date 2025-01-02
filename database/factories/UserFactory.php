@@ -13,7 +13,7 @@ class UserFactory extends Factory
             'first_name' => fake()->firstName(),
             'last_name' => fake()->lastName(),
             'uid' => str()->random(28),
-            'email' => fake()->unique()->safeEmail(),
+            'email' => fake()->unique()->freeEmail(),
             'phone_number' => preg_replace('/^\+1/', '', fake()->e164PhoneNumber()),
             'email_verified_at' => fake()->dateTimeBetween('-1 month', 'now'),
             'phone_number_verified_at' => fake()->dateTimeBetween(
