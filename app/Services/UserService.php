@@ -1402,6 +1402,9 @@ class UserService
         }
         $card->delete();
 
+        $user->updated_at = now();
+        $user->save();
+
         return [
             'message' => 'User card has been successfully detached',
         ];
