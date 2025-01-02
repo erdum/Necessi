@@ -19,7 +19,7 @@ class PostController extends Controller
             'long' => 'required|numeric',
             'city' => 'required|string',
             'state' => 'required|string',
-            'location' => 'required',
+            'location' => 'required|string',
             'budget' => 'required|gte:5|lte:1000',
             'type' => 'required|string|in:item,service',
             'start_date' => 'required|date_format:Y-m-d|after_or_equal:today',
@@ -28,6 +28,7 @@ class PostController extends Controller
             'end_time' => 'nullable|date_format:H:i:s|required_if:type,service',
             'request_delivery' => 'nullable',
             'avatar.*' => 'nullable',
+            'use_account_address' => 'nullable|boolean',
         ]);
 
         $avatars = $request->file('avatar');
@@ -36,15 +37,29 @@ class PostController extends Controller
             $avatars = [$avatars];
         }
 
+        if ($request->use_account_address ?? false) {
+            $location['state'] = $user->state;
+            $location['city'] = $user->city;
+            $location['location'] = $user->location;
+            $location['lat'] = $user->lat;
+            $location['long'] = $user->long;
+        } else {
+            $location['state'] = $request->state;
+            $location['city'] = $request->city;
+            $location['location'] = $request->location;
+            $location['lat'] = $request->lat;
+            $location['long'] = $request->long;
+        }
+
         $response = $post_service->create_post(
             $request->user(),
             $request->title,
             $request->description,
-            $request->lat,
-            $request->long,
-            $request->city,
-            $request->state,
-            $request->location,
+            $location['lat'],
+            $location['long'],
+            $location['city'],
+            $location['state'],
+            $location['location'],
             $request->budget,
             $request->start_date,
             $request->end_date,
