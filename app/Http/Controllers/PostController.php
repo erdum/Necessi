@@ -39,7 +39,7 @@ class PostController extends Controller
             $avatars = [$avatars];
         }
 
-        if ($request->use_account_address ?? false) {
+        if (filter_var($request->use_account_address, FILTER_VALIDATE_BOOL)) {
             $location['state'] = $user->state;
             $location['city'] = $user->city;
             $location['location'] = $user->location;
