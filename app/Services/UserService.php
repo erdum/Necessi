@@ -155,14 +155,12 @@ class UserService
         );
         $db = $firebase->createFirestore()->database();
 
-        $chat_ids = $user->connections->pluck('chat_id')->toArray();
-        $post_ids = $user->bids()->with('post')->get()->pluck('post.id')
-            ->toArray();
-
         $db->runTransaction(
-            function ($trx) use (
-                $db, $chat_ids, $post_ids, $user
-            ) {
+            function ($trx) use ($db, $user) {
+                $chat_ids = $user->connections->pluck('chat_id')->toArray();
+                $post_ids = $user->bids()->with('post')->get()->pluck('post.id')
+                    ->toArray();
+
                 foreach ($chat_ids as $chat_id) {
                     $ref = $db->collection('chats')->document($chat_id);
                     $messages = $ref->collection('messages')->listDocuments();
@@ -1509,6 +1507,16 @@ class UserService
         )['available'][0]['amount'] / 100;
 
         $withdraws = Withdraw::where('user_id', $user->id)->latest()->get();
+        $withdraws->transform(function ($record) {
+            return [
+                'id' => $record->id,
+                'user_id' => $record->user_id,
+                'amount' => $record->amount,
+                'bank_id' => $record->bank_id,
+                'created_at' => $record->created_at->format('d M Y'),
+                'status' => 'successful',
+            ];
+        });
 
         if (! $month) {
             $points = Withdraw::where('user_id', $user->id)->selectRaw(
