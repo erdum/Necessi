@@ -1502,7 +1502,7 @@ class UserService
         return ['message' => 'Funds successfully transferred'];
     }
 
-    public function get_user_funds(User $user)
+    public function get_user_funds(User $user, string $year, ?string $month)
     {
         $balance = $this->stripe_service->get_account_balance(
             $user
@@ -1510,9 +1510,38 @@ class UserService
 
         $withdraws = Withdraw::where('user_id', $user->id)->latest()->get();
 
+        if (! $month) {
+            $points = Withdraw::where('user_id', $user->id)->selectRaw(
+                'SUM(amount) as value,
+                YEAR(created_at) as year,
+                MONTH(created_at) as month,
+                DAY(created_at) as day'
+            )
+                ->whereYear('created_at', $year)
+                ->groupByRaw('MONTH(`created_at`)')
+                ->orderByRaw('MONTH(`created_at`)')
+                ->get();
+        } else {
+            $points = Withdraw::where('user_id', $user->id)->selectRaw(
+                'SUM(amount) as value,
+                YEAR(created_at) as year,
+                MONTH(created_at) as month,
+                DAY(created_at) as day'
+            )
+                ->whereYear('created_at', $year)
+                ->whereMonth('created_at', $month)
+                ->groupByRaw('DAY(`created_at`)')
+                ->orderByRaw('DAY(`created_at`)')
+                ->get();
+        }
+
         return [
             'balance' => $balance,
             'withdraws' => $withdraws,
+            'graph' => [
+                'view' => $month ? 'monthly' : 'yearly',
+                'points' => $points,
+            ],
         ];
     }
 }

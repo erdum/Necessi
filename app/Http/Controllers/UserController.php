@@ -566,8 +566,15 @@ class UserController extends Controller
 
     public function get_user_funds(Request $request, UserService $user_service)
     {
+        $request->validate([
+            'year' => 'nullable|date_format:"Y"',
+            'month' => 'nullable|date_format:"n"',
+        ]);
+
         $response = $user_service->get_user_funds(
-            $request->user()
+            $request->user(),
+            $request->year ?? date('Y'),
+            $request->month
         );
 
         return response()->json($response);
