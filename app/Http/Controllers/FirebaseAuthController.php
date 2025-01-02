@@ -21,7 +21,7 @@ class FirebaseAuthController extends Controller
             'first_name' => 'required',
             'last_name' => 'required',
             'phone_number' => 'nullable|min:10|max:15',
-            'email' => 'required|email',
+            'email' => 'required|email:rfc,dns',
             'password' => 'required|min:6',
         ]);
 
@@ -39,7 +39,7 @@ class FirebaseAuthController extends Controller
     public function verify_email(Request $request)
     {
         $request->validate([
-            'email' => 'required',
+            'email' => 'required|email:rfc,dns',
             'otp' => 'required|size:6',
         ]);
 
@@ -54,7 +54,7 @@ class FirebaseAuthController extends Controller
     public function resend_otp(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
+            'email' => 'required|email:rfc,dns',
         ]);
 
         $response = $this->auth_service->resend_otp($request->email);
@@ -65,7 +65,7 @@ class FirebaseAuthController extends Controller
     public function reset_password(Request $request)
     {
         $request->validate([
-            'email' => 'required|email|exists:users,email',
+            'email' => 'required|email:rfc,dns|exists:users,email',
             'password' => 'required|confirmed',
         ]);
 
@@ -80,7 +80,7 @@ class FirebaseAuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
+            'email' => 'required|email:rfc,dns',
             'password' => 'required',
         ]);
         $response = $this->auth_service->login(
