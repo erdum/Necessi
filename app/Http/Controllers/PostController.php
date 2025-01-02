@@ -28,7 +28,7 @@ class PostController extends Controller
             'end_time' => 'nullable|date_format:H:i:s|required_if:type,service',
             'request_delivery' => 'nullable',
             'avatar.*' => 'nullable',
-            'use_account_address' => 'nullable|boolean',
+            'use_account_address' => 'nullable|in:true,false',
         ]);
 
         $avatars = $request->file('avatar');
