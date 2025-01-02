@@ -914,7 +914,7 @@ class UserService
 
     public function store_fcm(string $fcm_token, User $user)
     {
-        $user->notification_device->delete();
+        $user->notification_device?->delete();
 
         UserNotificationDevice::updateOrCreate(
             ['fcm_token' => $fcm_token],
