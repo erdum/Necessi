@@ -1358,6 +1358,9 @@ class UserService
             ]
         );
 
+        $user->updated_at = now();
+        $user->save();
+
         return ['message' => 'User card has been successfully attached'];
     }
 
