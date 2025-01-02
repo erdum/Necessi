@@ -31,6 +31,8 @@ class PostController extends Controller
             'use_account_address' => 'nullable|in:true,false',
         ]);
 
+        $user = $request->user();
+
         $avatars = $request->file('avatar');
 
         if ($avatars && ! is_array($avatars)) {
