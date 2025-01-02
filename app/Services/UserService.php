@@ -446,14 +446,14 @@ class UserService
         float $lat,
         float $long,
         string $location,
-        string $city,
-        string $state,
+        ?string $city,
+        ?string $state,
     ) {
         $user->lat = $lat;
         $user->long = $long;
         $user->location = $location;
-        $user->city = $city;
-        $user->state = $state;
+        $user->city = $city ?? $user->city ?? null;
+        $user->state = $state ?? $user->state ?? null;
 
         $user->save();
 

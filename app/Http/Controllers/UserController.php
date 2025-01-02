@@ -101,8 +101,8 @@ class UserController extends Controller
             'lat' => 'required|numeric',
             'long' => 'required|numeric',
             'location' => 'required|string',
-            'city' => 'required|string',
-            'state' => 'required|string',
+            'city' => 'nullable|string',
+            'state' => 'nullable|string',
         ]);
 
         $response = $user_service->set_location(
