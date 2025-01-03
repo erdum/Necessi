@@ -626,8 +626,8 @@ class UserService
         }
 
         if ($connection_request->chat_id == null) {
-            $chat = $this->create_chat($user, $receiver_user->uid);
-            $connection_request->chat_id = $chat['chat_id'];
+            // $chat = $this->create_chat($user, $receiver_user->uid);
+            // $connection_request->chat_id = $chat['chat_id'];
         } else {
             $factory = app(Factory::class);
             $firebase = $factory->withServiceAccount(
