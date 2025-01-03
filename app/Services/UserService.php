@@ -8,6 +8,7 @@ use App\Models\ConnectionRequest;
 use App\Models\Notification;
 use App\Models\Otp;
 use App\Models\PostLike;
+use App\Models\PostBid;
 use App\Models\ReportedUser;
 use App\Models\Review;
 use App\Models\User;
@@ -141,6 +142,18 @@ class UserService
 
     public function delete_user_account(User $user)
     {
+        $user_post_ids = $user->posts()->pluck('id');
+        $user_post_bids = PostBid::whereIn('post_id', $user_post_ids)
+        ->where('status', 'pending')->get();
+
+        foreach ($user_post_bids as $user_post_bid) {
+            if (!$user_post_bid->order) {
+                throw new Exceptions\BaseException(
+                    'Account could not be deleted due to pending orders.', 400
+                );
+            }
+        }
+
         if ($user->avatar ?? false) {
             Storage::delete($user->avatar);
         }
