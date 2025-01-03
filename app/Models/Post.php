@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 
 class Post extends Model
@@ -15,6 +16,35 @@ class Post extends Model
         'start_time' => 'datetime',
         'end_time' => 'datetime',
     ];
+
+    protected function orderStatus(): Attribute
+    {
+        return Attribute::make(function () {
+            $status = null;
+            $bid = $this->bids->first();
+
+            if ($bid?->status != 'accepted' || !$bid?->order) return $status;
+
+            if ($this->type == 'item') {
+                $status = $this->start_date->isPast()
+                    && $bid->order?->received_by_borrower
+                        ? 'underway' : 'upcoming';
+
+                $status = $this->end_date->isPast()
+                    && $bid->order?->received_by_lender == null
+                        ? 'past due' : $status;
+
+                $status = $bid->order?->received_by_borrower
+                    && $bid->order?->received_by_lender
+                        ? 'completed' : $status;
+            } else {
+                $status = $bid->order?->received_by_borrower != null
+                    ? 'completed' : 'upcoming';
+            }
+
+            return $status;
+        });
+    }
 
     public function user()
     {
