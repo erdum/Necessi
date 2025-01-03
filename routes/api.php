@@ -150,7 +150,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get(
         '/user/posts',
         [PostController::class, 'get_user_posts']
-    )->middleware(['throttle:100:1']);
+    )->withoutMiddleware(['throttle:api']);
 
     // Get user posts reviews
     Route::get(
