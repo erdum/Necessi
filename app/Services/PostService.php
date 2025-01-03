@@ -30,33 +30,6 @@ class PostService
         $this->stripe_service = $stripe_service;
     }
 
-    protected function make_bid_status(PostBid $bid)
-    {
-
-        if ($bid->status == 'pending') {
-            return 'pending';
-        }
-
-        if ($bid->status == 'rejected') {
-            return 'rejected';
-        }
-
-        if ($bid->status == 'accepted') {
-
-            if ($bid->order?->transaction_id == null) {
-                $check_time = Carbon::parse($bid->order?->created_at)->addDay();
-
-                if ($check_time->isPast()) {
-                    return 'canceled';
-                } else {
-                    return 'payment pending';
-                }
-            }
-
-            return 'paid';
-        }
-    }
-
     public function calculateDistance(
         float $lat1,
         float $lon1,
@@ -1109,7 +1082,7 @@ class PostService
                 'current_user_name' => $user->full_name,
                 'curretn_user_avatar' => $user->avatar,
                 'current_user_bid_amount' => $user_bid->amount,
-                'bid_status' => $this->make_bid_status($user_bid),
+                'bid_status' => $user_bid->status,
                 'chat_id' => $chat_id,
             ];
         }
@@ -1132,7 +1105,7 @@ class PostService
                     $bid_data = [
                         'bid_id' => $bid->id,
                         'post_id' => $bid->post_id,
-                        'bid_status' => $this->make_bid_status($bid),
+                        'bid_status' => $bid->status,
                         'bid_placed_amount' => $bid->amount,
                         'duration' => Carbon::parse($post->start_date)->format('d M').' - '.
                                       Carbon::parse($post->end_date)->format('d M y'),
@@ -1272,7 +1245,7 @@ class PostService
                 'bid_id' => $received_bid->id,
                 'post_id' => $received_bid->post_id,
                 'bid_amount' => $received_bid->amount,
-                'status' => $this->make_bid_status($received_bid),
+                'status' => $received_bid->status,
                 'user_id' => $received_bid->user->id,
                 'user_name' => $received_bid->user->full_name,
                 'avatar' => $received_bid->user->avatar,
