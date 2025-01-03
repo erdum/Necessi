@@ -45,7 +45,7 @@ class PostBid extends Model
 
                 return 'payment pending';
             }
-        }
+        });
     }
 
     public function user()
