@@ -13,7 +13,7 @@ class PostBid extends Model
 {
     use HasFactory;
 
-    protected function status(): Attribute
+    protected function getStatus(): Attribute
     {
         return Attribute::make(function () {
 
