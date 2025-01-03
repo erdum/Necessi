@@ -1520,8 +1520,14 @@ class UserService
             $user
         )['available'][0]['amount'] / 100;
 
-        $withdraws = Withdraw::where('user_id', $user->id)->latest()->get();
-        $withdraws->transform(function ($record) {
+        $withdraws = Withdraw::where('user_id', $user->id)
+            ->latest()
+            ->whereYear('created_at', $year)
+            ->when($month, function ($query) use ($month) {
+                $query->whereMonth('created_at', $month);
+            })
+            ->paginate();
+        $withdraws->getCollection()->transform(function ($record) {
             return [
                 'id' => $record->id,
                 'user_id' => $record->user_id,
