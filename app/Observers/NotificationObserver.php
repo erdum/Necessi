@@ -45,6 +45,7 @@ class NotificationObserver implements ShouldQueue
             'sender_id' => $notification->additional_data['sender_id'] ?? null,
             'is_read' => false,
             'notification_id' => $notification->id,
+            'status' => $notification->status,
         ];
 
         $db->collection('users')->document($notification->user->uid)
@@ -88,6 +89,7 @@ class NotificationObserver implements ShouldQueue
             'sender_id' => $notification->additional_data['sender_id'] ?? null,
             'is_read' => true,
             'notification_id' => $notification->id,
+            'status' => $notification->status,
         ];
 
         $db->collection('users')->document($notification->user->uid)
