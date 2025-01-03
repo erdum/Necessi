@@ -778,6 +778,7 @@ class PostService
             'comments' => $comments,
             'current_user_name' => $current_user->full_name,
             'current_user_avatar' => $current_user->avatar,
+            'own_post' => $current_user->id == $post_details->user->id,
         ];
     }
 
