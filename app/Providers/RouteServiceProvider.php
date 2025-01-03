@@ -42,27 +42,23 @@ class RouteServiceProvider extends ServiceProvider
     protected function configureRateLimiting(): void
     {
         RateLimiter::for('api', function (Request $request) {
-            if (
-                RateLimiter::tooManyAttempts(
-                    $request->user()?->id ?: $request->ip(),
-                    60
-                )
-            ) {
-                logger(
-                    'Rate limit hit',
-                    [
-                        'ip' => $request->ip(),
-                        'url' => $request->fullUrl(),
-                        'route' => $request->route()->getName(),
-                        'user' => $request->user() ?? null,
-                        'remaining' => RateLimiter::remaining(
-                            $request->user()?->id ?: $request->ip(),
-                            60
-                        )
-                    ]
-                );
-            }
-            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+            return Limit::perMinute(60)
+                ->by($request->user()?->id ?: $request->ip())
+                ->response(function () use ($request) {
+                    logger(
+                        'Rate limit hit',
+                        [
+                            'ip' => $request->ip(),
+                            'url' => $request->fullUrl(),
+                            'route' => Route::currentRouteName(),
+                            'user' => $request->user() ?? null,
+                        ]
+                    );
+                    return response()->json(
+                        ['message' => 'Too Many Requests'],
+                        429
+                    );
+                });
         });
     }
 }
