@@ -971,11 +971,11 @@ class PostService
     {
         $search_terms = explode(' ', $search_query);
         $searched_posts = [];
-        $searched_users = [];
+        $searched_users = [];   
 
         $posts = Post::where(
             function ($query) use ($search_query, $search_terms) {
-                $query->where('title', 'like', '%'.$search_query.'%');
+                $query->where('title', 'like', '%'. $search_query .'%');
 
                 foreach ($search_terms as $term) {
                     $query->orWhere('description', 'like', '%'.$term.'%');
@@ -984,6 +984,49 @@ class PostService
         )
             ->with('user')
             ->orderBy('created_at', 'desc')->get();
+        
+        $users = User::where(
+            function ($query) use ($search_terms) {
+                foreach ($search_terms as $term) {
+                    $query->orWhere('first_name', 'like', '%'. $term .'%')
+                        ->orWhere('last_name', 'like', '%'. $term .'%');
+                }
+            }
+        )->get();
+
+        foreach ($users as $user) {
+            $searched_users[] = [
+                'type' => 'peoples',
+                'user_id' => $user->id,
+                'user_name' => $user->full_name,
+                'avatar' => $user->avatar,
+            ];
+
+            foreach ($user->posts as $post) {
+                $distance = $this->calculateDistance(
+                    $current_user->lat,
+                    $current_user->long,
+                    $post->lat,
+                    $post->long,
+                );
+    
+                $searched_posts[] = [
+                    'type' => 'posts',
+                    'post_id' => $post->id,
+                    'user_id' => $post->user->id,
+                    'user_name' => $post->user->full_name,
+                    'avatar' => $post->user->avatar,
+                    'post_type' => $post->type,
+                    'created_at' => $post->created_at->diffForHumans(),
+                    'budget' => $post->budget,
+                    'duration' => Carbon::parse($post->start_date)->format('d M').' - '.Carbon::parse($post->end_date)->format('d M y'),
+                    'location' => $post->location,
+                    'distance' => round($distance, 2).' miles away',
+                    'title' => $post->title,
+                    'description' => $post->description,
+                ];
+            }
+        }
 
         foreach ($posts as $post) {
             $distance = $this->calculateDistance(
@@ -1007,24 +1050,6 @@ class PostService
                 'distance' => round($distance, 2).' miles away',
                 'title' => $post->title,
                 'description' => $post->description,
-            ];
-        }
-
-        $users = User::where(
-            function ($query) use ($search_terms) {
-                foreach ($search_terms as $term) {
-                    $query->orWhere('first_name', 'like', '%'.$term.'%')
-                        ->orWhere('last_name', 'like', '%'.$term.'%');
-                }
-            }
-        )->get();
-
-        foreach ($users as $user) {
-            $searched_users[] = [
-                'type' => 'peoples',
-                'user_id' => $user->id,
-                'user_name' => $user->full_name,
-                'avatar' => $user->avatar,
             ];
         }
 
