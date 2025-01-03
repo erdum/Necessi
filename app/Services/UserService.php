@@ -382,7 +382,8 @@ class UserService
 
                 if ($user_connection) {
                     $connections_data[] = [
-                        'id' => $user_connection->id,
+                        'user_id' => $user_connection->id,
+                        'user_uid' => $user_connection->uid,
                         'user_name' => $user_connection->full_name,
                         'avatar' => $user_connection->avatar,
                         'chat_id' => $connection->chat_id,
