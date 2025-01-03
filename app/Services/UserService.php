@@ -385,7 +385,7 @@ class UserService
                         'id' => $user_connection->id,
                         'user_name' => $user_connection->full_name,
                         'avatar' => $user_connection->avatar,
-                        'chat_id' => $user_connection->chat_id,
+                        'chat_id' => $connection->chat_id,
                     ];
                 }
             }
