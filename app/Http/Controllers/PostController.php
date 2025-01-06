@@ -27,7 +27,8 @@ class PostController extends Controller
             'start_time' => 'nullable|date_format:H:i:s|required_if:type,service',
             'end_time' => 'nullable|date_format:H:i:s|required_if:type,service',
             'request_delivery' => 'nullable',
-            'avatar.*' => 'nullable',
+            'avatar[]' => 'nullable|array',
+            'avatar[].*' => 'file',
             'use_account_address' => 'nullable|in:true,false',
         ]);
 
