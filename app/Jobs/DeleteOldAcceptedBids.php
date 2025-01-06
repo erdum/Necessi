@@ -29,14 +29,8 @@ class DeleteOldAcceptedBids implements ShouldQueue
                 ->whereHas('order', function ($query) {
                     $query->whereNull('transaction_id');
                 })
-                ->with('user:id,uid,first_name,last_name,avatar')
-                ->get();
-
-            if ($bids->isNotEmpty()) {
-                foreach ($bids as $bid) {
-                    $bid->delete();
-                }
-            }
+                ->update(['status' => 'rejected']);
+        
         } catch (\Exception $e) {
             \Log::error('Error in DeleteOldAcceptedBids job: '.$e->getMessage(), [
                 'stack' => $e->getTraceAsString(),
