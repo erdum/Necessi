@@ -1234,7 +1234,7 @@ class PostService
             'duration' => Carbon::parse($post->start_date)->format('d M').' - '.
                           Carbon::parse($post->end_date)->format('d M y'),
             'user_bid_amount' => $user_bid->amount,
-            'payment_status' => 'pending',
+            'payment_status' => $user_bid->getStatus,
             'bids' => $bids_data,
         ];
     }
