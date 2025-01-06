@@ -1109,12 +1109,16 @@ class PostService
                 'title' => $user_bid->post->title,
                 'decscription' => $user_bid->post->description,
                 'budget' => $user_bid->post->budget,
-                'duration' => Carbon::parse($user_bid->post->start_date)->format('d M').' - '.
+                'duration' => ($user_bid->post->start_time && $user_bid->post->end_time)
+                    ? Carbon::parse($user_bid->post->start_time)->format('h:i A').' - '.Carbon::parse($user_bid->post->end_time)->format('h:i A')
+                    : null,
+                'date' => Carbon::parse($user_bid->post->start_date)->format('d M').' - '.
                               Carbon::parse($user_bid->post->end_date)->format('d M y'),
                 'current_user_name' => $user->full_name,
                 'curretn_user_avatar' => $user->avatar,
                 'current_user_bid_amount' => $user_bid->amount,
-                'bid_status' => $user_bid->status,
+                'created_at' => $user_bid->created_at->diffForHumans(),
+                'bid_status' => $user_bid->getStatus,
                 'chat_id' => $chat_id,
             ];
         }
