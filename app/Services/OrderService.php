@@ -290,7 +290,7 @@ class OrderService
                 $query->whereMonth('created_at', $month);
             })
             ->whereNotNull('transaction_id')
-            ->paginate();
+            ->paginate(4);
 
         $orders->getCollection()->transform(function ($order) {
             return [
