@@ -1067,6 +1067,10 @@ class UserService
         $unseen_count[$user->uid] = 0;
         $unseen_count[$other_party_uid] = 0;
 
+        $is_deleted = [];
+        $is_deleted[$user->uid] = false;
+        $is_deleted[$other_party_uid] = false;
+
         $data = [
             'id' => $chat_id,
             'blocked_by' => null,
@@ -1077,6 +1081,7 @@ class UserService
                 $other_party_uid,
             ],
             'unseen_counts' => $unseen_count,
+            'is_deleted' =>  $is_deleted,
             'connection_removed' => false,
             'first_party' => $user->uid,
             'second_party' => $other_party_uid,
