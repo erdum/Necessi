@@ -285,8 +285,6 @@ class UserService
 
             $user->preferences()->save($preferences);
 
-            $user->preferences->fire_created_observer();
-
             return $preferences;
         }
 
@@ -307,8 +305,6 @@ class UserService
         ?? $user->preferences->who_can_send_messages;
 
         $user->preferences->save();
-
-        $user->preferences->fire_updated_observer();
 
         return $user->preferences;
     }
