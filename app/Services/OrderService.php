@@ -345,10 +345,16 @@ class OrderService
 
         $items_points = [];
         $services_points = [];
+        $max_items_point = 0;
+        $max_services_point = 0;
 
         foreach ($points as $point) {
 
             if ($point->post->type == 'item') {
+
+                if ($point->value > $max_items_point)
+                    $max_items_point = $point->value;
+
                 array_push(
                     $items_points,
                     [
@@ -361,6 +367,10 @@ class OrderService
             }
 
             if ($point->post->type == 'service') {
+
+                if ($point->value > $max_services_point)
+                    $max_services_point = $point->value;
+
                 array_push(
                     $services_points,
                     [
@@ -379,7 +389,8 @@ class OrderService
                 'view' => $month ? 'monthly' : 'yearly',
                 'items' => $items_points,
                 'services' => $services_points,
-                'max' => $points[0]->max,
+                'items_max_value' => $max_items_point,
+                'services_max_value' => $max_services_point,
             ],
         ];
     }
