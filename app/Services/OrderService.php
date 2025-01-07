@@ -307,6 +307,7 @@ class OrderService
         if (! $month) {
             $points = PostBid::withWhereHas('post:id,type')->selectRaw(
                 'SUM(amount) as value,
+                MAX(amount) as max,
                 YEAR(created_at) as year,
                 MONTH(created_at) as month,
                 DAY(created_at) as day,
@@ -324,6 +325,7 @@ class OrderService
         } else {
             $points = PostBid::withWhereHas('post:id,type')->selectRaw(
                 'SUM(amount) as value,
+                MAX(amount) as max,
                 YEAR(created_at) as year,
                 MONTH(created_at) as month,
                 DAY(created_at) as day,
@@ -377,6 +379,7 @@ class OrderService
                 'view' => $month ? 'monthly' : 'yearly',
                 'items' => $items_points,
                 'services' => $services_points,
+                'max' => $points[0]->max,
             ],
         ];
     }
