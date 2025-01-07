@@ -44,6 +44,7 @@ class OrderService
                             ->where('status', 'accepted');
                     });
             })
+            ->orderBy('created_at', 'desc')
             ->paginate();
 
         $items = [
@@ -290,6 +291,7 @@ class OrderService
                 $query->whereMonth('created_at', $month);
             })
             ->whereNotNull('transaction_id')
+            ->orderBy('created_at', 'desc')
             ->paginate(4);
 
         $orders->getCollection()->transform(function ($order) {
