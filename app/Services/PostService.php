@@ -1123,7 +1123,8 @@ class PostService
             ];
         }
 
-        $user_bids = PostBid::where('user_id', $user->id)->get();
+        $user_bids = PostBid::where('user_id', $user->id)->orderBy('created_at', 'desc')
+         ->get();
         $placed_bids = [
             'pending' => [],
             'accepted' => [],
@@ -1274,7 +1275,9 @@ class PostService
         }
 
         $received_bids = PostBid::whereIn('post_id', $user_posts)->whereNot('status', 'rejected')
-            ->with(['user:id,first_name,last_name,avatar', 'post'])->get();
+            ->with(['user:id,first_name,last_name,avatar', 'post'])
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return $received_bids->map(function ($received_bid) {
             return [
