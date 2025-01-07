@@ -1080,11 +1080,39 @@ class UserService
             'connection_removed' => false,
             'first_party' => $user->uid,
             'second_party' => $other_party_uid,
+            'is_order_running' => $this->is_order_running($user->uid, $other_party_uid),
         ];
 
         $db->collection('chats')->document($chat_id)->set($data);
 
         return ['chat_id' => $chat_id];
+    }
+
+    public function is_order_running(string $user1_uid, string $user2_uid)
+    {
+        $user1 = User::where('uid', $user1_uid)->first();
+        $user2 = User::where('uid', $user2_uid)->first();
+
+        $user1_posts = $user1->posts()->pluck('id');
+        $user2_posts = $user2->posts()->pluck('id');
+
+        $user1_bid_on_user2_post = PostBid::whereIn('post_id', $user2_posts)
+            ->where('user_id', $user1->id)
+            ->where('status', 'accepted')
+            ->doesntHave('order')
+            ->exists();
+
+        $user2_bid_on_user1_post = PostBid::whereIn('post_id', $user1_posts)
+            ->where('user_id', $user2->id)
+            ->where('status', 'accepted')
+            ->doesntHave('order')
+            ->exists();
+
+        if ($user1_bid_on_user2_post || $user2_bid_on_user1_post) {
+            return true;
+        }
+
+        return false;
     }
 
     public function remove_chat(string $chat_id)
