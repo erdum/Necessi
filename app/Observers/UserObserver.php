@@ -39,7 +39,6 @@ class UserObserver implements ShouldQueue
             'has_active_bank' => $user->banks->count() > 0,
             'has_active_card' => $user->cards->count() > 0,
             'is_social' => $user->password == null,
-            'chat_status' => $user->preferences?->who_can_send_messages,
         ];
 
         $db->collection('users')->document($user->uid)->set($data);
@@ -73,7 +72,6 @@ class UserObserver implements ShouldQueue
             'has_active_bank' => $user->banks->count() > 0,
             'has_active_card' => $user->cards->count() > 0,
             'is_social' => $user->password == null,
-            'chat_status' => $user->preferences?->who_can_send_messages,
         ];
 
         $db->collection('users')->document($user->uid)->set(
