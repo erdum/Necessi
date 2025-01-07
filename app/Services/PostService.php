@@ -1233,11 +1233,15 @@ class PostService
             'avatar' => $post->user->avatar,
             'post_type' => $post->type,
             'location' => $post->location,
+            'created_at' => $post->created_at->diffForHumans(),
             'distance' => round($distance, 2).' miles away',
             'title' => $post->title,
             'description' => $post->description,
-            'duration' => Carbon::parse($post->start_date)->format('d M').' - '.
-                          Carbon::parse($post->end_date)->format('d M y'),
+            'duration' => ($post->start_time && $post->end_time)
+                ? Carbon::parse($post->start_time)->format('h:i A').' - '.Carbon::parse($post->end_time)->format('h:i A')
+                : null,
+            'date' => Carbon::parse($post->start_date)->format('d M').' - '.
+                      Carbon::parse($post->end_date)->format('d M y'),
             'user_bid_amount' => $user_bid->amount,
             'payment_status' => $user_bid->getStatus,
             'bids' => $bids_data,
