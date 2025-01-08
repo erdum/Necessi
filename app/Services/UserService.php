@@ -1607,6 +1607,7 @@ class UserService
                 'view' => $month ? 'monthly' : 'yearly',
                 'points' => $points,
             ],
+            'banks' => $user->banks,
         ];
     }
 }
