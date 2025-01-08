@@ -393,10 +393,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     );
 
     // Create chat
-    // Route::post(
-    //     '/chat',
-    //     [UserController::class, 'create_chat']
-    // ); ------- We're creating chat upon connection request being accepted
+    Route::post(
+        '/chat',
+        [UserController::class, 'create_chat']
+    ); //------- We're creating chat upon connection request being accepted
 
     // Upload document to Firebase cloud storage
     Route::post(

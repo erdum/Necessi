@@ -1045,6 +1045,22 @@ class UserService
         ];
     }
 
+    public function initiate_chats(User $user, array $other_party_uids)
+    {
+        $responses = [];
+
+        foreach ($other_party_uids as $other_party_uid) {
+            $chat_response = $this->create_chat($user, $other_party_uid);
+            $responses[] = [
+                'user_id' => User::where('uid', $other_party_uid)->value('id'),
+                'user_uid' => $other_party_uid,
+                'chat_id' => $chat_response['chat_id'],
+            ];
+        }
+    
+        return $responses;
+    }
+
     public function create_chat(User $user, string $other_party_uid)
     {
         $factory = app(Factory::class);

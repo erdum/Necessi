@@ -299,22 +299,22 @@ class UserController extends Controller
         return response()->json($response);
     }
 
-    // public function create_chat(
-    //     Request $request,
-    //     UserService $user_service
-    // )
-    // {
-    //     $request->validate([
-    //         'other_party_uid' => 'required|exists:users,uid'
-    //     ]);
+    public function create_chat(
+        Request $request,
+        UserService $user_service
+    ){
+        $request->validate([
+            'other_party_uids' => 'required|array',
+            'other_party_uids.*' => 'exists:users,uid',
+        ]);
 
-    //     $response = $user_service->create_chat(
-    //         $request->user(),
-    //         $request->other_party_uid
-    //     );
+        $response = $user_service->initiate_chats(
+            $request->user(),
+            $request->other_party_uids,
+        );
 
-    //     return response()->json($response);
-    // } ------- We're creating chat upon connection request being accepted
+        return response()->json($response);
+    } // ------- We're creating chat upon connection request being accepted
 
     public function handle_uploads(
         Request $request,
