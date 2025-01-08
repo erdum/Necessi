@@ -4,7 +4,6 @@ namespace App\Observers;
 
 use App\Models\UserPreference;
 use Kreait\Firebase\Factory;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
 class UserPreferenceObserver
 {

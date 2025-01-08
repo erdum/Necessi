@@ -54,6 +54,7 @@ class RouteServiceProvider extends ServiceProvider
                             'user' => $request->user() ?? null,
                         ]
                     );
+
                     return response()->json(
                         ['message' => 'Too Many Requests'],
                         429

@@ -5,10 +5,10 @@ namespace App\Services;
 use App\Exceptions;
 use App\Models\User;
 use App\Models\UserBank;
-use Throwable;
 use Stripe\Exception\CardException;
 use Stripe\Exception\InvalidRequestException;
 use Stripe\StripeClient;
+use Throwable;
 
 class StripeService
 {

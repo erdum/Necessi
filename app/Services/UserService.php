@@ -7,15 +7,15 @@ use App\Jobs\StoreImages;
 use App\Models\ConnectionRequest;
 use App\Models\Notification;
 use App\Models\Otp;
-use App\Models\PostLike;
 use App\Models\PostBid;
+use App\Models\PostLike;
 use App\Models\ReportedUser;
 use App\Models\Review;
 use App\Models\User;
 use App\Models\UserBank;
 use App\Models\UserCard;
-use App\Models\UserPreference;
 use App\Models\UserNotificationDevice;
+use App\Models\UserPreference;
 use App\Models\Withdraw;
 use Carbon\Carbon;
 use Google\Cloud\Firestore\FieldValue;
@@ -86,7 +86,9 @@ class UserService
             ]),
         ]))->documents()->rows();
 
-        if (count($data) > 0) return $data[0]->id();
+        if (count($data) > 0) {
+            return $data[0]->id();
+        }
 
         return false;
     }
@@ -144,10 +146,10 @@ class UserService
     {
         $user_post_ids = $user->posts()->pluck('id');
         $user_post_bids = PostBid::whereIn('post_id', $user_post_ids)
-        ->where('status', 'pending')->get();
+            ->where('status', 'pending')->get();
 
         foreach ($user_post_bids as $user_post_bid) {
-            if (!$user_post_bid->order) {
+            if (! $user_post_bid->order) {
                 throw new Exceptions\BaseException(
                     'Account could not be deleted due to pending orders.', 400
                 );
@@ -1055,7 +1057,9 @@ class UserService
 
         $existing_chat_id = $this->chat_exists($user, $other_party_uid);
 
-        if ($existing_chat_id) return ['chat_id' => $existing_chat_id];
+        if ($existing_chat_id) {
+            return ['chat_id' => $existing_chat_id];
+        }
 
         $chat_id = str()->random(20);
 
@@ -1077,7 +1081,7 @@ class UserService
                 $other_party_uid,
             ],
             'unseen_counts' => $unseen_count,
-            'is_deleted' =>  $is_deleted,
+            'is_deleted' => $is_deleted,
             'connection_removed' => false,
             'first_party' => $user->uid,
             'second_party' => $other_party_uid,

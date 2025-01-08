@@ -89,7 +89,7 @@ class OrderService
                         'transaction_id' => $post->bids[0]->order?->transaction_id,
                         'is_marked' => $is_started,
                         'chat_id' => $chat_id,
-                        'is_feedback' => !$post->reviews->isEmpty(),
+                        'is_feedback' => ! $post->reviews->isEmpty(),
                     ]);
                 } else {
                     array_push($services, [
@@ -107,7 +107,7 @@ class OrderService
                         'status' => $post->order_status,
                         'transaction_id' => $post->bids[0]->order?->transaction_id,
                         'is_marked' => $is_started,
-                        'is_feedback' => !$post->reviews->isEmpty(),
+                        'is_feedback' => ! $post->reviews->isEmpty(),
                     ]);
                 }
             }
@@ -217,7 +217,7 @@ class OrderService
             'received_by_lender' => $order->received_by_lender != null,
             'is_provided' => $post->user_id != $user->id,
             'status' => $post->order_status,
-            'is_feedback' => !$post->reviews->isEmpty(),
+            'is_feedback' => ! $post->reviews->isEmpty(),
         ];
     }
 
@@ -352,8 +352,9 @@ class OrderService
 
             if ($point->post->type == 'item') {
 
-                if ($point->value > $max_items_point)
+                if ($point->value > $max_items_point) {
                     $max_items_point = $point->value;
+                }
 
                 array_push(
                     $items_points,
@@ -368,8 +369,9 @@ class OrderService
 
             if ($point->post->type == 'service') {
 
-                if ($point->value > $max_services_point)
+                if ($point->value > $max_services_point) {
                     $max_services_point = $point->value;
+                }
 
                 array_push(
                     $services_points,

@@ -196,8 +196,7 @@ class FirebaseAuthService
                 [
                     'email' => $verifiedIdToken->claims()->get('email'),
                     'first_name' => $verifiedIdToken->claims()->get('name'),
-                    'last_name' =>
-                        $verifiedIdToken->claims()->get('family_name'),
+                    'last_name' => $verifiedIdToken->claims()->get('family_name'),
                 ]
             );
 
@@ -206,8 +205,7 @@ class FirebaseAuthService
                 $user->save();
             }
 
-            if (! $user->preferences) 
-            {
+            if (! $user->preferences) {
                 $this->user_service->update_preferences(
                     $user,
                     true,

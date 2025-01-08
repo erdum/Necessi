@@ -194,8 +194,7 @@ class UserController extends Controller
         string $uid,
         Request $request,
         UserService $user_service
-    )
-    {
+    ) {
         $response = $user_service->initiate_chat(
             $request->user(),
             $uid

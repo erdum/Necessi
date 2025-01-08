@@ -971,11 +971,11 @@ class PostService
     {
         $search_terms = explode(' ', $search_query);
         $searched_posts = [];
-        $searched_users = [];   
+        $searched_users = [];
 
         $posts = Post::where(
             function ($query) use ($search_query, $search_terms) {
-                $query->where('title', 'like', '%'. $search_query .'%');
+                $query->where('title', 'like', '%'.$search_query.'%');
 
                 foreach ($search_terms as $term) {
                     $query->orWhere('description', 'like', '%'.$term.'%');
@@ -984,12 +984,12 @@ class PostService
         )
             ->with('user')
             ->orderBy('created_at', 'desc')->get();
-        
+
         $users = User::where(
             function ($query) use ($search_terms) {
                 foreach ($search_terms as $term) {
-                    $query->orWhere('first_name', 'like', '%'. $term .'%')
-                        ->orWhere('last_name', 'like', '%'. $term .'%');
+                    $query->orWhere('first_name', 'like', '%'.$term.'%')
+                        ->orWhere('last_name', 'like', '%'.$term.'%');
                 }
             }
         )->get();
@@ -1009,7 +1009,7 @@ class PostService
                     $post->lat,
                     $post->long,
                 );
-    
+
                 $searched_posts[] = [
                     'type' => 'posts',
                     'post_id' => $post->id,
@@ -1124,7 +1124,7 @@ class PostService
         }
 
         $user_bids = PostBid::where('user_id', $user->id)->orderBy('created_at', 'desc')
-         ->get();
+            ->get();
         $placed_bids = [
             'pending' => [],
             'accepted' => [],

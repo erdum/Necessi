@@ -31,7 +31,7 @@ class DeleteOldAcceptedBids implements ShouldQueue
                     $query->whereNull('transaction_id');
                 })
                 ->update(['status' => 'rejected']);
-        
+
         } catch (\Exception $e) {
             Log::error('Error in DeleteOldAcceptedBids job: '.$e->getMessage(), [
                 'stack' => $e->getTraceAsString(),

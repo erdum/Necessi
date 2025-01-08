@@ -57,7 +57,7 @@ class DatabaseSeeder extends Seeder
         $bank->save();
 
         $posts = \App\Models\Post::factory(7)->create([
-            'user_id' => $test_user_borrower->id
+            'user_id' => $test_user_borrower->id,
         ]);
 
         $posts->each(
@@ -81,7 +81,7 @@ class DatabaseSeeder extends Seeder
                 ]);
 
                 $transaction = \App\Models\Transaction::factory()->create([
-                    'user_id' => $test_user_borrower->id
+                    'user_id' => $test_user_borrower->id,
                 ]);
 
                 \App\Models\OrderHistory::factory()->create([

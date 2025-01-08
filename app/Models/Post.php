@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Post extends Model
@@ -23,7 +23,9 @@ class Post extends Model
             $status = null;
             $bid = $this->bids->first();
 
-            if ($bid?->status != 'accepted' || !$bid?->order) return $status;
+            if ($bid?->status != 'accepted' || ! $bid?->order) {
+                return $status;
+            }
 
             if ($this->type == 'item') {
                 $status = $this->start_date->isPast()
