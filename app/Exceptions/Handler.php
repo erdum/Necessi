@@ -53,9 +53,15 @@ class Handler extends ExceptionHandler
         }
 
         if ($e instanceof BaseException) {
-            return response()->json([
-                'message' => $e->getMessage(),
-            ], $e->get_status_code());
+            $response = [
+                'message' => $e->get_message(),
+            ];
+
+            if (! empty($e->get_data())) {
+                $response['data'] = $e->get_data();
+            }
+
+            return response()->json($response, $e->get_status_code());
         }
 
         return parent::render($request, $e);
