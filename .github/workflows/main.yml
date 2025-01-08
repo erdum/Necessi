@@ -26,7 +26,8 @@ jobs:
       
       # Install project dependencies
       - name: Install Dependencies
-        run: composer install --no-progress --no-suggest --prefer-dist
+        run: |
+          composer install --no-progress --no-suggest --prefer-dist --ignore-platform-req=ext-grpc
       
       # Run PHPStan analysis
       - name: Run PHPStan
