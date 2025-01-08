@@ -20,7 +20,7 @@ jobs:
       - name: Set up PHP with dependencies
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.1' # Specify the PHP version you're using
+          php-version: '8.3' # Specify the PHP version you're using
           extensions: mbstring, pdo, tokenizer
           tools: composer
       
