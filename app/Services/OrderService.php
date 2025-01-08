@@ -17,12 +17,16 @@ class OrderService
 
     protected $post_service;
 
+    protected $notification_service;
+
     public function __construct(
         StripeService $stripe_service,
         PostService $post_service,
+        FirebaseNotificationService $notification_service,
     ) {
         $this->stripe_service = $stripe_service;
         $this->post_service = $post_service;
+        $this->notification_service = $notification_service;
     }
 
     public function get_all(User $user)
@@ -273,6 +277,21 @@ class OrderService
         $order->bid_id = $bid_id;
         $order->transaction_id = $transaction->id;
         $order->save();
+
+        $receiver_user = $bid->user;
+
+        $this->notification_service->push_notification(
+            $receiver_user,
+            NotificationType::BID,
+            $user->full_name,
+            'You have received a payment for your bid on the post',
+            $user->avatar ?? '',
+            [
+                'description' => $user->about,
+                'sender_id' => $user->id,
+                'post_id' => $bid->post_id,
+            ]
+        );
 
         return ['message' => 'Payment successful'];
     }
