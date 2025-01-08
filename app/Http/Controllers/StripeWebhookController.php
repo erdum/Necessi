@@ -6,6 +6,8 @@ use App\Models\User;
 use App\Services\StripeService;
 use Illuminate\Http\Request;
 use Stripe\Webhook;
+use Stripe\Exception\SignatureVerificationException;
+use UnexpectedValueException;
 
 class StripeWebhookController extends Controller
 {

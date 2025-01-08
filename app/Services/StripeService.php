@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Exceptions;
 use App\Models\User;
 use App\Models\UserBank;
-use Exception;
+use Throwable;
 use Stripe\Exception\CardException;
 use Stripe\Exception\InvalidRequestException;
 use Stripe\StripeClient;
@@ -108,7 +108,7 @@ class StripeService
 
             return $stripe_customer->id;
         } catch (Throwable $e) {
-            throw new StripeApiException($e->getMessage());
+            throw new Exceptions\StripeApiException($e->getMessage());
         }
     }
 
