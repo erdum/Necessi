@@ -441,10 +441,20 @@ class UserService
                 'title' => $recent_post->title,
                 'description' => $recent_post->description,
                 'location' => $recent_post->location,
+                'lat' => $recent_post->lat,
+                'long' => $recent_post->long,
                 'distance' => $distance,
                 'budget' => $recent_post->budget,
-                'duration' => Carbon::parse($recent_post->start_date)->format('d M').' - '.
-                              Carbon::parse($recent_post->end_date)->format('d M y'),
+                'duration' => ($recent_post->start_time && $recent_post->end_time)
+                    ? Carbon::parse($recent_post->start_time)->format('h:i A').' - '.Carbon::parse($recent_post->end_time)->format('h:i A')
+                    : null,
+                'date' => Carbon::parse($recent_post->start_date)->format('d M').' - '.
+                          Carbon::parse($recent_post->end_date)->format('d M y'),
+                'start_date' => $recent_post->start_date->format('d M Y'),
+                'end_date' => $recent_post->end_date->format('d M Y'),
+                'start_time' => $recent_post->start_time?->format('h:i A'),
+                'end_time' => $recent_post->end_time?->format('h:i A'),
+                'delivery_requested' => (bool) $post->delivery_requested,
                 'created_at' => $recent_post->created_at->diffForHumans(),
                 'bids' => $recent_post->bids->count(),
                 'current_user_like' => $current_user_like,
