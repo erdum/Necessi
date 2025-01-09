@@ -284,7 +284,7 @@ class OrderService
             $receiver_user,
             NotificationType::BID,
             $user->full_name,
-            'You have received a payment for your bid on the post',
+            "you have received a payment for\nyour bid on the post",
             $user->avatar ?? '',
             [
                 'description' => $user->about,
