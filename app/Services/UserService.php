@@ -454,7 +454,7 @@ class UserService
                 'end_date' => $recent_post->end_date->format('d M Y'),
                 'start_time' => $recent_post->start_time?->format('h:i A'),
                 'end_time' => $recent_post->end_time?->format('h:i A'),
-                'delivery_requested' => (bool) $post->delivery_requested,
+                'delivery_requested' => (bool) $recent_post->delivery_requested,
                 'created_at' => $recent_post->created_at->diffForHumans(),
                 'bids' => $recent_post->bids->count(),
                 'current_user_like' => $current_user_like,
