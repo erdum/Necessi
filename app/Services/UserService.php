@@ -441,6 +441,8 @@ class UserService
                 'title' => $recent_post->title,
                 'description' => $recent_post->description,
                 'location' => $recent_post->location,
+                'city' => $recent_post->city,
+                'state' => $recent_post->state,
                 'lat' => $recent_post->lat,
                 'long' => $recent_post->long,
                 'distance' => $distance,
@@ -448,7 +450,7 @@ class UserService
                 'duration' => ($recent_post->start_time && $recent_post->end_time)
                     ? Carbon::parse($recent_post->start_time)->format('h:i A').' - '.Carbon::parse($recent_post->end_time)->format('h:i A')
                     : null,
-                'date' => Carbon::parse($recent_post->start_date)->format('d M').' - '.
+                'dates' => Carbon::parse($recent_post->start_date)->format('d M').' - '.
                           Carbon::parse($recent_post->end_date)->format('d M y'),
                 'start_date' => $recent_post->start_date->format('d M Y'),
                 'end_date' => $recent_post->end_date->format('d M Y'),
