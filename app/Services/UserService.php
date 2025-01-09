@@ -628,8 +628,8 @@ class UserService
         }
 
         if ($connection_request->chat_id == null) {
-            $chat = $this->create_chat($user, $receiver_user->uid);
-            $connection_request->chat_id = $chat['chat_id'];
+            // $chat = $this->create_chat($user, $receiver_user->uid);
+            // $connection_request->chat_id = $chat['chat_id'];
         } else {
             $factory = app(Factory::class);
             $firebase = $factory->withServiceAccount(
@@ -1035,8 +1035,21 @@ class UserService
     public function initiate_chat(User $user, string $other_party_uid)
     {
         $other_user = User::where('uid', $other_party_uid)->first();
+        $connection_request = ConnectionRequest::where([
+            ['sender_id', '=', $other_user->id],
+            ['receiver_id', '=', $user->id],
+        ])
+            ->orWhere([
+                ['sender_id', '=', $user->id],
+                ['receiver_id', '=', $other_user->id],
+            ])->first();
 
         $chat_id = $this->create_chat($user, $other_party_uid)['chat_id'];
+
+        if ($connection_request->chat_id == null) {
+            $connection_request->chat_id = $chat_id;
+            $connection_request->save();
+        }
 
         return [
             'user_id' => $other_user->id,
