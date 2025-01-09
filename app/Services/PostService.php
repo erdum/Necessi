@@ -277,6 +277,12 @@ class PostService
             );
         }
 
+        if ($bid->status == 'rejected') {
+             throw new Exceptions\BaseException(
+                 'This bid has already been rejected.', 400
+             );
+        }
+
         $bid->status = 'rejected';
         $bid->save();
 

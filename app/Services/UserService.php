@@ -689,6 +689,15 @@ class UserService
             throw new Exceptions\ConnectionRequestNotFound;
         }
 
+        if ($connection_request->status == 'rejected') {
+
+            if ($connection_request->deleted_at == null) {
+                throw new Exceptions\BaseException(
+                    'This connection request has already been rejected.', 400
+                );
+            }
+        }
+
         $connection_request->status = 'rejected';
         $connection_request->save();
 
