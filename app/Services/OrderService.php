@@ -58,12 +58,19 @@ class OrderService
         ];
 
         $is_started = false;
+        $is_ended = false;
 
         $posts->getCollection()->each(
-            function ($post) use ($user, &$items, &$services, $is_started) {
+            function ($post) use (
+                $user, &$items, &$services, $is_started, $is_ended
+            ) {
 
                 if ($post->start_date->isPast()) {
                     $is_started = true;
+                }
+
+                if ($post->end_date->isPast()) {
+                    $is_ended = true;
                 }
 
                 $chat_id = ConnectionRequest::where([
@@ -92,6 +99,7 @@ class OrderService
                         'status' => $post->order_status,
                         'transaction_id' => $post->bids[0]->order?->transaction_id,
                         'is_marked' => $is_started,
+                        'is_ended' => $is_ended,
                         'chat_id' => $chat_id,
                         'is_feedback' => ! $post->reviews->isEmpty(),
                     ]);
@@ -111,6 +119,8 @@ class OrderService
                         'status' => $post->order_status,
                         'transaction_id' => $post->bids[0]->order?->transaction_id,
                         'is_marked' => $is_started,
+                        'is_ended' => $is_ended,
+                        'chat_id' => $chat_id,
                         'is_feedback' => ! $post->reviews->isEmpty(),
                     ]);
                 }
@@ -183,9 +193,14 @@ class OrderService
 
         $distance = round($calculatedDistance, 2).' miles away';
         $is_started = false;
+        $is_ended = false;
 
         if ($post->start_date->isPast()) {
             $is_started = true;
+        }
+
+        if ($post->end_date->isPast()) {
+            $is_ended = true;
         }
 
         $chat_id = ConnectionRequest::where([
@@ -217,6 +232,7 @@ class OrderService
             'return_date' => Carbon::parse($post->end_date)->format('d M Y'),
             'chat_id' => $chat_id,
             'is_marked' => $is_started,
+            'is_ended' => $is_ended,
             'received_by_borrower' => $order->received_by_borrower != null,
             'received_by_lender' => $order->received_by_lender != null,
             'is_provided' => $post->user_id != $user->id,
