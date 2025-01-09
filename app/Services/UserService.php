@@ -1049,7 +1049,7 @@ class UserService
 
         $chat_id = $this->create_chat($user, $other_party_uid)['chat_id'];
 
-        if ($connection_request?->chat_id == null) {
+        if ($connection_request && $connection_request?->chat_id == null) {
             $connection_request->chat_id = $chat_id;
             $connection_request->save();
         }
