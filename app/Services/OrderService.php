@@ -433,7 +433,7 @@ class OrderService
         }
 
         return [
-            'created_at' => $order->created_at->format('d F Y'),
+            'created_at' => $order->created_at->format('d M Y'),
             'order_id' => $order->id,
             'post_id' => $order->bid->post->id,
             'post_title' => $order->bid->post->title,
