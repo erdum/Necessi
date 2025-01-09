@@ -511,6 +511,7 @@ class UserService
 
     public function get_nearby_users(User $current_user)
     {
+        $nearby_users = [];
         $users = User::select(
             'id',
             'first_name',
@@ -524,58 +525,28 @@ class UserService
             'lat',
             'long',
             'location'
-        )->whereNot('id', $current_user->id)
-            ->where('city', $current_user->city)
-            ->where('state', $current_user->state)
-            ->get();
+        )
+            // ->orWhere('state', $current_user->state)
+            // ->orWhere('city', $current_user->city)
+            ->whereNot('id', $current_user->id)
+            ->chunk(10, function ($users) use (&$nearby_users, $current_user) {
+                foreach ($users as $user) {
+                    $distance = $this->haversineDistance(
+                        $current_user->lat,
+                        $current_user->long,
+                        $user->lat,
+                        $user->long
+                    );
 
-        $nearby_users = [];
+                    if ($distance <= 50) {
+                        $nearby_users[] = $user;
+                    }
 
-        foreach ($users as $user) {
-            $nearby_users[] = $user;
-
-            if (count($nearby_users) >= 9) {
-                return $nearby_users;
-            }
-        }
-
-        if (count($nearby_users) < 9) {
-            $remaining_users = User::select(
-                'id',
-                'first_name',
-                'last_name',
-                'uid',
-                'email',
-                'phone_number',
-                'avatar',
-                'age',
-                'about',
-                'lat',
-                'long',
-                'location'
-            )
-                ->whereNot('id', $current_user->id)
-                ->where('city', '!=', $current_user->city)
-                ->orWhere('state', '!=', $current_user->state)
-                ->get();
-
-            foreach ($remaining_users as $user) {
-                $distance = $this->haversineDistance(
-                    $current_user->lat,
-                    $current_user->long,
-                    $user->lat,
-                    $user->long
-                );
-
-                if ($distance <= 50) {
-                    $nearby_users[] = $user;
+                    if (count($nearby_users) >= 9) break;
                 }
 
-                if (count($nearby_users) >= 9) {
-                    break;
-                }
-            }
-        }
+                if (count($nearby_users) >= 9) return false;
+            });
 
         return $nearby_users;
     }
@@ -586,7 +557,10 @@ class UserService
         float $lat2,
         float $long2
     ) {
-        $earth_radius = 6371;
+        // Earth's radius in miles
+        $earth_radius = 3958.8;
+        // Earth's radius in kilometers
+        // $earth_radius = 6371;
 
         $lat1 = deg2rad($lat1);
         $long1 = deg2rad($long1);
