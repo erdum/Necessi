@@ -459,6 +459,7 @@ class UserService
                 'bids' => $recent_post->bids->count(),
                 'current_user_like' => $current_user_like,
                 'likes' => $recent_post->likes->count(),
+                'images' => $recent_post->images,
             ]] : [],
             'reviews' => $reviews_data,
             'is_social' => $user->password == null,
