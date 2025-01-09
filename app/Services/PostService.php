@@ -340,7 +340,7 @@ class PostService
                 'duration' => ($post->start_time && $post->end_time)
                     ? Carbon::parse($post->start_time)->format('h:i A').' - '.Carbon::parse($post->end_time)->format('h:i A')
                     : null,
-                'dates' => Carbon::parse($post->start_date)->format('d M').' - '.Carbon::parse($post->end_date)->format('d M y'),
+                'date' => Carbon::parse($post->start_date)->format('d M').' - '.Carbon::parse($post->end_date)->format('d M y'),
                 'start_date' => $post->start_date->format('d M Y'),
                 'end_date' => $post->end_date->format('d M Y'),
                 'start_time' => $post->start_time?->format('h:i A'),
@@ -514,7 +514,7 @@ class PostService
                 'duration' => ($post->start_time && $post->end_time)
                     ? Carbon::parse($post->start_time)->format('h:i A').' - '.Carbon::parse($post->end_time)->format('h:i A')
                     : null,
-                'dates' => $post->start_date->format('d M').' - '.$post->end_date->format('d M Y'),
+                'date' => $post->start_date->format('d M').' - '.$post->end_date->format('d M Y'),
                 'start_date' => $post->start_date->format('d M Y'),
                 'end_date' => $post->end_date->format('d M Y'),
                 'start_time' => $post->start_time?->format('h:i A'),
@@ -763,7 +763,7 @@ class PostService
             'duration' => ($post_details->start_time && $post_details->end_time)
                 ? Carbon::parse($post_details->start_time)->format('h:i A').' - '.Carbon::parse($post_details->end_time)->format('h:i A')
                 : null,
-            'dates' => $post_details->start_date->format('d M').' - '.$post_details->end_date->format('d M Y'),
+            'date' => $post_details->start_date->format('d M').' - '.$post_details->end_date->format('d M Y'),
             'location' => $post_details->location,
             'city' => $post_details->city,
             'state' => $post_details->state,
@@ -1021,7 +1021,7 @@ class PostService
                     'duration' => ($post->start_time && $post->end_time)
                         ? Carbon::parse($post->start_time)->format('h:i A').' - '.Carbon::parse($post->end_time)->format('h:i A')
                         : null,
-                    'dates' => Carbon::parse($post->start_date)->format('d M').' - '.Carbon::parse($post->end_date)->format('d M y'),
+                    'date' => Carbon::parse($post->start_date)->format('d M').' - '.Carbon::parse($post->end_date)->format('d M y'),
                     'location' => $post->location,
                     'city' => $post->city,
                     'state' => $post->state,
@@ -1052,7 +1052,7 @@ class PostService
                 'duration' => ($post->start_time && $post->end_time)
                     ? Carbon::parse($post->start_time)->format('h:i A').' - '.Carbon::parse($post->end_time)->format('h:i A')
                     : null,
-                'dates' => Carbon::parse($post->start_date)->format('d M').' - '.Carbon::parse($post->end_date)->format('d M y'),
+                'date' => Carbon::parse($post->start_date)->format('d M').' - '.Carbon::parse($post->end_date)->format('d M y'),
                 'location' => $post->location,
                 'city' => $post->city,
                 'state' => $post->state,
@@ -1117,7 +1117,7 @@ class PostService
                 'duration' => ($user_bid->post->start_time && $user_bid->post->end_time)
                     ? Carbon::parse($user_bid->post->start_time)->format('h:i A').' - '.Carbon::parse($user_bid->post->end_time)->format('h:i A')
                     : null,
-                'dates' => Carbon::parse($user_bid->post->start_date)->format('d M').' - '.
+                'date' => Carbon::parse($user_bid->post->start_date)->format('d M').' - '.
                               Carbon::parse($user_bid->post->end_date)->format('d M y'),
                 'current_user_name' => $user->full_name,
                 'curretn_user_avatar' => $user->avatar,
@@ -1247,7 +1247,7 @@ class PostService
             'duration' => ($post->start_time && $post->end_time)
                 ? Carbon::parse($post->start_time)->format('h:i A').' - '.Carbon::parse($post->end_time)->format('h:i A')
                 : null,
-            'dates' => Carbon::parse($post->start_date)->format('d M').' - '.
+            'date' => Carbon::parse($post->start_date)->format('d M').' - '.
                       Carbon::parse($post->end_date)->format('d M y'),
             'user_bid_amount' => $user_bid->amount,
             'payment_status' => $user_bid->getStatus,

@@ -233,7 +233,7 @@ class OrderService
             'duration' => ($post->start_time && $post->end_time)
                 ? Carbon::parse($post->start_time)->format('h:i A').' - '.Carbon::parse($post->end_time)->format('h:i A')
                 : null,
-            'dates' => Carbon::parse($post->start_date)->format('d M').' - '.Carbon::parse($post->end_date)->format('d M Y'),
+            'date' => Carbon::parse($post->start_date)->format('d M').' - '.Carbon::parse($post->end_date)->format('d M Y'),
             'return_date' => Carbon::parse($post->end_date)->format('d M Y'),
             'chat_id' => $chat_id,
             'is_marked' => $is_started,

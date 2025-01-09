@@ -450,7 +450,7 @@ class UserService
                 'duration' => ($recent_post->start_time && $recent_post->end_time)
                     ? Carbon::parse($recent_post->start_time)->format('h:i A').' - '.Carbon::parse($recent_post->end_time)->format('h:i A')
                     : null,
-                'dates' => Carbon::parse($recent_post->start_date)->format('d M').' - '.
+                'date' => Carbon::parse($recent_post->start_date)->format('d M').' - '.
                           Carbon::parse($recent_post->end_date)->format('d M y'),
                 'start_date' => $recent_post->start_date->format('d M Y'),
                 'end_date' => $recent_post->end_date->format('d M Y'),
