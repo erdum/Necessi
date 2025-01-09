@@ -1592,7 +1592,7 @@ class UserService
             ->when($month, function ($query) use ($month) {
                 $query->whereMonth('created_at', $month);
             })
-            ->paginate();
+            ->paginate(4);
         $withdraws->getCollection()->transform(function ($record) {
             return [
                 'id' => $record->id,
@@ -1629,12 +1629,20 @@ class UserService
                 ->get();
         }
 
+        $max_value = 0;
+
+        foreach ($points as $point) {
+
+            if ($point->value > $max_value) $max_value = $point->value;
+        }
+
         return [
             'balance' => $balance,
             'withdraws' => $withdraws,
             'graph' => [
                 'view' => $month ? 'monthly' : 'yearly',
                 'points' => $points,
+                'max_value' => $max_value,
             ],
             'banks' => $user->banks,
         ];
