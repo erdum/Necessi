@@ -612,6 +612,15 @@ class UserService
             throw new Exceptions\ConnectionRequestNotFound;
         }
 
+        if ($connection_request->status == 'accepted') {
+
+            if ($connection_request->deleted_at == null) {
+                throw new Exceptions\BaseException(
+                    'You are already connected this connection', 400
+                );
+            }
+        }
+
         $connection_request->status = 'accepted';
 
         $receiver_user = User::find($user_id);
