@@ -83,20 +83,17 @@ class NotificationObserver implements ShouldQueue
             'title' => $notification->title,
             'body' => $notification->body,
             'image' => $notification->image,
-            'created_at' => $notification->created_at,
             'is_connection_request' => $is_connection_request,
             'is_connection_request_accepted' => $is_request_accepted,
             'is_connection_request_rejected' => $is_request_rejected,
             'sender_id' => $notification->additional_data['sender_id'] ?? null,
-            'is_read' => true,
-            'notification_id' => $notification->id,
             'status' => $notification->status,
             'post_id' => $notification->additional_data['post_id'] ?? null,
         ];
 
         $db->collection('users')->document($notification->user->uid)
             ->collection('notifications')->document($notification->id)
-            ->set($data);
+            ->set($data, ['merge' => true]);
     }
 
     /**
