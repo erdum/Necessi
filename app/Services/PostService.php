@@ -335,8 +335,8 @@ class PostService
                 'long' => $post->long,
                 'distance' => round($distance, 2).' miles away',
                 'budget' => $post->budget,
-                'duration' => ($post->start_time && $recent_post->end_time)
-                    ? Carbon::parse($recent_post->start_time)->format('h:i A').' - '.Carbon::parse($recent_post->end_time)->format('h:i A')
+                'duration' => ($post->start_time && $post->end_time)
+                    ? Carbon::parse($post->start_time)->format('h:i A').' - '.Carbon::parse($post->end_time)->format('h:i A')
                     : null,
                 'date' => Carbon::parse($post->start_date)->format('d M').' - '.Carbon::parse($post->end_date)->format('d M y'),
                 'start_date' => $post->start_date->format('d M Y'),
