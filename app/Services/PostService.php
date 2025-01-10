@@ -459,6 +459,13 @@ class PostService
             throw new Exceptions\InvalidPostId;
         }
 
+        if ($post->user_id == $user->id) {
+            throw new Exceptions\BaseException(
+                'User cannot place review on its own post',
+                400
+            );
+        }
+
         $review = new Review;
         $review->user_id = $user->id;
         $review->post_id = $post_id;
