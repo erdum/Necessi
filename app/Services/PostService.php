@@ -1143,7 +1143,10 @@ class PostService
                         'post_id' => $bid->post_id,
                         'bid_status' => $bid->status,
                         'bid_placed_amount' => $bid->amount,
-                        'duration' => Carbon::parse($post->start_date)->format('d M').' - '.
+                        'duration' => ($post->start_time && $post->end_time)
+                            ? Carbon::parse($post->start_time)->format('h:i A').' - '.Carbon::parse($post->end_time)->format('h:i A')
+                            : null,
+                        'date' => Carbon::parse($post->start_date)->format('d M').' - '.
                                       Carbon::parse($post->end_date)->format('d M y'),
                         'title' => $post->title,
                         'description' => $post->description,
