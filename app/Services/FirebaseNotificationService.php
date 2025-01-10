@@ -56,6 +56,14 @@ class FirebaseNotificationService
         ?string $image = null,
         array $additional_data = []
     ) {
+
+        if (
+            $user->is_blocked(auth()->user()->id)
+            || $user->is_blocker(auth()->user()->id)
+        ) {
+            return;
+        }
+
         $notification_device = UserNotificationDevice::where(
             'user_id',
             $user->id
