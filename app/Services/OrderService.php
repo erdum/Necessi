@@ -346,6 +346,67 @@ class OrderService
             ];
         });
 
+        $total_revenue = OrderHistory::withWhereHas(
+            'bid',
+            function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                      ->where('status', 'accepted');
+            }
+        )
+            ->whereYear('created_at', $year)
+            ->when($month, function ($query) use ($month) {
+                $query->whereMonth('created_at', $month);
+            })
+            ->whereNotNull('transaction_id')
+            ->get();
+
+        $item_revenue = OrderHistory::withWhereHas(
+            'bid',
+            function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                      ->where('status', 'accepted')
+                      ->whereHas('post', function ($postQuery) {
+                          $postQuery->where('type', 'item');
+                      });
+            }
+        )
+            ->whereYear('created_at', $year)
+            ->when($month, function ($query) use ($month) {
+                $query->whereMonth('created_at', $month);
+            })
+            ->whereNotNull('transaction_id')
+            ->get();
+
+        $service_revenue = OrderHistory::withWhereHas(
+            'bid',
+            function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                        ->where('status', 'accepted')
+                        ->whereHas('post', function ($postQuery) {
+                              $postQuery->where('type', 'service');
+                        });
+            }
+        )
+            ->whereYear('created_at', $year)
+            ->when($month, function ($query) use ($month) {
+                $query->whereMonth('created_at', $month);
+            })
+            ->whereNotNull('transaction_id')
+            ->get();
+            
+
+        $total_amount = $total_revenue->sum(function ($order) {
+            return $order->bid->amount ?? 0;
+        });
+
+        $total_item_revenue = $item_revenue->sum(function ($order) {
+            return $order->bid->amount ?? 0;
+        });
+
+        $total_service_revenue = $service_revenue->sum(function ($order) {
+            return $order->bid->amount ?? 0;
+        });
+        
         if (! $month) {
             $points = PostBid::withWhereHas('post:id,type')->selectRaw(
                 'SUM(amount) as value,
@@ -428,6 +489,9 @@ class OrderService
         }
 
         return [
+            'total_revenue' => $total_amount,
+            'item_revenue' => $total_item_revenue,
+            'total_service_revenue' => $total_service_revenue,
             'orders' => $orders,
             'graph' => [
                 'view' => $month ? 'monthly' : 'yearly',
