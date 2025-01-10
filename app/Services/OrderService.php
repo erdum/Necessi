@@ -491,7 +491,7 @@ class OrderService
         return [
             'total_revenue' => $total_amount,
             'item_revenue' => $total_item_revenue,
-            'total_service_revenue' => $total_service_revenue,
+            'service_revenue' => $total_service_revenue,
             'orders' => $orders,
             'graph' => [
                 'view' => $month ? 'monthly' : 'yearly',
