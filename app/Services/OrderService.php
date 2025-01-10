@@ -82,6 +82,9 @@ class OrderService
                         ['receiver_id', '=', $user->id],
                     ])
                     ->value('chat_id');
+                
+                $user_feedback = $post->reviews->contains('user_id', $user->id);
+
 
                 if ($post->type == 'item') {
                     array_push($items, [
@@ -101,7 +104,7 @@ class OrderService
                         'is_marked' => $is_started,
                         'is_ended' => $is_ended,
                         'chat_id' => $chat_id,
-                        'is_feedback' => ! $post->reviews->isEmpty(),
+                        'is_feedback' => $user_feedback,
                     ]);
                 } else {
                     array_push($services, [
@@ -121,7 +124,7 @@ class OrderService
                         'is_marked' => $is_started,
                         'is_ended' => $is_ended,
                         'chat_id' => $chat_id,
-                        'is_feedback' => ! $post->reviews->isEmpty(),
+                        'is_feedback' => $user_feedback,
                     ]);
                 }
             }
