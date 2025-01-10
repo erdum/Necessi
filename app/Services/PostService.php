@@ -349,7 +349,7 @@ class PostService
                 'start_time' => $post->start_time?->format('h:i A'),
                 'end_time' => $post->end_time?->format('h:i A'),
                 'created_at' => $post->created_at->diffForHumans(),
-                'delivery_requested' => $post->delivery_requested,
+                'delivery_requested' => (bool) $post->delivery_requested,
                 'bids' => $post->bids->count(),
                 'current_user_like' => $current_user_like,
                 'likes' => $post->likes->count(),
