@@ -321,6 +321,10 @@ class PostService
                 $post->long,
             );
 
+            $order_status = $post->bids->filter(function ($bid) {
+                return $bid->order !== null;
+            })->isNotEmpty();
+
             return [
                 'post_id' => $post->id,
                 'first_name' => $user->first_name,
@@ -349,6 +353,7 @@ class PostService
                 'bids' => $post->bids->count(),
                 'current_user_like' => $current_user_like,
                 'likes' => $post->likes->count(),
+                'paid' => $order_status,
                 'images' => $post->images->map(function ($image) {
                     return [
                         'url' => $image->url,
@@ -749,6 +754,10 @@ class PostService
             $post_details->long,
         );
 
+        $order_status = $post_details->bids->filter(function ($bid) {
+            return $bid->order !== null;
+        })->isNotEmpty();
+
         return [
             'post_id' => $post_details->id,
             'user_id' => $post_details->user->id,
@@ -775,6 +784,7 @@ class PostService
             'current_user_name' => $current_user->full_name,
             'current_user_avatar' => $current_user->avatar,
             'own_post' => $current_user->id == $post_details->user->id,
+            'paid' => $order_status,
         ];
     }
 
@@ -1229,6 +1239,10 @@ class PostService
             $is_first = false;
         }
 
+        $order_status = $post->bids->filter(function ($bid) {
+            return $bid->order !== null;
+        })->isNotEmpty();
+
         return [
             'post_id' => $post->id,
             'user_name' => $post->user->full_name,
@@ -1248,6 +1262,7 @@ class PostService
             'user_bid_amount' => $user_bid->amount,
             'payment_status' => $user_bid->getStatus,
             'bids' => $bids_data,
+            'paid' => $order_status,
         ];
     }
 
