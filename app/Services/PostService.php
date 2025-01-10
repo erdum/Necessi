@@ -1293,7 +1293,10 @@ class PostService
                 'user_name' => $received_bid->user->full_name,
                 'avatar' => $received_bid->user->avatar,
                 'budget' => $received_bid->post->budget,
-                'duration' => Carbon::parse($received_bid->post->start_date)->format('d M').' - '.
+                'duration' => ($received_bid->post->start_time && $received_bid->post->end_time)
+                    ? Carbon::parse($received_bid->post->start_time)->format('h:i A').' - '.Carbon::parse($received_bid->post->end_time)->format('h:i A')
+                    : null,
+                'date' => Carbon::parse($received_bid->post->start_date)->format('d M').' - '.
                               Carbon::parse($received_bid->post->end_date)->format('d M y'),
                 'title' => $received_bid->post->title,
                 'description' => $received_bid->post->description,
