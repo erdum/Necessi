@@ -221,8 +221,9 @@ class FirebaseAuthService
             $token = $this->generate_token($user);
 
             return [
-                'token' => $token,
+                'message' => 'Login successful',
                 'uid' => $user->uid,
+                'token' => $token,
                 'user_details' => $user,
             ];
 
