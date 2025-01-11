@@ -4,6 +4,7 @@ namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -50,6 +51,16 @@ class Handler extends ExceptionHandler
             return response()->json([
                 'message' => $error,
             ], 400);
+        }
+
+        if ($e instanceof ModelNotFoundException) {
+            $model = explode('\\', $e->getModel());
+            $model = end($model);
+            $id = $e->getIds()[0];
+
+            return response()->json([
+                'message' => "Invalid {$model} ID {$id}, Resource not found."
+            ], 404);
         }
 
         if ($e instanceof BaseException) {
