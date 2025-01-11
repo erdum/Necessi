@@ -120,14 +120,9 @@ class PostService
 
     public function place_bid(
         User $user,
-        int $post_id,
+        Post $post,
         int $amount
     ) {
-        $post = Post::find($post_id);
-
-        if (! $post) {
-            throw new Exceptions\InvalidPostId;
-        }
         // $lowest_bid = $post->bids()->orderBy('amount')->first();
 
         // if ($lowest_bid) {
@@ -158,7 +153,7 @@ class PostService
         }
 
         if (
-            PostBid::where('post_id', $post_id)->where('status', 'accepted')
+            PostBid::where('post_id', $post->id)->where('status', 'accepted')
                 ->exists()
         ) {
             throw new Exceptions\BaseException(
@@ -168,7 +163,7 @@ class PostService
         }
 
         $existing_bid = PostBid::where('user_id', $user->id)
-            ->where('post_id', $post_id)->first();
+            ->where('post_id', $post->id)->first();
 
         if ($existing_bid) {
             $existing_bid->amount = $amount;
@@ -182,7 +177,7 @@ class PostService
 
         $post_bid = new PostBid;
         $post_bid->user_id = $user->id;
-        $post_bid->post_id = $post_id;
+        $post_bid->post_id = $post->id;
         $post_bid->amount = $amount;
         $post_bid->status = 'pending';
         $post_bid->save();
@@ -407,16 +402,10 @@ class PostService
         ];
     }
 
-    public function get_user_review(User $user, int $post_id)
+    public function get_user_review(User $user, Post $post)
     {
-        $post = Post::find($post_id);
-
-        if (! $post) {
-            throw new Exceptions\InvalidPostId;
-        }
-
         $review = Review::where('user_id', $user->id)
-            ->where('post_id', $post_id)
+            ->where('post_id', $post->id)
             ->with('user:id,first_name,last_name,avatar')
             ->first();
 
@@ -437,16 +426,10 @@ class PostService
 
     public function place_post_review(
         User $user,
-        int $post_id,
+        Post $post,
         string $description,
         int $rating,
     ) {
-        $post = Post::find($post_id);
-
-        if (! $post) {
-            throw new Exceptions\InvalidPostId;
-        }
-
         if ($post->user_id == $user->id) {
             throw new Exceptions\BaseException(
                 'User cannot place review on its own post',
@@ -456,7 +439,7 @@ class PostService
 
         $review = new Review;
         $review->user_id = $user->id;
-        $review->post_id = $post_id;
+        $review->post_id = $post->id;
         $review->data = $description;
         $review->rating = $rating;
         $review->save();
@@ -547,15 +530,9 @@ class PostService
         return $posts;
     }
 
-    public function toggle_like(User $user, int $post_id)
+    public function toggle_like(User $user, int $post)
     {
-        $post = Post::find($post_id);
-
-        if (! $post) {
-            throw new Exceptions\InvalidPostId;
-        }
-
-        $like = PostLike::where('post_id', $post_id)
+        $like = PostLike::where('post_id', $post->id)
             ->where('user_id', $user->id)->first();
 
         if ($like) {
@@ -565,12 +542,12 @@ class PostService
         }
 
         $like = new PostLike;
-        $like->post_id = $post_id;
+        $like->post_id = $post->id;
         $like->user_id = $user->id;
         $like->save();
 
         if ($post->user_id !== $user->id) {
-            $receiver_user = Post::find($post_id)?->user;
+            $receiver_user = Post::find($post->id)?->user;
 
             $this->notification_service->push_notification(
                 $receiver_user,
@@ -581,7 +558,7 @@ class PostService
                 [
                     'description' => $user->about,
                     'sender_id' => $user->id,
-                    'post_id' => $post_id,
+                    'post_id' => $post->id,
                 ]
             );
         }
@@ -591,18 +568,12 @@ class PostService
 
     public function place_comment(
         User $user,
-        int $post_id,
+        Post $post,
         string $post_comment
     ) {
-        $post = Post::find($post_id);
-
-        if (! $post) {
-            throw new Exceptions\InvalidPostId;
-        }
-
         $comment = new PostComment;
         $comment->user_id = $user->id;
-        $comment->post_id = $post_id;
+        $comment->post_id = $post->id;
         $comment->data = $post_comment;
         $comment->save();
 
@@ -635,17 +606,8 @@ class PostService
         ];
     }
 
-    public function delete_post_comment(User $user, int $comment_id)
+    public function delete_post_comment(User $user, PostComment $comment)
     {
-        $comment = PostComment::find($comment_id);
-
-        if (! $comment) {
-            throw new Exceptions\BaseException(
-                'Comment not found',
-                404
-            );
-        }
-
         $comment->delete();
 
         return ['message' => 'Comment has been successfully deleted'];
@@ -653,22 +615,13 @@ class PostService
 
     public function report_post_comment(
         User $user,
-        int $comment_id,
+        PostComment $comment,
         string $reason_type,
         ?string $other_reason,
     ) {
-        $comment = PostComment::find($comment_id);
-
-        if (! $comment) {
-            throw new Exceptions\BaseException(
-                'Comment not found',
-                404
-            );
-        }
-
         $comment_report = new ReportedComment;
         $comment_report->reporter_id = $user->id;
-        $comment_report->reported_id = $comment_id;
+        $comment_report->reported_id = $comment->id;
         $comment_report->reason_type = $reason_type;
         $comment_report->other_reason = $other_reason ?: null;
         $comment_report->save();
@@ -682,17 +635,11 @@ class PostService
         User $user,
         string $reason_type,
         ?string $other_reason,
-        int $post_id,
+        Post $post,
     ) {
-        $post = Post::find($post_id);
-
-        if (! $post) {
-            throw new Exceptions\InvalidPostId;
-        }
-
         $post_report = new ReportedPost;
         $post_report->reporter_id = $user->id;
-        $post_report->reported_id = $post_id;
+        $post_report->reported_id = $post->id;
         $post_report->reason_type = $reason_type;
         $post_report->other_reason = $other_reason ?: null;
         $post_report->save();
@@ -702,7 +649,7 @@ class PostService
         ];
     }
 
-    public function get_post_details(User $current_user, int $post_id)
+    public function get_post_details(User $current_user, Post $post)
     {
         $post_details = Post::with([
             'bids' => function ($query) {
@@ -711,7 +658,7 @@ class PostService
             'comments' => function ($query) {
                 $query->with('user')->latest();
             },
-        ])->with('user')->find($post_id);
+        ])->with('user')->find($post->id);
         $comments = [];
         $bids = [];
         $images = [];
@@ -795,10 +742,8 @@ class PostService
         ];
     }
 
-    public function get_post_preview(User $user, int $post_id)
+    public function get_post_preview(User $user, Post $post)
     {
-        $post = Post::findOrFail($post_id);
-
         return [
             'post_user_name' => $post->user->full_name,
             'post_user_avatar' => $post->user->avatar,
@@ -807,13 +752,13 @@ class PostService
         ];
     }
 
-    public function get_post_bids(User $user, int $post_id)
+    public function get_post_bids(User $user, Post $post)
     {
         $post = Post::with([
             'bids' => function ($query) {
                 $query->with('user')->orderBy('amount');
             },
-        ])->find($post_id);
+        ])->find($post->id);
 
         if (! $post) {
             throw new Exceptions\InvalidPostId;
@@ -835,14 +780,8 @@ class PostService
         return $bids;
     }
 
-    public function get_post_reviews(int $post_id)
+    public function get_post_reviews(Post $post)
     {
-        $post = Post::with(['reviews', 'reviews.user'])->find($post_id);
-
-        if (! $post) {
-            throw new Exceptions\InvalidPostId;
-        }
-
         $reviews = [];
 
         foreach ($post->reviews as $review) {
@@ -859,14 +798,14 @@ class PostService
         return $reviews;
     }
 
-    public function get_post_comments(User $user, int $post_id)
+    public function get_post_comments(User $user, Post $post)
     {
         $post = Post::with([
             'comments' => function ($query) {
                 $query->orderBy('created_at', 'asc');
             },
             'comments.user',
-        ])->find($post_id);
+        ])->find($post->id);
 
         if (! $post) {
             throw new Exceptions\InvalidPostId;
@@ -894,7 +833,7 @@ class PostService
 
     public function edit_post(
         User $user,
-        int $post_id,
+        Post $post,
         ?string $title,
         ?string $description,
         ?string $lat,
@@ -910,13 +849,7 @@ class PostService
         ?int $request_delivery,
         ?array $avatars
     ) {
-        $post = Post::find($post_id);
-
-        if (! $post) {
-            throw new Exceptions\InvalidPostId;
-        }
-
-        if (! $user->posts->contains('id', $post_id)) {
+        if (! $user->posts->contains('id', $post->id)) {
             throw new Exceptions\PostOwnership;
         }
 
@@ -961,15 +894,9 @@ class PostService
         return $post;
     }
 
-    public function delete_post(User $user, int $post_id)
+    public function delete_post(User $user, Post $post)
     {
-        $post = Post::find($post_id);
-
-        if (! $post) {
-            throw new Exceptions\InvalidPostId;
-        }
-
-        if (! $user->posts->contains('id', $post_id)) {
+        if (! $user->posts->contains('id', $post->id)) {
             throw new Exceptions\PostOwnership;
         }
 
@@ -1210,16 +1137,10 @@ class PostService
         return $placed_bids;
     }
 
-    public function remove_rejected_bid(User $user, int $bid_id)
+    public function remove_rejected_bid(User $user, Post $bid)
     {
-        $user_bid = $user->bids()->where('id', $bid_id)->first();
-
-        if (! $user_bid) {
-            throw new Exceptions\BidNotFound;
-        }
-
-        if ($user_bid->status == 'rejected') {
-            $user_bid->delete();
+        if ($bid->status == 'rejected') {
+            $bid->delete();
 
             return [
                 'message' => 'Bid successfully removed',
@@ -1229,22 +1150,16 @@ class PostService
         }
     }
 
-    public function get_placed_bid_status(User $user, int $post_id)
+    public function get_placed_bid_status(User $user, Post $post)
     {
-        $post = Post::where('id', $post_id)->with('user:id,first_name,last_name,avatar')
-            ->first();
-
-        if (! $post) {
-            throw new Exceptions\InvalidPostId;
-        }
-        $user_bid = $user->bids()->where('post_id', $post_id)->first();
+        $user_bid = $user->bids()->where('post_id', $post->id)->first();
 
         if (! $user_bid) {
             throw new Exceptions\BidNotFound;
         }
 
         $bids_data = [];
-        $post_bids = PostBid::where('post_id', $post_id)
+        $post_bids = PostBid::where('post_id', $post->id)
             ->with('user:id,first_name,last_name,avatar')
             ->orderBy('amount', 'asc')
             ->get();
@@ -1298,16 +1213,9 @@ class PostService
         ];
     }
 
-    public function cancel_placed_bid(User $user, int $post_id)
+    public function cancel_placed_bid(User $user, Post $post)
     {
-        $post = Post::where('id', $post_id)->with('user:id,first_name,last_name,avatar')
-            ->first();
-
-        if (! $post) {
-            throw new Exceptions\InvalidPostId;
-        }
-
-        $user_bid = PostBid::where('user_id', $user->id)->where('post_id', $post_id)->first();
+        $user_bid = PostBid::where('user_id', $user->id)->where('post_id', $post->id)->first();
 
         if (! $user_bid) {
             throw new Exceptions\BidNotFound;

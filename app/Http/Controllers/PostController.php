@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\PostBid;
+use App\Models\Post;
+use App\Models\PostComment;
 use App\Services\PostService;
 use Illuminate\Http\Request;
 
@@ -86,9 +88,11 @@ class PostController extends Controller
             'amount' => 'required|integer|gte:5|lte:1000',
         ]);
 
+        $post = Post::findOrFail($post_id);
+
         $response = $post_service->place_bid(
             $request->user(),
-            $post_id,
+            $post,
             $request->amount,
         );
 
@@ -159,9 +163,11 @@ class PostController extends Controller
         Request $request,
         PostService $post_service
     ) {
+        $post = Post::findOrFail($post_id);
+
         $response = $post_service->get_user_review(
             $request->user(),
-            $post_id,
+            $post,
         );
 
         return response()->json($response);
@@ -172,13 +178,16 @@ class PostController extends Controller
         PostService $post_service,
     ) {
         $request->validate([
-            'post_id' => 'required|integer',
+            'post_id' => 'required|exists:posts,id',
             'description' => 'required|string',
             'rating' => 'required|numeric',
         ]);
+
+        $post = Post::findOrFail($request->post_id);
+
         $response = $post_service->place_post_review(
             $request->user(),
-            $request->post_id,
+            $post,
             $request->description,
             $request->rating
         );
@@ -218,9 +227,11 @@ class PostController extends Controller
         Request $request,
         PostService $post_service,
     ) {
+        $post = Post::findOrFail($post_id);
+
         $response = $post_service->toggle_like(
             $request->user(),
-            $post_id,
+            $post,
         );
 
         return response()->json($response);
@@ -231,12 +242,15 @@ class PostController extends Controller
         PostService $post_service,
     ) {
         $request->validate([
-            'post_id' => 'required|integer',
+            'post_id' => 'required|exists:posts,id',
             'post_comment' => 'required|string',
         ]);
+
+        $post = Post::findOrFail($request->post_id);
+
         $response = $post_service->place_comment(
             $request->user(),
-            $request->post_id,
+            $post,
             $request->post_comment,
         );
 
@@ -248,9 +262,11 @@ class PostController extends Controller
         Request $request,
         PostService $post_service
     ) {
+        $comment = PostComment::findOrFail($comment_id);
+
         $response = $post_service->delete_post_comment(
             $request->user(),
-            $comment_id
+            $comment
         );
 
         return response()->json($response);
@@ -266,9 +282,11 @@ class PostController extends Controller
             'other_reason' => 'required_if:reason_type,other',
         ]);
 
+        $comment = PostComment::findOrFail($comment_id);
+
         $response = $post_service->report_post_comment(
             $request->user(),
-            $comment_id,
+            $comment,
             $request->reason_type,
             $request->other_reason,
         );
@@ -286,11 +304,13 @@ class PostController extends Controller
             'other_reason' => 'required_if:reason_type,other',
         ]);
 
+        $post = Post::findOrFail($post_id);
+
         $response = $post_service->report_post(
             $request->user(),
             $request->reason_type,
             $request->other_reason,
-            $post_id,
+            $post,
         );
 
         return response()->json($response);
@@ -301,9 +321,11 @@ class PostController extends Controller
         Request $request,
         PostService $post_service
     ) {
+        $post = Post::findOrFail($post_id);
+
         $response = $post_service->get_post_details(
             $request->user(),
-            $post_id,
+            $post,
         );
 
         return response()->json($response);
@@ -314,9 +336,11 @@ class PostController extends Controller
         Request $request,
         PostService $post_service
     ) {
+        $post = Post::findOrFail($post_id);
+
         $response = $post_service->get_post_bids(
             $request->user(),
-            $post_id,
+            $post,
         );
 
         return response()->json($response);
@@ -327,9 +351,11 @@ class PostController extends Controller
         Request $request,
         PostService $post_service
     ) {
+        $post = Post::findOrFail($post_id);
+
         $response = $post_service->get_post_preview(
             $request->user(),
-            $post_id
+            $post
         );
 
         return response()->json($response);
@@ -339,7 +365,9 @@ class PostController extends Controller
         int $post_id,
         PostService $post_service
     ) {
-        $response = $post_service->get_post_reviews($post_id);
+        $post = Post::findOrFail($post_id);
+
+        $response = $post_service->get_post_reviews($post);
 
         return response()->json($response);
     }
@@ -349,9 +377,11 @@ class PostController extends Controller
         Request $request,
         PostService $post_service
     ) {
+        $post = Post::findOrFail($post_id);
+
         $response = $post_service->get_post_comments(
             $request->user(),
-            $post_id,
+            $post,
         );
 
         return response()->json($response);
@@ -385,9 +415,11 @@ class PostController extends Controller
             $avatars = [$avatars];
         }
 
+        $post = Post::findOrFail($post_id);
+
         $response = $post_service->edit_post(
             $request->user(),
-            $post_id,
+            $post,
             $request->title,
             $request->description,
             $request->lat,
@@ -412,9 +444,11 @@ class PostController extends Controller
         Request $request,
         PostService $post_service
     ) {
+        $post = Post::findOrFail($post_id);
+
         $response = $post_service->delete_post(
             $request->user(),
-            $post_id,
+            $post,
         );
 
         return response()->json($response);
@@ -438,9 +472,11 @@ class PostController extends Controller
         Request $request,
         PostService $post_service,
     ) {
+        $bid = PostBid::findOrFail($bid_id);
+
         $response = $post_service->remove_rejected_bid(
             $request->user(),
-            $bid_id,
+            $bid,
         );
 
         return response()->json($response);
@@ -451,9 +487,11 @@ class PostController extends Controller
         Request $request,
         PostService $post_service,
     ) {
+        $post = Post::findOrFail($post_id);
+
         $response = $post_service->get_placed_bid_status(
             $request->user(),
-            $post_id
+            $post
         );
 
         return response()->json($response);
@@ -464,9 +502,11 @@ class PostController extends Controller
         Request $request,
         PostService $post_service
     ) {
+        $post = Post::findOrFail($post_id);
+
         $response = $post_service->cancel_placed_bid(
             $request->user(),
-            $post_id
+            $post
         );
 
         return response()->json($response);
