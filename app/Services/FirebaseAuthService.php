@@ -224,7 +224,7 @@ class FirebaseAuthService
                 'message' => 'Login successful',
                 'uid' => $user->uid,
                 'token' => $token,
-                'user_details' => $user,
+                'user_details' => User::find($user->id),
             ];
 
         } catch (FailedToVerifyToken $e) {
