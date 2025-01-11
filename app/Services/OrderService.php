@@ -168,7 +168,7 @@ class OrderService
 
     public function get_transaction_details(User $user, string $transaction_id)
     {
-        $order = OrderHistory::with('bid')->where(
+        $order = OrderHistory::with(['bid', 'bid.user'])->where(
             'transaction_id',
             $transaction_id
         )->first();
@@ -245,6 +245,13 @@ class OrderService
             'is_provided' => $post->user_id != $user->id,
             'status' => $post->order_status,
             'is_feedback' => ! $post->reviews->isEmpty(),
+            'accepted_bid' => [
+                'user_name' => $order->bid->user->full_name,
+                'avatar' => $order->bid->user->avatar,
+                'amount' => $order->bid->amount,
+                'created_at' => Carbon::parse($order->bid->created_at)->diffForHumans(),
+                'status' => $order->bid->status,
+            ]
         ];
     }
 
