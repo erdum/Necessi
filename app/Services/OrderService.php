@@ -7,6 +7,7 @@ use App\Models\ConnectionRequest;
 use App\Models\OrderHistory;
 use App\Models\Post;
 use App\Models\PostBid;
+use App\Models\Review;
 use App\Models\Transaction;
 use App\Models\User;
 use Carbon\Carbon;
@@ -216,6 +217,9 @@ class OrderService
             ])
             ->value('chat_id');
 
+        $check_user_feedback = $post->reviews->contains('user_id', $user->id);
+        $user_review = Review::where('user_id', $user->id)->where('post_id', $post->id)->first();
+
         return [
             'post_id' => $post->id,
             'bid_id' => $order->bid->id,
@@ -244,14 +248,15 @@ class OrderService
             'received_by_lender' => $order->received_by_lender != null,
             'is_provided' => $post->user_id != $user->id,
             'status' => $post->order_status,
-            'is_feedback' => ! $post->reviews->isEmpty(),
+            'is_feedback' => $check_user_feedback,
             'accepted_bid' => [
                 'user_name' => $order->bid->user->full_name,
                 'avatar' => $order->bid->user->avatar,
                 'amount' => $order->bid->amount,
                 'created_at' => Carbon::parse($order->bid->created_at)->diffForHumans(),
                 'status' => $order->bid->status,
-            ]
+            ],
+            'review' => $user_review,
         ];
     }
 
