@@ -313,7 +313,7 @@ class OrderService
         $this->notification_service->push_notification(
             $receiver_user,
             NotificationType::BID,
-            $user->full_name,
+            $receiver_user->full_name,
             "you have received a payment for\nyour bid on the post",
             $user->avatar ?? '',
             [
