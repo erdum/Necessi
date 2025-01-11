@@ -218,7 +218,6 @@ class OrderService
             ->value('chat_id');
 
         $check_user_feedback = $post->reviews->contains('user_id', $user->id);
-        $user_review = Review::where('user_id', $user->id)->where('post_id', $post->id)->first();
 
         return [
             'post_id' => $post->id,
@@ -256,7 +255,6 @@ class OrderService
                 'created_at' => Carbon::parse($order->bid->created_at)->diffForHumans(),
                 'status' => $order->bid->status,
             ],
-            'review' => $user_review,
         ];
     }
 
