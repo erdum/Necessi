@@ -8,6 +8,7 @@ use App\Models\Post;
 use App\Models\PostComment;
 use App\Services\PostService;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class PostController extends Controller
 {
@@ -26,7 +27,11 @@ class PostController extends Controller
             'budget' => 'required|gte:5|lte:1000',
             'type' => 'required|string|in:item,service',
             'start_date' => 'required|date_format:Y-m-d|after_or_equal:today',
-            'end_date' => 'required|date_format:Y-m-d|after:start_date',
+            'end_date' => [
+                'required',
+                'date_format:Y-m-d',
+                Rule::when($request->type === 'service', 'after_or_equal:start_date', 'after:start_date'),
+            ],            
             'start_time' => 'nullable|date_format:H:i:s|required_if:type,service',
             'end_time' => 'nullable|date_format:H:i:s|required_if:type,service',
             'request_delivery' => 'nullable',
