@@ -1145,7 +1145,7 @@ class PostService
                 'avatar' => $user_bid->user->avatar,
                 'type' => $user_bid->post->type,
                 'location' => $user_bid->post->location,
-                'location_details' => $user_bid->city . ', ' . $user_bid->state,
+                'location_details' => $user_bid->post->city . ', ' . $user_bid->post->state,
                 'distance' => round($distance, 2).' miles away',
                 'title' => $user_bid->post->title,
                 'decscription' => $user_bid->post->description,
@@ -1345,6 +1345,8 @@ class PostService
                 'user_name' => $received_bid->user->full_name,
                 'avatar' => $received_bid->user->avatar,
                 'budget' => $received_bid->post->budget,
+                'location' => $received_bid->post->location,
+                'location_details' => $received_bid->post->city . ', ' . $received_bid->post->state,
                 'duration' => ($received_bid->post->start_time && $received_bid->post->end_time)
                     ? Carbon::parse($received_bid->post->start_time)->format('h:i A').' - '.Carbon::parse($received_bid->post->end_time)->format('h:i A')
                     : null,
