@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\PostBid;
 use App\Services\PostService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -104,9 +105,11 @@ class PostController extends Controller
         Request $request,
         PostService $post_service
     ) {
+        $bid = PostBid::findOrFail($bid_id);
+
         $response = $post_service->accept_post_bid(
             $request->user(),
-            $bid_id
+            $bid
         );
 
         return response()->json($response);
@@ -117,9 +120,11 @@ class PostController extends Controller
         Request $request,
         PostService $post_service
     ) {
+        $bid = PostBid::findOrFail($bid_id);
+
         $response = $post_service->decline_post_bid(
             $request->user(),
-            $bid_id
+            $bid
         );
 
         return response()->json($response);
