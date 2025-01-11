@@ -17,9 +17,9 @@ class BaseException extends Exception
         int $code = 500,
         array $data = []
     ) {
-        $this->message = $message;
-        $this->code = $code;
-        $this->data = $data;
+        $this->message = $this->message ?: $message;
+        $this->code = $this->code ?: $code;
+        $this->data = $this->data ?: $data;
 
         parent::__construct($this->message);
     }
