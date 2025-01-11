@@ -207,25 +207,16 @@ class PostService
         ];
     }
 
-    public function accept_post_bid(User $user, int $bid_id)
+    public function accept_post_bid(User $user, PostBid $bid)
     {
-        $bid = PostBid::find($bid_id);
-
-        if (! $bid) {
-            throw new Exceptions\BaseException(
-                'Bid not found.',
-                400
-            );
-        }
-
         if ($bid->post->user_id != $user->id) {
             throw new Exceptions\PostOwnership;
         }
 
-        if (
-            PostBid::where('post_id', $bid->post->id)
-                ->where('status', 'accepted')->exists()
-        ) {
+        $has_accepted_bid = $bid->post->bids()->where('status', 'accepted')
+            ->exists();
+
+        if ($has_accepted_bid) {
             throw new Exceptions\BaseException(
                 'This post have an already accepted bid.',
                 400
@@ -234,6 +225,12 @@ class PostService
 
         $bid->status = 'accepted';
         $bid->save();
+
+        $post_bids = $bid->post->bids()->whereNot('status', 'accepted');
+
+        foreach ($post_bids as $post_bid) {
+            $this->decline_post_bid($user, $post_bid);
+        }
 
         $receiver_user = $bid->user;
 
@@ -255,17 +252,8 @@ class PostService
         ];
     }
 
-    public function decline_post_bid(User $user, int $bid_id)
+    public function decline_post_bid(User $user, PostBid $bid)
     {
-        $bid = PostBid::find($bid_id);
-
-        if (! $bid) {
-            throw new Exceptions\BaseException(
-                'Bid not found.',
-                400
-            );
-        }
-
         if ($bid->post->user_id != $user->id) {
             throw new Exceptions\PostOwnership;
         }
