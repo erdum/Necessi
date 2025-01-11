@@ -178,7 +178,14 @@ class UserController extends Controller
 
     public function get_connections(Request $request, UserService $user_service)
     {
-        $response = $user_service->get_connections($request->user());
+
+        if ($request->user_id) {
+            $user = User::findOrFail($request->user_id);
+        }
+
+        $response = $user_service->get_connections(
+            $user ?? $request->user()
+        );
 
         return response()->json($response);
     }
