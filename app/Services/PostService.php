@@ -455,14 +455,14 @@ class PostService
             })
             ->whereDoesntHave(
                 'user.blocked_users',
-                function ($query) {
-                    $query->where('blocked_id', auth()->user()->id);
+                function ($query) use ($user) {
+                    $query->where('blocked_id', $user->id);
                 }
             )
             ->whereDoesntHave(
                 'user.blocker_users',
-                function ($query) {
-                    $query->where('blocker_id', auth()->user()->id);
+                function ($query) use ($user) {
+                    $query->where('blocker_id', $user->id);
                 }
             )
             ->orderBy('created_at', 'desc')
