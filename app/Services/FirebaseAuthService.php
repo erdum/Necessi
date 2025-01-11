@@ -195,8 +195,8 @@ class FirebaseAuthService
                 ['uid' => $firebaseUid],
                 [
                     'email' => $verifiedIdToken->claims()->get('email'),
-                    'first_name' => $verifiedIdToken->claims()->get('name'),
-                    'last_name' => $verifiedIdToken->claims()->get('family_name'),
+                    'first_name' => $verifiedIdToken->claims()->get('name') ?? '',
+                    'last_name' => $verifiedIdToken->claims()->get('family_name') ?? '',
                 ]
             );
 
