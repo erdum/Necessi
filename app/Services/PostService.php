@@ -139,6 +139,16 @@ class PostService
         //     );
         // }
 
+        $post_owner = $post->user;
+        $blocked_by_user = $user->blocked_users->contains($post_owner->id);
+        $blocked_by_postowner = $post_owner->blocked_users->contains($user->id);
+    
+        if ($blocked_by_user || $blocked_by_postowner) {
+            throw new Exceptions\BaseException(
+                'You cannot place a bid as there is a block relationship between you and the post owner.', 400
+            );
+        }
+
         if ($post->user_id == $user->id) {
             throw new Exceptions\BaseException(
                 'You cannot place a bid on your own post.', 400
