@@ -424,6 +424,12 @@ class UserService
     public function get_profile(User $user)
     {
         $current_user = auth()->user();
+
+        if (
+            $user->is_blocked($current_user->id)
+            || $user->is_blocker($current_user->id)
+        ) return null;
+
         $reviews = Review::whereHas(
             'post',
             function ($query) use ($user) {
