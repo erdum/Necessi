@@ -84,7 +84,8 @@ class OrderService
                     ])
                     ->value('chat_id');
                 
-                $user_feedback = $post->reviews->contains('user_id', $user->id);
+                $user_feedback = $post->user->id != $user->id
+                    && $post->reviews()->where('user_id', $user->id)->exists();
 
 
                 if ($post->type == 'item') {
