@@ -832,6 +832,30 @@ class UserService
             $query->where('sender_id', $user->id)
                 ->orWhere('receiver_id', $user->id);
         })
+            ->whereDoesntHave(
+                'sender.blocked_users',
+                function ($query) use ($user) {
+                    $query->where('blocked_id', $user->id);
+                }
+            )
+            ->whereDoesntHave(
+                'sender.blocker_users',
+                function ($query) use ($user) {
+                    $query->where('blocker_id', $user->id);
+                }
+            )
+            ->whereDoesntHave(
+                'receiver.blocked_users',
+                function ($query) use ($user) {
+                    $query->where('blocked_id', $user->id);
+                }
+            )
+            ->whereDoesntHave(
+                'receiver.blocker_users',
+                function ($query) use ($user) {
+                    $query->where('blocker_id', $user->id);
+                }
+            )
             ->where('status', 'accepted')
             ->with([
                 'sender',
