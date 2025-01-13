@@ -205,7 +205,7 @@ class UserService
             return $data[0];
         }
 
-        return false;
+        return null;
     }
 
     public function update_profile(
