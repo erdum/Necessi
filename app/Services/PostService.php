@@ -755,6 +755,7 @@ class PostService
     public function get_post_preview(User $user, Post $post)
     {
         return [
+            'post_id' => $post->id,
             'post_user_name' => $post->user->full_name,
             'post_user_avatar' => $post->user->avatar,
             'post_budget' => $post->budget,
