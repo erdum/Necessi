@@ -52,7 +52,7 @@ class UserService
             ->orWhere([
                 ['sender_id', '=', $target_user->id],
                 ['receiver_id', '=', $current_user->id],
-            ])->first();
+            ])->firstOrFail();
 
         if ($is_connection) {
             if ($is_connection->status == 'accepted') {

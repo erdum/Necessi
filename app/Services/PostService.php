@@ -670,15 +670,12 @@ class PostService
             'comments' => function ($query) {
                 $query->with('user')->latest();
             },
-        ])->with('user')->find($post->id);
+        ])->with('user')->findOrFail($post->id);
+
         $comments = [];
         $bids = [];
         $images = [];
         $is_lowest = true;
-
-        if (! $post_details) {
-            throw new Exceptions\InvalidPostId;
-        }
 
         foreach ($post_details->bids as $bid) {
             $bids[] = [
@@ -770,11 +767,8 @@ class PostService
             'bids' => function ($query) {
                 $query->with('user')->orderBy('amount');
             },
-        ])->find($post->id);
+        ])->findOrFail($post->id);
 
-        if (! $post) {
-            throw new Exceptions\InvalidPostId;
-        }
         $bids = [];
         $status = 'lowest';
 
@@ -817,11 +811,8 @@ class PostService
                 $query->orderBy('created_at', 'asc');
             },
             'comments.user',
-        ])->find($post->id);
+        ])->findOrFail($post->id);
 
-        if (! $post) {
-            throw new Exceptions\InvalidPostId;
-        }
         $comments = [];
 
         foreach ($post->comments as $comment) {
@@ -1046,10 +1037,6 @@ class PostService
 
     public function get_placed_bids(User $user, ?int $bid_id)
     {
-        if (! $user) {
-            throw new Exceptions\UserNotFound;
-        }
-
         if ($bid_id) {
             $post_ids = $user->posts()->pluck('id');
             $user_bid = PostBid::where('id', $bid_id)->whereIn('post_id', $post_ids)->with('post')->first();
@@ -1157,18 +1144,12 @@ class PostService
             return [
                 'message' => 'Bid successfully removed',
             ];
-        } else {
-            throw new Exceptions\BidNotFound;
         }
     }
 
     public function get_placed_bid_status(User $user, Post $post)
     {
-        $user_bid = $user->bids()->where('post_id', $post->id)->first();
-
-        if (! $user_bid) {
-            throw new Exceptions\BidNotFound;
-        }
+        $user_bid = $user->bids()->where('post_id', $post->id)->firstOrFail();
 
         $bids_data = [];
         $post_bids = PostBid::where('post_id', $post->id)
@@ -1227,11 +1208,8 @@ class PostService
 
     public function cancel_placed_bid(User $user, Post $post)
     {
-        $user_bid = PostBid::where('user_id', $user->id)->where('post_id', $post->id)->first();
-
-        if (! $user_bid) {
-            throw new Exceptions\BidNotFound;
-        }
+        $user_bid = PostBid::where('user_id', $user->id)
+            ->where('post_id', $post->id)->firstOrFail();
 
         $user_bid->delete();
 

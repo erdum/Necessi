@@ -38,7 +38,7 @@ class FirebaseAuthService
 
     protected function is_user_already_registered(string $email)
     {
-        return User::where('email', $email)->first();
+        return User::where('email', $email)->firstOrFail();
     }
 
     public function register(
@@ -128,10 +128,6 @@ class FirebaseAuthService
     public function reset_password(string $email, string $password)
     {
         $user = $this->is_user_already_registered($email);
-
-        if (! $user) {
-            throw new Exceptions\UserNotFound;
-        }
 
         if ($user->email_verified_at == null) {
             throw new Exceptions\EmailNotVerified;

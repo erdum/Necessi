@@ -142,7 +142,6 @@ class OrderService
     public function mark_as_received(User $user, int $bid_id)
     {
         // if (! $user->bids->contains('id', $bid_id)) {
-        //     throw new Exceptions\BidNotFound;
         // }
 
         $order = OrderHistory::where('bid_id', $bid_id)->first();
@@ -263,11 +262,7 @@ class OrderService
         int $bid_id,
         string $payment_method_id
     ) {
-        $bid = PostBid::find($bid_id);
-
-        if (! $bid) {
-            throw new Exceptions\BidNotFound;
-        }
+        $bid = PostBid::findOrFail($bid_id);
 
         if ($bid->post->user_id != $user->id) {
             throw new Exceptions\AccessForbidden;

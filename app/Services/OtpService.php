@@ -143,11 +143,7 @@ class OtpService
         $user = Otp::where('identifier', $identifier)->first()?->user;
 
         if (! $user) {
-            $user = User::where('email', $identifier)->first();
-        }
-
-        if (! $user) {
-            throw new Exceptions\UserNotFound;
+            $user = User::where('email', $identifier)->firstOrFail();
         }
 
         return $this->send_otp($user, $identifier);
