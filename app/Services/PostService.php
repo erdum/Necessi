@@ -1248,12 +1248,10 @@ class PostService
             return [];
         }
 
-        $received_bids = PostBid::whereIn('post_id', $user_posts)
-        ->whereNotIn('status', 'rejected')
-        ->with(['user:id,first_name,last_name,avatar', 'post'])
-        ->orderBy('created_at', 'desc')
-        ->get();
-    
+        $received_bids = PostBid::whereIn('post_id', $user_posts)->whereNot('status', 'rejected')
+            ->with(['user:id,first_name,last_name,avatar', 'post'])
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return $received_bids->map(function ($received_bid) {
             return [
