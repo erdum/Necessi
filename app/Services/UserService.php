@@ -424,11 +424,8 @@ class UserService
     public function get_profile(User $user)
     {
         $current_user = auth()->user();
-
-        if (
-            $user->is_blocked($current_user->id)
-            || $user->is_blocker($current_user->id)
-        ) return null;
+        $user_is_blocked = $user->is_blocked($current_user->id)
+            || $user->is_blocker($current_user->id);
 
         $reviews = Review::whereHas(
             'post',
@@ -580,6 +577,7 @@ class UserService
             ]] : [],
             'reviews' => $reviews,
             'is_social' => $user->password == null,
+            'user_is_blocked' => $user_is_blocked,
         ];
     }
 
