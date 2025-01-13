@@ -1270,10 +1270,12 @@ class UserService
         ))[0];
         $other_user = User::where('uid', $other_uid)->first();
 
-        $user->blocked_users()->attach($other_user->id, [
-            'reason_type' => $reason_type,
-            'other_reason' => $other_reason ?: null,
-        ]);
+        $this->block_user(
+            $user,
+            $other_user,
+            $reason_type,
+            $other_reason
+        );
 
         return [
             'message' => 'User successfully reported',
