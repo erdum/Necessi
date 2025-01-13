@@ -1225,8 +1225,7 @@ class UserService
     public function get_blocked_users(User $user)
     {
         return $user->blocked_users->map(function ($blocked_user) use ($user) {
-            $chat_id = ConnectionRequest::withTrashed()
-                ->where([
+            $chat_id = ConnectionRequest::where([
                     ['sender_id', '=', $user->id],
                     ['receiver_id', '=', $blocked_user->id],
                 ])
