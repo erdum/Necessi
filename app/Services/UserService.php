@@ -1145,6 +1145,8 @@ class UserService
             throw new Exceptions\AccessForbidden;
         }
 
+        $connection = $this->is_connected($user, $receiver_user);
+
         $this->notification_service->push_notification(
             $receiver_user,
             NotificationType::MESSAGE,
@@ -1154,7 +1156,7 @@ class UserService
             [
                 'description' => $user->about,
                 'sender_id' => $user->id,
-                'connection_request_id' => null,
+                'connection_request_id' => $connection ? $connection->id : null,
             ]
         );
 
