@@ -542,7 +542,7 @@ class PostService
         return $posts;
     }
 
-    public function toggle_like(User $user, int $post)
+    public function toggle_like(User $user, Post $post)
     {
         $like = PostLike::where('post_id', $post->id)
             ->where('user_id', $user->id)->first();
