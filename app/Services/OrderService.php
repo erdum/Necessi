@@ -84,8 +84,8 @@ class OrderService
                     ])
                     ->value('chat_id');
                 
-                $user_feedback = $post->user->id != $user->id
-                    && $post->reviews()->where('user_id', $user->id)->exists();
+                $user_feedback = $post->reviews()->where('user_id', $user->id)
+                    ->exists();
 
 
                 if ($post->type == 'item') {
@@ -217,8 +217,8 @@ class OrderService
             ])
             ->value('chat_id');
 
-        $check_user_feedback = $post->user->id != $user->id
-            && $post->reviews()->where('user_id', $user->id)->exists();
+        $check_user_feedback = $post->reviews()->where('user_id', $user->id)
+            ->exists();
 
         return [
             'post_id' => $post->id,
