@@ -56,10 +56,11 @@ class Handler extends ExceptionHandler
         if ($e instanceof ModelNotFoundException) {
             $model = explode('\\', $e->getModel());
             $model = end($model);
-            $id = $e->getIds()[0];
+            $id = $e->getIds()[0] ?? null;
+            $id = $id ? 'ID '.$id : '';
 
             return response()->json([
-                'message' => "Invalid {$model} ID {$id}, Resource not found."
+                'message' => "Invalid {$model} {$id}, Resource not found."
             ], 404);
         }
 
