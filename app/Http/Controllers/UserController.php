@@ -355,7 +355,7 @@ class UserController extends Controller
     }
 
     public function block_user(
-        string $chat_id,
+        string $user_uid,
         Request $request,
         UserService $user_service
     ) {
@@ -366,7 +366,7 @@ class UserController extends Controller
 
         $response = $user_service->block_user(
             $request->user(),
-            $chat_id,
+            $user_uid,
             $request->reason_type,
             $request->other_reason
         );
@@ -415,13 +415,13 @@ class UserController extends Controller
     }
 
     public function unblock_user(
-        string $chat_id,
+        string $user_uid,
         Request $request,
         UserService $user_service
     ) {
         $response = $user_service->unblock_user(
             $request->user(),
-            $chat_id
+            $user_uid
         );
 
         return response()->json($response);

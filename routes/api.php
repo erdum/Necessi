@@ -412,7 +412,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Block user from chat
     Route::post(
-        '/user/block/{chat_id}',
+        '/user/block/{user_uid}',
         [UserController::class, 'block_user']
     );
 
@@ -430,7 +430,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Unblock user from chat
     Route::get(
-        '/user/unblock/{uid}',
+        '/user/unblock/{user_uid}',
         [UserController::class, 'unblock_user']
     );
 

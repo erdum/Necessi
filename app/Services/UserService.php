@@ -87,7 +87,7 @@ class UserService
         ]))->documents()->rows();
 
         if (count($data) > 0) {
-            return $data[0]->id();
+            return $data[0];
         }
 
         return false;
@@ -1088,7 +1088,7 @@ class UserService
         );
         $db = $firebase->createFirestore()->database();
 
-        $existing_chat_id = $this->chat_exists($user, $other_party_uid);
+        $existing_chat_id = $this->chat_exists($user, $other_party_uid)?->id();
 
         if ($existing_chat_id) {
             return ['chat_id' => $existing_chat_id];
@@ -1222,49 +1222,34 @@ class UserService
 
     public function block_user(
         User $user,
-        string $chat_id,
+        string $user_uid,
         string $reason_type,
         ?string $other_reason
     ) {
-        $factory = app(Factory::class);
-        $firebase = $factory->withServiceAccount(
-            base_path()
-            .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
-        );
-        $db = $firebase->createFirestore()->database();
-
-        $chat_snap = $db->collection('chats')->document($chat_id)->snapshot();
-
-        if (! $chat_snap->exists()) {
-            throw new Exceptions\BaseException('Invalid chat id', 400);
-        }
-        $chat = $chat_snap->data();
-
-        $other_uid = array_values(array_diff(
-            $chat['members'],
-            [$user->uid]
-        ))[0];
-        $other_user = User::where('uid', $other_uid)->first();
-
-        if (! $other_user) {
-            throw new Exceptions\UserNotFound;
-        }
+        $other_user = User::where('uid', $user_uid)->firstOrFail();
 
         if ($user->is_blocked($other_user->id)) {
+
             return [
                 'message' => 'User is already blocked',
             ];
         } else {
             $user->blocked_users()->attach($other_user->id, [
                 'reason_type' => $reason_type,
-                'other_reason' => $other_reason ?: null,
+                'other_reason' => $other_reason,
             ]);
 
-            $chat_snap->reference()->update([[
-                'path' => 'blocked_by',
-                'value' => $user->uid,
-            ]]);
+            $chat_ref = $this->chat_exists(
+                $user,
+                $other_user->uid
+            )?->reference();
+
+            if ($chat_ref) {
+                $chat_ref->update([[
+                    'path' => 'blocked_by',
+                    'value' => $user->uid,
+                ]]);
+            }
 
             return [
                 'message' => 'User successfully blocked',
@@ -1274,47 +1259,32 @@ class UserService
 
     public function unblock_user(
         User $user,
-        string $chat_id
+        string $user_uid
     ) {
-        $factory = app(Factory::class);
-        $firebase = $factory->withServiceAccount(
-            base_path()
-            .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
-        );
-        $db = $firebase->createFirestore()->database();
+        $other_user = User::where('uid', $user_uid)->firstOrFail();
 
-        $chat_snap = $db->collection('chats')->document($chat_id)->snapshot();
+        if (! $user->is_blocked($other_user->id)) {
 
-        if (! $chat_snap->exists()) {
-            throw new Exceptions\BaseException('Invalid chat id', 400);
-        }
-        $chat = $chat_snap->data();
-
-        $other_uid = array_values(array_diff(
-            $chat['members'],
-            [$user->uid]
-        ))[0];
-        $other_user = User::where('uid', $other_uid)->first();
-
-        if (! $other_user) {
-            throw new Exceptions\UserNotFound;
-        }
-
-        if ($user->is_blocked($other_user->id)) {
+            return [
+                'message' => 'User is not blocked',
+            ];
+        } else {
             $user->blocked_users()->detach($other_user->id);
 
-            $chat_snap->reference()->update([[
-                'path' => 'blocked_by',
-                'value' => null,
-            ]]);
+            $chat_ref = $this->chat_exists(
+                $user,
+                $other_user->uid
+            )?->reference();
+
+            if ($chat_ref) {
+                $chat_ref->update([[
+                    'path' => 'blocked_by',
+                    'value' => null,
+                ]]);
+            }
 
             return [
                 'message' => 'User successfully unblocked',
-            ];
-        } else {
-            return [
-                'message' => 'User is not blocked',
             ];
         }
     }
