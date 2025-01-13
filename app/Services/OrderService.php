@@ -142,7 +142,7 @@ class OrderService
 
     public function mark_as_received(User $user, int $bid_id)
     {
-        // if (! $user->bids->contains('id', $bid_id)) {
+        // if (! $user->bids()->find($bid_id)) {
         // }
 
         $order = OrderHistory::where('bid_id', $bid_id)->first();

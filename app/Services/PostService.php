@@ -136,13 +136,17 @@ class PostService
         //     );
         // }
 
-        $post_owner = $post->user;
-        $blocked_by_user = $user->blocked_users->contains($post_owner->id);
-        $blocked_by_postowner = $post_owner->blocked_users->contains($user->id);
-    
-        if ($blocked_by_user || $blocked_by_postowner) {
+        if ($user->is_blocked($post->user->id)) {
             throw new Exceptions\BaseException(
-                'You cannot place a bid as there is a block relationship between you and the post owner.', 400
+                'You cannot place a bid as you have blocked the post user.',
+                400
+            );
+        }
+
+        if ($user->is_blocker($post->user->id)) {
+            throw new Exceptions\BaseException(
+                'You cannot place a bid as you are blocked by the post user.',
+                400
             );
         }
 
@@ -849,7 +853,7 @@ class PostService
         ?int $request_delivery,
         ?array $avatars
     ) {
-        if (! $user->posts->contains('id', $post->id)) {
+        if ($user->id != $post->user_id) {
             throw new Exceptions\PostOwnership;
         }
 
@@ -896,7 +900,7 @@ class PostService
 
     public function delete_post(User $user, Post $post)
     {
-        if (! $user->posts->contains('id', $post->id)) {
+        if ($user->id != $post->user_id) {
             throw new Exceptions\PostOwnership;
         }
 
