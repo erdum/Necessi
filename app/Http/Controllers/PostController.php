@@ -313,9 +313,9 @@ class PostController extends Controller
 
         $response = $post_service->report_post(
             $request->user(),
-            $request->reason_type,
-            $request->other_reason,
             $post,
+            $request->reason_type,
+            $request->other_reason
         );
 
         return response()->json($response);

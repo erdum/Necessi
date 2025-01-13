@@ -22,12 +22,9 @@ class PostService
 
     protected $stripe_service;
 
-    public function __construct(
-        FirebaseNotificationService $notification_service,
-        StripeService $stripe_service
-    ) {
-        $this->notification_service = $notification_service;
-        $this->stripe_service = $stripe_service;
+    public function __construct() {
+        $this->notification_service = app(FirebaseNotificationService::class);
+        $this->stripe_service = app(StripeService::class);
     }
 
     public function calculateDistance(
@@ -645,9 +642,9 @@ class PostService
 
     public function report_post(
         User $user,
-        string $reason_type,
-        ?string $other_reason,
         Post $post,
+        string $reason_type,
+        ?string $other_reason
     ) {
         $post_report = new ReportedPost;
         $post_report->reporter_id = $user->id;

@@ -33,14 +33,21 @@ class UserService
 
     protected $stripe_service;
 
-    public function __construct(
-        PostService $post_service,
-        FirebaseNotificationService $notification_service,
-        StripeService $stripe_service
-    ) {
-        $this->post_service = $post_service;
-        $this->notification_service = $notification_service;
-        $this->stripe_service = $stripe_service;
+    protected $firestore;
+
+    public function __construct() {
+        $this->post_service = app(PostService::class);
+        $this->notification_service = app(FirebaseNotificationService::class);
+        $this->stripe_service = app(StripeService::class);
+
+        $factory = app(Factory::class);
+        $firebase = $factory->withServiceAccount(
+            base_path()
+            .DIRECTORY_SEPARATOR
+            .config('firebase.projects.app.credentials')
+        );
+
+        $this->firestore = $firebase->createFirestore()->database();
     }
 
     private function is_connected(User $current_user, User $target_user)
@@ -54,26 +61,134 @@ class UserService
                 ['receiver_id', '=', $current_user->id],
             ])->firstOrFail();
 
-        if ($is_connection) {
-            if ($is_connection->status == 'accepted') {
-                return true;
-            } else {
-                return false;
-            }
+        if ($is_connection->status == 'accepted') {
+            return $is_connection;
         }
+
+        return false;
     }
 
-    public function chat_exists(User $user, string $other_party_uid)
-    {
-        $factory = app(Factory::class);
-        $firebase = $factory->withServiceAccount(
-            base_path()
-            .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
-        );
-        $db = $firebase->createFirestore()->database();
+    private function haversineDistance(
+        float $lat1,
+        float $long1,
+        float $lat2,
+        float $long2
+    ) {
+        // Earth's radius in miles
+        $earth_radius = 3958.8;
+        // Earth's radius in kilometers
+        // $earth_radius = 6371;
 
-        $ref = $db->collection('chats');
+        $lat1 = deg2rad($lat1);
+        $long1 = deg2rad($long1);
+        $lat2 = deg2rad($lat2);
+        $long2 = deg2rad($long2);
+
+        // Haversine formula
+        $d_lat = $lat2 - $lat1;
+        $d_long = $long2 - $long1;
+
+        $a = sin($d_lat / 2) * sin($d_lat / 2) + cos($lat1) * cos($lat2) * sin($d_long / 2) * sin($d_long / 2);
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
+        $distance = $earth_radius * $c;
+
+        return $distance;
+    }
+
+    private function send_request(
+        int $sender_id,
+        int $receiver_id,
+    ) {
+        $existing_request = ConnectionRequest::where([
+                ['sender_id', '=', $sender_id],
+                ['receiver_id', '=', $receiver_id],
+            ])
+            ->orWhere([
+                ['sender_id', '=', $receiver_id],
+                ['receiver_id', '=', $sender_id],
+            ])
+            ->first();
+
+        if ($existing_request) {
+
+            if ($existing_request->status == 'pending') {
+                throw new Exceptions\BaseException(
+                    'Connection request already sent!', 400
+                );
+            }
+
+            if ($existing_request->status == 'accepted') {
+                throw new Exceptions\ConnectionExists;
+            }
+
+            if ($existing_request->status == 'rejected') {
+                $existing_request->sender_id = $sender_id;
+                $existing_request->receiver_id = $receiver_id;
+                $existing_request->status = 'pending';
+                $existing_request->save();
+
+                $receiver_user = User::find($receiver_id);
+                $user = User::find($sender_id);
+
+                $request_notification = Notification::whereJsonContains(
+                    'additional_data->connection_request_id',
+                    $existing_request->id
+                )->delete();
+
+                $this->notification_service->push_notification(
+                    $receiver_user,
+                    NotificationType::ACTIVITY,
+                    $user->full_name,
+                    ' has sent you a connection request',
+                    $user->avatar ?? '',
+                    [
+                        'user_name' => $user->full_name,
+                        'user_avatar' => $user->avatar,
+                        'description' => $user->about,
+                        'sender_id' => $user->id,
+                        'connection_request_id' => $existing_request->id,
+                        'is_connection_request' => true,
+                    ]
+                );
+
+                return [
+                    'message' => 'Connection request successfully sent',
+                ];
+            }
+        }
+
+        $connection_request = new ConnectionRequest;
+        $connection_request->sender_id = $sender_id;
+        $connection_request->receiver_id = $receiver_id;
+        $connection_request->status = 'pending';
+        $connection_request->save();
+
+        $receiver_user = User::find($receiver_id);
+        $user = User::find($sender_id);
+
+        $this->notification_service->push_notification(
+            $receiver_user,
+            NotificationType::ACTIVITY,
+            $user->full_name,
+            ' has sent you a connection request',
+            $user->avatar ?? '',
+            [
+                'user_name' => $user->full_name,
+                'user_avatar' => $user->avatar,
+                'description' => $user->about,
+                'sender_id' => $user->id,
+                'connection_request_id' => $connection_request->id,
+                'is_connection_request' => true,
+            ]
+        );
+
+        return ['message' => 'Connection request successfully sent'];
+    }
+
+    private function chat_exists(User $user, string $other_party_uid)
+    {
+        $ref = $this->firestore->collection('chats');
 
         $data = $ref->where(Filter::or([
             Filter::and([
@@ -162,22 +277,16 @@ class UserService
 
         Otp::where('identifier', $user->email)->first()?->delete();
 
-        $factory = app(Factory::class);
-        $firebase = $factory->withServiceAccount(
-            base_path()
-            .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
-        );
-        $db = $firebase->createFirestore()->database();
-
-        $db->runTransaction(
-            function ($trx) use ($db, $user) {
+        $firestore_copy = $this->firestore;
+        $this->firestore->runTransaction(
+            function ($trx) use ($firestore_copy, $user) {
                 $chat_ids = $user->connections->pluck('chat_id')->toArray();
                 $post_ids = $user->bids()->with('post')->get()->pluck('post.id')
                     ->toArray();
 
                 foreach ($chat_ids as $chat_id) {
-                    $ref = $db->collection('chats')->document($chat_id);
+                    $ref = $firestore_copy->collection('chats')
+                        ->document($chat_id);
                     $messages = $ref->collection('messages')->listDocuments();
 
                     foreach ($messages as $msg) {
@@ -188,7 +297,8 @@ class UserService
                 }
 
                 foreach ($post_ids as $post_id) {
-                    $ref = $db->collection('posts')->document($post_id)
+                    $ref = $firestore_copy->collection('posts')
+                        ->document($post_id)
                         ->collection('bids');
                     $bid_ref = $ref->document($user->uid);
                     $lowest_bid_ref = $ref->document('lowest_bid');
@@ -323,8 +433,11 @@ class UserService
             ->with('user:id,first_name,last_name,avatar')
             ->get();
 
-        $average_rating = round($reviews->avg('rating'), 1);
-        $recent_post = $user->posts()->latest()->first();
+        $average_rating = number_format($reviews->avg('rating'), 1);
+        $recent_post = $user->posts()
+            ->with(['bids', 'likes', 'images'])
+            ->latest()
+            ->first();
 
         if ($recent_post) {
             $current_user_like = PostLike::where('user_id', $current_user->id)
@@ -340,63 +453,60 @@ class UserService
                 ['receiver_id', '=', $user->id],
             ])->first();
 
-        $reviews_data = [];
-        $connections_data = [];
-        $connection_count = 0;
-        $distance = null;
-        $connection_request_status = 'not send';
+        if ($connection_request) {
+            $connection_request_status = $connection_request->status;
+        } else {
+            $connection_request_status = 'not send';
+        }
+
+        if ($user?->lat && $user?->long && $recent_post) {
+            $calculated_distance = $this->post_service->calculateDistance(
+                $user->lat,
+                $user->long,
+                $recent_post->lat,
+                $recent_post->long,
+            );
+
+            $distance = round($calculated_distance, 2).' miles away';
+        }
 
         $connection_visibility = $user->preferences?->who_can_see_connections;
         $is_own_profile = $user->id === $current_user->id;
 
-        if ($connection_request) {
-            $connection_request_status = $connection_request->status;
-        }
-
-        if (! is_null($user->lat) && ! is_null($user->long)) {
-            if ($recent_post) {
-                $calculatedDistance = $this->post_service->calculateDistance(
-                    $user->lat,
-                    $user->long,
-                    $recent_post->lat,
-                    $recent_post->long,
-                );
-
-                $distance = round($calculatedDistance, 2).' miles away';
-            }
-        }
-
-        if ($is_own_profile || $connection_visibility === 'public' ||
-           ($connection_visibility === 'connections' && $this->is_connected($current_user, $user))
+        if (
+            $is_own_profile || $connection_visibility === 'public'
+            || (
+                $connection_visibility === 'connections'
+                && $this->is_connected($current_user, $user)
+            )
         ) {
-            $connections = ConnectionRequest::where(function ($query) use ($user) {
-                $query->where('sender_id', $user->id)
-                    ->orWhere('receiver_id', $user->id);
-            })->where('status', 'accepted')
+            $connections = ConnectionRequest::where(
+                function ($query) use ($user) {
+                    $query->where('sender_id', $user->id)
+                        ->orWhere('receiver_id', $user->id);
+                }
+            )
+                ->where('status', 'accepted')
+                ->with(['sender', 'receiver'])
                 ->limit(3)
                 ->get();
 
-            foreach ($connections as $connection) {
-                $connected_user_id = $connection->sender_id == $user->id
-                    ? $connection->receiver_id : $connection->sender_id;
+            $connections->transform(function ($con) use ($user) {
+                $other_user = $con->sender_id == $user->id
+                    ? $con->receiver : $con->sender;
 
-                $user_connection = User::find($connected_user_id);
-
-                if ($user_connection) {
-                    $connections_data[] = [
-                        'user_id' => $user_connection->id,
-                        'user_uid' => $user_connection->uid,
-                        'user_name' => $user_connection->full_name,
-                        'avatar' => $user_connection->avatar,
-                        'chat_id' => $connection->chat_id,
-                    ];
-                }
-            }
-            $connection_count = $connections->count();
+                return [
+                    'user_id' => $other_user->id,
+                    'user_uid' => $other_user->uid,
+                    'user_name' => $other_user->full_name,
+                    'avatar' => $other_user->avatar,
+                    'chat_id' => $con?->chat_id,
+                ];
+            });
         }
 
-        foreach ($reviews as $review) {
-            $reviews_data[] = [
+        $reviews->transform(function ($review) {
+            return [
                 'post_id' => $review->post_id,
                 'data' => $review->data,
                 'rating' => $review->rating,
@@ -405,7 +515,7 @@ class UserService
                 'user_name' => $review->user->full_name,
                 'avatar' => $review->user->avatar,
             ];
-        }
+        });
 
         $is_account_active = $this->stripe_service->is_account_active($user);
 
@@ -432,8 +542,8 @@ class UserService
             'who_can_see_connection' => $connection_visibility,
             'is_connection' => $this->is_connected($current_user, $user) ? true : false,
             'connection_request_status' => $connection_request_status,
-            'connection_count' => $connection_count,
-            'connections' => $connections_data,
+            'connection_count' => $connections?->count() ?? 0,
+            'connections' => $connections ?? [],
             'recent_post' => $recent_post ? [[
                 'post_id' => $recent_post->id,
                 'user_id' => $recent_post->user_id,
@@ -444,7 +554,7 @@ class UserService
                 'location_details' => $recent_post->city . ', ' . $recent_post->state,
                 'lat' => $recent_post->lat,
                 'long' => $recent_post->long,
-                'distance' => $distance,
+                'distance' => $distance ?? null,
                 'budget' => $recent_post->budget,
                 'duration' => ($recent_post->start_time && $recent_post->end_time)
                     ? Carbon::parse($recent_post->start_time)->format('h:i A').' - '.Carbon::parse($recent_post->end_time)->format('h:i A')
@@ -462,7 +572,7 @@ class UserService
                 'likes' => $recent_post->likes->count(),
                 'images' => $recent_post->images,
             ]] : [],
-            'reviews' => $reviews_data,
+            'reviews' => $reviews,
             'is_social' => $user->password == null,
         ];
     }
@@ -499,16 +609,6 @@ class UserService
             'city',
             'state',
         ]);
-    }
-
-    public function are_connected(User $user1_id, User $user2_id)
-    {
-        $user1 = User::findOrFail($user1_id);
-
-        return $user1->connections()->where(
-            'connection_id',
-            $user2_id
-        )->exists();
     }
 
     public function get_nearby_users(User $current_user)
@@ -553,64 +653,67 @@ class UserService
         return $nearby_users;
     }
 
-    private function haversineDistance(
-        float $lat1,
-        float $long1,
-        float $lat2,
-        float $long2
-    ) {
-        // Earth's radius in miles
-        $earth_radius = 3958.8;
-        // Earth's radius in kilometers
-        // $earth_radius = 6371;
+    public function send_connection_requests(User $user, array $user_ids)
+    {
+        foreach ($user_ids as $id) {
+            $response = $this->send_request(
+                $user->id,
+                $id
+            );
+        }
 
-        $lat1 = deg2rad($lat1);
-        $long1 = deg2rad($long1);
-        $lat2 = deg2rad($lat2);
-        $long2 = deg2rad($long2);
+        return [
+            'message' => 'Connection request sent successfully!',
+        ];
+    }
 
-        // Haversine formula
-        $d_lat = $lat2 - $lat1;
-        $d_long = $long2 - $long1;
+    public function cancel_connection_request(User $user, User $other_user)
+    {
+        $connection_request = ConnectionRequest::where([
+                ['sender_id', '=', $user->id],
+                ['receiver_id', '=', $other_user->id],
+            ])
+            ->orWhere([
+                ['sender_id', '=', $other_user->id],
+                ['receiver_id', '=', $user->id],
+            ])
+            ->firstOrFail();
 
-        $a = sin($d_lat / 2) * sin($d_lat / 2) + cos($lat1) * cos($lat2) * sin($d_long / 2) * sin($d_long / 2);
-        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+        if ($connection_request->status == 'pending') {
 
-        $distance = $earth_radius * $c;
+            if ($connection_request->chat_id) {
+                $this->remove_chat($connection_request->chat_id);
+            }
 
-        return $distance;
+            $notification = Notification::whereJsonContains(
+                'additional_data->connection_request_id',
+                $connection_request->id
+            )->first();
+
+            $notification->delete();
+            $connection_request->delete();
+
+            return [
+                'mesage' => 'Connection request canceled',
+            ];
+        }
     }
 
     public function accept_connection_request(
         User $user,
-        int $user_id,
+        User $other_user,
     ) {
-        $connection_request = ConnectionRequest::where([
-            ['sender_id', '=', $user_id],
-            ['receiver_id', '=', $user->id],
-        ])
-            ->orWhere([
-                ['sender_id', '=', $user->id],
-                ['receiver_id', '=', $user_id],
-            ])->first();
-
-        if (! $connection_request) {
-            throw new Exceptions\ConnectionRequestNotFound;
-        }
+        $connection_request = ConnectionRequest::whereNot('status', 'rejected')
+            ->where([
+                ['sender_id', '=', $other_user->id],
+                ['receiver_id', '=', $user->id],
+            ])->firstOrFail();
 
         if ($connection_request->status == 'accepted') {
-
-            if ($connection_request->deleted_at == null) {
-                throw new Exceptions\BaseException(
-                    'You are already connected this connection', 400
-                );
-            }
+            throw new Exceptions\ConnectionExists;
         }
 
         $connection_request->status = 'accepted';
-
-        $receiver_user = User::find($user_id);
-        $type = 'accept_connection_request';
 
         $request_notification = Notification::whereJsonContains(
             'additional_data->connection_request_id',
@@ -623,18 +726,10 @@ class UserService
         }
 
         if ($connection_request->chat_id == null) {
-            // $chat = $this->create_chat($user, $receiver_user->uid);
+            // $chat = $this->create_chat($user, $other_user);
             // $connection_request->chat_id = $chat['chat_id'];
         } else {
-            $factory = app(Factory::class);
-            $firebase = $factory->withServiceAccount(
-                base_path()
-                .DIRECTORY_SEPARATOR
-                .config('firebase.projects.app.credentials')
-            );
-            $db = $firebase->createFirestore()->database();
-
-            $ref = $db->collection('chats')->document(
+            $ref = $this->firestore->collection('chats')->document(
                 $connection_request->chat_id
             );
 
@@ -643,7 +738,7 @@ class UserService
         $connection_request->save();
 
         $this->notification_service->push_notification(
-            $receiver_user,
+            $other_user,
             NotificationType::ACTIVITY,
             $user->full_name,
             ' has accept your connection request',
@@ -660,41 +755,41 @@ class UserService
         return ['message' => 'Connections successfully created'];
     }
 
-    public function decline_connection_request(User $current_user, int $user_id)
+    public function decline_connection_request(
+        User $user,
+        User $other_user
+    )
     {
-        $connection_request = ConnectionRequest::where([
-            ['sender_id', '=', $user_id],
-            ['receiver_id', '=', $current_user->id],
+        $connection = ConnectionRequest::where([
+            ['sender_id', '=', $user->id],
+            ['receiver_id', '=', $other_user->id],
         ])
             ->orWhere([
-                ['sender_id', '=', $current_user->id],
-                ['receiver_id', '=', $user_id],
-            ])->first();
+                ['sender_id', '=', $other_user->id],
+                ['receiver_id', '=', $user->id],
+            ])->firstOrFail();
 
-        if (! $connection_request) {
-            throw new Exceptions\ConnectionRequestNotFound;
+        if ($connection->status == 'accepted') {
+            throw new Exceptions\ConnectionExists;
         }
 
-        if ($connection_request->status == 'rejected') {
-
-            if ($connection_request->deleted_at == null) {
-                throw new Exceptions\BaseException(
-                    'This connection request has already been rejected.', 400
-                );
-            }
+        if ($connection->status == 'rejected') {
+            throw new Exceptions\BaseException(
+                'This connection request has already been rejected.', 400
+            );
         }
 
-        $connection_request->status = 'rejected';
-        $connection_request->save();
+        $connection->status = 'rejected';
+        $connection->save();
 
         $request_notification = Notification::whereJsonContains(
             'additional_data->connection_request_id',
-            $connection_request->id
+            $connection->id
         )->first();
 
         if ($request_notification) {
             $request_notification->title = null;
-            $request_notification->body = 'Connection request has been canceled';
+            $request_notification->body = 'Connection request has been declined';
             $request_notification->save();
         }
 
@@ -703,14 +798,14 @@ class UserService
         ];
     }
 
-    public function remove_connection(User $user, int $user_id)
+    public function remove_connection(User $user, User $other_user)
     {
         $connection = ConnectionRequest::where([
             ['sender_id', '=', $user->id],
-            ['receiver_id', '=', $user_id],
+            ['receiver_id', '=', $other_user->id],
         ])
             ->orWhere([
-                ['sender_id', '=', $user_id],
+                ['sender_id', '=', $other_user->id],
                 ['receiver_id', '=', $user->id],
             ])
             ->where('status', 'accepted')
@@ -724,7 +819,7 @@ class UserService
 
         $connection->delete();
 
-        $this->remove_chat($connection->chat_id);
+        if ($connection->chat_id) $this->remove_chat($connection->chat_id);
 
         return [
             'message' => 'user Disconnected Successfully',
@@ -775,161 +870,6 @@ class UserService
         return $users;
     }
 
-    private function send_request(
-        int $sender_id,
-        int $receiver_id,
-    ) {
-        $existing_request = ConnectionRequest::withTrashed()
-            ->where([
-                ['sender_id', '=', $sender_id],
-                ['receiver_id', '=', $receiver_id],
-            ])
-            ->orWhere([
-                ['sender_id', '=', $receiver_id],
-                ['receiver_id', '=', $sender_id],
-            ])
-            ->first();
-
-        if ($existing_request) {
-
-            if ($existing_request->status == 'pending') {
-                throw new Exceptions\BaseException(
-                    'Connection request already sent!', 400
-                );
-            }
-
-            if ($existing_request->status == 'accepted') {
-
-                if ($existing_request->deleted_at == null) {
-                    throw new Exceptions\BaseException(
-                        'You are already connected this connection', 400
-                    );
-                } else {
-                    $existing_request->restore();
-                    $existing_request->status = 'rejected';
-                    // It will be handled by the next check condition
-                }
-            }
-
-            if ($existing_request->status == 'rejected') {
-                $existing_request->sender_id = $sender_id;
-                $existing_request->receiver_id = $receiver_id;
-                $existing_request->status = 'pending';
-                $existing_request->save();
-
-                $receiver_user = User::find($receiver_id);
-                $user = User::find($sender_id);
-                $type = 'send_connection_request';
-
-                $request_notification = Notification::whereJsonContains(
-                    'additional_data->connection_request_id',
-                    $existing_request->id
-                )->delete();
-
-                $this->notification_service->push_notification(
-                    $receiver_user,
-                    NotificationType::ACTIVITY,
-                    $user->full_name,
-                    ' has sent you a connection request',
-                    $user->avatar ?? '',
-                    [
-                        'user_name' => $user->full_name,
-                        'user_avatar' => $user->avatar,
-                        'description' => $user->about,
-                        'sender_id' => $user->id,
-                        'connection_request_id' => $existing_request->id,
-                        'is_connection_request' => true,
-                    ]
-                );
-
-                return [
-                    'message' => 'Connection request successfully sent',
-                ];
-            }
-        }
-
-        $connection_request = new ConnectionRequest;
-        $connection_request->sender_id = $sender_id;
-        $connection_request->receiver_id = $receiver_id;
-        $connection_request->status = 'pending';
-        $connection_request->save();
-
-        $receiver_user = User::find($receiver_id);
-        $user = User::find($sender_id);
-        $type = 'send_connection_request';
-
-        $this->notification_service->push_notification(
-            $receiver_user,
-            NotificationType::ACTIVITY,
-            $user->full_name,
-            ' has sent you a connection request',
-            $user->avatar ?? '',
-            [
-                'user_name' => $user->full_name,
-                'user_avatar' => $user->avatar,
-                'description' => $user->about,
-                'sender_id' => $user->id,
-                'connection_request_id' => $connection_request->id,
-                'is_connection_request' => true,
-            ]
-        );
-
-        return ['message' => 'Connection request successfully sent'];
-    }
-
-    public function send_connection_requests(User $user, array $user_ids)
-    {
-        foreach ($user_ids as $id) {
-            $response = $this->send_request(
-                $user->id,
-                $id
-            );
-        }
-
-        return [
-            'message' => 'Connection request sent successfully!',
-        ];
-    }
-
-    public function cancel_connection_request(User $user, int $user_id)
-    {
-        $connection_request = ConnectionRequest::withTrashed()
-            ->where([
-                ['sender_id', '=', $user->id],
-                ['receiver_id', '=', $user_id],
-            ])
-            ->orWhere([
-                ['sender_id', '=', $user_id],
-                ['receiver_id', '=', $user->id],
-            ])
-            ->first();
-
-        if (! $connection_request) {
-            throw new Exceptions\ConnectionRequestNotFound;
-        }
-
-        if ($connection_request->chat_id) {
-            $connection_request->status = 'accepted';
-            $connection_request->save();
-            $connection_request->delete();
-
-            $this->remove_chat($connection_request->chat_id);
-        } else {
-            $connection_request->forceDelete();
-        }
-
-        $notification = Notification::whereJsonContains(
-            'additional_data->connection_request_id',
-            $connection_request->id
-        )->first();
-
-        $notification->delete();
-
-        return [
-            'mesage' => 'Canceled Connection request',
-        ];
-    }
-
     public function store_fcm(string $fcm_token, User $user)
     {
         $user->notification_device?->delete();
@@ -955,9 +895,15 @@ class UserService
                     $notif->additional_data['connection_request_id'] ?? 0
                 );
 
-                $is_request_accepted = $connection_request?->status == 'accepted';
-                $is_request_rejected = $connection_request?->status == 'rejected';
-                $is_connection_request = (! ($is_request_accepted || $is_request_rejected)) && str_contains(
+                $is_request_accepted =
+                    $connection_request?->status == 'accepted';
+
+                $is_request_rejected =
+                    $connection_request?->status == 'rejected';
+
+                $is_connection_request = (
+                    ! ($is_request_accepted || $is_request_rejected)
+                ) && str_contains(
                     $notif?->body,
                     'has sent you a connection request'
                 );
@@ -987,24 +933,27 @@ class UserService
 
     public function get_connection_requests(User $user)
     {
-        $connection_requests = ConnectionRequest::where('receiver_id', $user->id)
+        $connection_requests = ConnectionRequest::where(
+            'receiver_id',
+            $user->id
+        )
             ->whereNotIn('status', ['rejected', 'accepted'])
             ->with('sender:id,first_name,last_name,avatar')
-            ->get();
+            ->paginate();
 
-        $requests = [];
+        $connection_requests->getCollection()->transform(
+            function ($con) {
+                return [
+                    'user_id' => $con->sender->id,
+                    'user_name' => $con->sender->full_name,
+                    'avatar' => $con->sender->avatar,
+                    'status' => $con->status,
+                    'request_id' => $con->id,
+                ];
+            }
+        );
 
-        foreach ($connection_requests as $req) {
-            $requests[] = [
-                'user_id' => $req->sender->id,
-                'user_name' => $req->sender->full_name,
-                'avatar' => $req->sender->avatar,
-                'status' => $req->status,
-                'request_id' => $req->id,
-            ];
-        }
-
-        return $requests;
+        return $connection_requests;
     }
 
     public function update_password(
@@ -1012,10 +961,6 @@ class UserService
         string $old_password,
         string $new_password
     ) {
-        if (! $user) {
-            throw new Exceptions\UserNotFound;
-        }
-
         if (! Hash::check($old_password, $user->password)) {
             throw new Exceptions\BaseException(
                 'The current password you entered is incorrect. Please try again.', 400
@@ -1036,9 +981,8 @@ class UserService
         ];
     }
 
-    public function initiate_chat(User $user, string $other_party_uid)
+    public function initiate_chat(User $user, User $other_user)
     {
-        $other_user = User::where('uid', $other_party_uid)->first();
         $connection_request = ConnectionRequest::where([
             ['sender_id', '=', $other_user->id],
             ['receiver_id', '=', $user->id],
@@ -1048,7 +992,7 @@ class UserService
                 ['receiver_id', '=', $other_user->id],
             ])->first();
 
-        $chat_id = $this->create_chat($user, $other_party_uid)['chat_id'];
+        $chat_id = $this->create_chat($user, $other_user)['chat_id'];
 
         if ($connection_request && $connection_request?->chat_id == null) {
             $connection_request->chat_id = $chat_id;
@@ -1064,31 +1008,24 @@ class UserService
 
     public function initiate_chats(User $user, array $other_party_uids)
     {
-        $responses = [];
+        $other_users = User::whereIn('uid', $other_party_uids)->get();
 
-        foreach ($other_party_uids as $other_party_uid) {
-            $chat_response = $this->create_chat($user, $other_party_uid);
-            $responses[] = [
-                'user_id' => User::where('uid', $other_party_uid)->value('id'),
-                'user_uid' => $other_party_uid,
+        $other_users->transform(function ($other_party) use ($user) {
+            $chat_response = $this->create_chat($user, $other_party);
+
+            return [
+                'user_id' => $other_party->id,
+                'user_uid' => $other_party->uid,
                 'chat_id' => $chat_response['chat_id'],
             ];
-        }
+        });
     
-        return $responses;
+        return $other_users;
     }
 
-    public function create_chat(User $user, string $other_party_uid)
+    public function create_chat(User $user, User $other_party)
     {
-        $factory = app(Factory::class);
-        $firebase = $factory->withServiceAccount(
-            base_path()
-            .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
-        );
-        $db = $firebase->createFirestore()->database();
-
-        $existing_chat_id = $this->chat_exists($user, $other_party_uid)?->id();
+        $existing_chat_id = $this->chat_exists($user, $other_party->uid)?->id();
 
         if ($existing_chat_id) {
             return ['chat_id' => $existing_chat_id];
@@ -1098,11 +1035,11 @@ class UserService
 
         $unseen_count = [];
         $unseen_count[$user->uid] = 0;
-        $unseen_count[$other_party_uid] = 0;
+        $unseen_count[$other_party->uid] = 0;
 
         $is_deleted = [];
         $is_deleted[$user->uid] = false;
-        $is_deleted[$other_party_uid] = false;
+        $is_deleted[$other_party->uid] = false;
 
         $data = [
             'id' => $chat_id,
@@ -1111,26 +1048,23 @@ class UserService
             'last_msg' => '',
             'members' => [
                 $user->uid,
-                $other_party_uid,
+                $other_party->uid,
             ],
             'unseen_counts' => $unseen_count,
             'is_deleted' => $is_deleted,
             'connection_removed' => false,
             'first_party' => $user->uid,
-            'second_party' => $other_party_uid,
-            'is_order_running' => $this->is_order_running($user->uid, $other_party_uid),
+            'second_party' => $other_party->uid,
+            'is_order_running' => $this->is_order_running($user, $other_party),
         ];
 
-        $db->collection('chats')->document($chat_id)->set($data);
+        $this->firestore->collection('chats')->document($chat_id)->set($data);
 
         return ['chat_id' => $chat_id];
     }
 
-    public function is_order_running(string $user1_uid, string $user2_uid)
+    public function is_order_running(User $user1, User $user2)
     {
-        $user1 = User::where('uid', $user1_uid)->first();
-        $user2 = User::where('uid', $user2_uid)->first();
-
         $user1_posts = $user1->posts()->pluck('id');
         $user2_posts = $user2->posts()->pluck('id');
 
@@ -1155,15 +1089,7 @@ class UserService
 
     public function remove_chat(string $chat_id)
     {
-        $factory = app(Factory::class);
-        $firebase = $factory->withServiceAccount(
-            base_path()
-            .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
-        );
-        $db = $firebase->createFirestore()->database();
-
-        $ref = $db->collection('chats')->document($chat_id);
+        $ref = $this->firestore->collection('chats')->document($chat_id);
 
         if ($ref->snapshot()->exists()) {
             // $ref->delete();
@@ -1175,24 +1101,11 @@ class UserService
 
     public function send_message_notificatfion(
         User $user,
-        string $chat_id,
-        string $receiver_uid
+        User $receiver_user,
+        string $chat_id
     ) {
-        $receiver_user = User::where('uid', $receiver_uid)->first();
-
-        if (! $receiver_user) {
-            return;
-        }
-
-        $factory = app(Factory::class);
-        $firebase = $factory->withServiceAccount(
-            base_path()
-            .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
-        );
-        $db = $firebase->createFirestore()->database();
-
-        $chat_snap = $db->collection('chats')->document($chat_id)->snapshot();
+        $chat_snap = $this->firestore->collection('chats')->document($chat_id)
+            ->snapshot();
 
         if (! $chat_snap->exists()) {
             return;
@@ -1222,12 +1135,10 @@ class UserService
 
     public function block_user(
         User $user,
-        string $user_uid,
+        User $other_user,
         string $reason_type,
         ?string $other_reason
     ) {
-        $other_user = User::where('uid', $user_uid)->firstOrFail();
-
         if ($user->is_blocked($other_user->id)) {
 
             return [
@@ -1259,10 +1170,8 @@ class UserService
 
     public function unblock_user(
         User $user,
-        string $user_uid
+        User $other_user
     ) {
-        $other_user = User::where('uid', $user_uid)->firstOrFail();
-
         if (! $user->is_blocked($other_user->id)) {
 
             return [
@@ -1324,15 +1233,8 @@ class UserService
         string $reason_type,
         ?string $other_reason,
     ) {
-        $factory = app(Factory::class);
-        $firebase = $factory->withServiceAccount(
-            base_path()
-            .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
-        );
-        $db = $firebase->createFirestore()->database();
-
-        $chat_snap = $db->collection('chats')->document($chat_id)->snapshot();
+        $chat_snap = $this->firestore->collection('chats')->document($chat_id)
+            ->snapshot();
 
         if (! $chat_snap->exists()) {
             throw new Exceptions\BaseException('Invalid chat id', 400);
@@ -1357,19 +1259,13 @@ class UserService
 
     public function report_user(
         User $user,
+        User $reported_user,
         string $reason_type,
-        ?string $other_reason,
-        int $reported_user_id
+        ?string $other_reason
     ) {
-        $user = User::find($reported_user_id);
-
-        if (! $user) {
-            throw new Exceptions\UserNotFound;
-        }
-
         $user_report = new ReportedUser;
         $user_report->reporter_id = $user->id;
-        $user_report->reported_id = $reported_user_id;
+        $user_report->reported_id = $reported_user->id;
         $user_report->reason_type = $reason_type;
         $user_report->other_reason = $other_reason ?: null;
         $user_report->save();

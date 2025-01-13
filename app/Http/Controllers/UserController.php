@@ -136,9 +136,11 @@ class UserController extends Controller
             'user_id' => 'required|exists:users,id',
         ]);
 
+        $other_user = User::findOrFail($request->user_id);
+
         $response = $user_service->accept_connection_request(
             $request->user(),
-            $request->user_id
+            $other_user
         );
 
         return response()->json($response);
@@ -152,9 +154,11 @@ class UserController extends Controller
             'user_id' => 'required|exists:users,id',
         ]);
 
+        $other_user = User::findOrFail($request->user_id);
+
         $response = $user_service->decline_connection_request(
             $request->user(),
-            $request->user_id,
+            $other_user,
         );
 
         return response()->json($response);
@@ -168,9 +172,11 @@ class UserController extends Controller
             'user_id' => 'required|exists:users,id',
         ]);
 
+        $other_user = User::findOrFail($request->user_id);
+
         $response = $user_service->remove_connection(
             $request->user(),
-            $request->user_id
+            $other_user
         );
 
         return response()->json($response);
@@ -202,9 +208,11 @@ class UserController extends Controller
         Request $request,
         UserService $user_service
     ) {
+        $other_user = User::where('uid', $uid)->firstOrFail();
+
         $response = $user_service->initiate_chat(
             $request->user(),
-            $uid
+            $other_user
         );
 
         return response()->json($response);
@@ -235,9 +243,11 @@ class UserController extends Controller
             'user_id' => 'required|exists:users,id',
         ]);
 
+        $other_user = User::findOrFail($request->user_id);
+
         $response = $user_service->cancel_connection_request(
             $request->user(),
-            $request->user_id
+            $other_user
         );
 
         return response()->json($response);
@@ -321,7 +331,7 @@ class UserController extends Controller
         );
 
         return response()->json($response);
-    } // ------- We're creating chat upon connection request being accepted
+    }
 
     public function handle_uploads(
         Request $request,
@@ -345,10 +355,12 @@ class UserController extends Controller
             'receiver_uid' => 'required|exists:users,uid',
         ]);
 
+        $other_user = User::where('uid', $request->receiver_uid)->firstOrFail();
+
         $response = $user_service->send_message_notificatfion(
             $request->user(),
-            $request->chat_id,
-            $request->receiver_uid
+            $other_user,
+            $request->chat_id
         );
 
         return response()->json($response);
@@ -364,11 +376,28 @@ class UserController extends Controller
             'other_reason' => 'required_if:reason_type,other',
         ]);
 
+        $other_user = User::where('uid', $user_uid)->firstOrFail();
+
         $response = $user_service->block_user(
             $request->user(),
-            $user_uid,
+            $other_user,
             $request->reason_type,
             $request->other_reason
+        );
+
+        return response()->json($response);
+    }
+
+    public function unblock_user(
+        string $user_uid,
+        Request $request,
+        UserService $user_service
+    ) {
+        $other_user = User::where('uid', $user_uid)->firstOrFail();
+
+        $response = $user_service->unblock_user(
+            $request->user(),
+            $other_user
         );
 
         return response()->json($response);
@@ -404,24 +433,13 @@ class UserController extends Controller
             'other_reason' => 'required_if:reason_type,other',
         ]);
 
+        $other_user = User::findOrFail($user_id);
+
         $response = $user_service->report_user(
             $request->user(),
+            $other_user,
             $request->reason_type,
-            $request->other_reason,
-            $request->user_id,
-        );
-
-        return response()->json($response);
-    }
-
-    public function unblock_user(
-        string $user_uid,
-        Request $request,
-        UserService $user_service
-    ) {
-        $response = $user_service->unblock_user(
-            $request->user(),
-            $user_uid
+            $request->other_reason
         );
 
         return response()->json($response);

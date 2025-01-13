@@ -21,7 +21,6 @@ return new class extends Migration
                 ->default('pending');
             $table->uuid('chat_id')->nullable();
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
