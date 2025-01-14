@@ -54,7 +54,7 @@ class NotificationObserver implements ShouldQueue
             'sender_id' => $notification->additional_data['sender_id'] ?? null,
             'is_read' => false,
             'notification_id' => $notification->id,
-            'status' => $notification->status,
+            'status' => $notification->body,
             'other_party_id' => $other_party_user->id,
             'other_party_uid' => $other_party_user->uid,
             'post_id' => $notification->additional_data['post_id'] ?? null,

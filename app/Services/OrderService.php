@@ -315,7 +315,7 @@ class OrderService
             $receiver_user,
             NotificationType::TRANSACTION,
             $receiver_user->full_name,
-            "you have received a payment for\nyour bid on the post",
+            " payment for your accepted bid on {$bid->post->title} has been successfully completed",
             $user->avatar ?? '',
             [
                 'description' => $user->about,
