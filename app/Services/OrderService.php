@@ -324,6 +324,24 @@ class OrderService
             ]
         );
 
+        foreach ([$user, $receiver_user] as $not_user) {
+            $receiver_user = $user->id == $not_user->id
+                ? $receiver_user : $user;
+
+            $this->notification_service->push_notification(
+                $not_user,
+                NotificationType::TRANSACTION,
+                $not_user->full_name,
+                "Your order with {$receiver_user->full_name} has moved to upcoming",
+                $receiver_user->avatar ?? '',
+                [
+                    'description' => $user->about,
+                    'sender_id' => $user->id,
+                    'post_id' => $bid->post_id,
+                ]
+            );
+        }
+
         return ['message' => 'Payment successful'];
     }
 
