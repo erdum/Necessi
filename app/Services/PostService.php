@@ -1224,6 +1224,13 @@ class PostService
         $user_bid = PostBid::where('user_id', $user->id)
             ->where('post_id', $post->id)->firstOrFail();
 
+        if ($user_bid?->order && $user_bid?->order?->transaction_id) {
+            throw new Exceptions\BaseException(
+                'Can not cancel this bid, as payment has been made.',
+                400
+            );
+        }
+
         $user_bid->delete();
 
         return [
