@@ -33,7 +33,7 @@ class RemindOrderMark implements ShouldQueue
 	            ->withWhereHas('order', function ($query) {
 	            	$query->whereNotNull('transaction_id')
 		            	->whereNull('received_by_borrower');
-	            });
+	            })
 	            ->where('status', 'accepted')
 	            ->with('user')
 	            ->get();
@@ -66,7 +66,7 @@ class RemindOrderMark implements ShouldQueue
 	            ->withWhereHas('order', function ($query) {
 	            	$query->whereNotNull('transaction_id')
 		            	->whereNull('received_by_lender');
-	            });
+	            })
 	            ->where('status', 'accepted')
 	            ->with('user')
 	            ->get();

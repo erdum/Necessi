@@ -205,7 +205,7 @@ class PostService
                 'description' => $user->about,
                 'sender_id' => $user->id,
                 'post_id' => $post->id,
-                'notification_type' => 'post_details',
+                'notification_type' => 'bid_received_accept_decline',
             ]
         );
 
