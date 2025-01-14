@@ -198,9 +198,9 @@ class PostService
         $this->notification_service->push_notification(
             $receiver_user,
             NotificationType::BID,
-            $user->full_name,
-            ' has placed bid on your post',
-            $user->avatar ?? '',
+            $receiver_user->full_name,
+            " you have received a new bid on {$post->title}. Accept or decline now!",
+            $receiver_user->avatar ?? '',
             [
                 'description' => $user->about,
                 'sender_id' => $user->id,
@@ -244,9 +244,9 @@ class PostService
         $this->notification_service->push_notification(
             $receiver_user,
             NotificationType::BID,
-            $user->full_name,
-            ' has accepted your bid request',
-            $user->avatar ?? '',
+            $receiver_user->full_name,
+            ' Your bid has been accepted! View details and next steps',
+            $receiver_user->avatar ?? '',
             [
                 'description' => $user->about,
                 'sender_id' => $user->id,
@@ -288,9 +288,9 @@ class PostService
         $this->notification_service->push_notification(
             $receiver_user,
             NotificationType::BID,
-            $user->full_name,
-            ' has rejected your bid request',
-            $user->avatar ?? '',
+            $receiver_user->full_name,
+            ' Unfortunately, your bid was rejected. View details to try again',
+            $receiver_user->avatar ?? '',
             [
                 'description' => $user->about,
                 'sender_id' => $user->id,
