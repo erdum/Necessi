@@ -754,12 +754,16 @@ class PostService
 
     public function get_post_preview(User $user, Post $post)
     {
+        $has_accepted_bid = $post->bids()->where('status', 'accepted')
+            ->exists();
+
         return [
             'post_id' => $post->id,
             'post_user_name' => $post->user->full_name,
             'post_user_avatar' => $post->user->avatar,
             'post_budget' => $post->budget,
             'post_duration' => $post->start_date->format('d M').' - '.$post->end_date->format('d M Y'),
+            'has_accepted_bid' => $has_accepted_bid,
         ];
     }
 
