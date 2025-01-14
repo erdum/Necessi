@@ -143,16 +143,13 @@ class OrderService
 
     public function mark_as_received(User $user, int $bid_id)
     {
-        // if (! $user->bids()->find($bid_id)) {
-        // }
+        $order = OrderHistory::where('bid_id', $bid_id)->firstOrFail();
 
-        $order = OrderHistory::where('bid_id', $bid_id)->first();
-
-        if (! $order) {
-            throw new Exceptions\BaseException(
-                'Order not found!',
-                400
-            );
+        if (
+            ($order->bid->user_id != $user->id)
+            && ($order->bid->post->user_id != $user->id)
+        ) {
+            throw new Exceptions\AccessForbidden;
         }
 
         if ($order->bid->post->user_id == $user->id) {
@@ -162,6 +159,31 @@ class OrderService
         }
 
         $order->save();
+
+        $post = Post::withWhereHas('bids', function ($query) use ($order) {
+            $query->withWhereHas('order', function ($query) use ($order) {
+                $query->where('id', $order->id);
+            });
+        })->first();
+
+        foreach ([$order->bid->user, $order->bid->post->user] as $not_user) {
+            $receiver_user = $order->bid->user->id == $not_user->id
+                ? $order->bid->post->user : $order->bid->user;
+
+            $this->notification_service->push_notification(
+                $receiver_user,
+                NotificationType::BID,
+                $receiver_user->full_name,
+                "Your order status changed to {$post->order_status}",
+                $not_user->avatar ?? '',
+                [
+                    'description' => $not_user->about,
+                    'sender_id' => $not_user->id,
+                    'post_id' => $post->id,
+                    'notification_type' => 'post_details',
+                ]
+            );
+        }
 
         return [
             'message' => 'Order marked as received successfully!',
