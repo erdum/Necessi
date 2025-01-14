@@ -27,12 +27,14 @@ class NotificationObserver implements ShouldQueue
             $notification->additional_data['connection_request_id'] ?? 0
         );
 
-        $is_request_accepted = $connection_request?->status == 'accepted';
-        $is_request_rejected = $connection_request?->status == 'rejected';
-        $is_connection_request = (! ($is_request_accepted || $is_request_rejected)) && str_contains(
-            $notification?->body,
-            'has sent you a connection request'
-        );
+        if($notification->type !== 'message'){
+            $is_request_accepted = $connection_request?->status == 'accepted';
+            $is_request_rejected = $connection_request?->status == 'rejected';
+            $is_connection_request = (! ($is_request_accepted || $is_request_rejected)) && str_contains(
+                $notification?->body,
+                'has sent you a connection request'
+            );
+        }
 
         $other_party_user = User::find($notification->additional_data['sender_id']);
         $chat_id = $connection_request?->chat_id ?? null;
@@ -78,12 +80,14 @@ class NotificationObserver implements ShouldQueue
             $notification->additional_data['connection_request_id'] ?? 0
         );
 
-        $is_request_accepted = $connection_request?->status == 'accepted';
-        $is_request_rejected = $connection_request?->status == 'rejected';
-        $is_connection_request = (! ($is_request_accepted || $is_request_rejected)) && str_contains(
-            $notification?->body,
-            'has sent you a connection request'
-        );
+        if($notification->type !== 'message'){
+            $is_request_accepted = $connection_request?->status == 'accepted';
+            $is_request_rejected = $connection_request?->status == 'rejected';
+            $is_connection_request = (! ($is_request_accepted || $is_request_rejected)) && str_contains(
+                $notification?->body,
+                'has sent you a connection request'
+            );
+        }
 
         $other_party_user = User::find($notification->additional_data['sender_id']);
         $chat_id = $connection_request?->chat_id ?? null;
