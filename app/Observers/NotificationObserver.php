@@ -22,6 +22,9 @@ class NotificationObserver implements ShouldQueue
             .config('firebase.projects.app.credentials')
         );
         $db = $firebase->createFirestore()->database();
+        $is_request_accepted = false;
+        $is_request_rejected = false;
+        $is_connection_request = false;
 
         $connection_request = ConnectionRequest::withTrashed()->find(
             $notification->additional_data['connection_request_id'] ?? 0
@@ -75,6 +78,9 @@ class NotificationObserver implements ShouldQueue
             .config('firebase.projects.app.credentials')
         );
         $db = $firebase->createFirestore()->database();
+        $is_request_accepted = false;
+        $is_request_rejected = false;
+        $is_connection_request = false;
 
         $connection_request = ConnectionRequest::withTrashed()->find(
             $notification->additional_data['connection_request_id'] ?? 0
