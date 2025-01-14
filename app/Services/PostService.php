@@ -1240,7 +1240,26 @@ class PostService
             );
         }
 
+        if($user_bid->status === 'accepted')
+        {
+            $this->notification_service->push_notification(
+                $user,
+                NotificationType::BID,
+                $user->full_name,
+                ' your accepted bid has been successfully canceled',
+                $user->avatar ?? '',
+                [
+                    'description' => $user->about,
+                    'sender_id' => $user->id,
+                    'post_id' => $bid->post_id,
+                    'notification_type' => 'bid_canceled',
+                ]
+            );
+        }
+
         $user_bid->delete();
+
+        $receiver_user = $bid->user;
 
         return [
             'message' => 'Your bid has been canceled',
