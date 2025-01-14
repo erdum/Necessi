@@ -252,6 +252,7 @@ class PostService
                 'sender_id' => $user->id,
                 'post_id' => $bid->post_id,
                 'notification_type' => 'bid_accepted',
+                'bid_chip' => 0,
             ]
         );
 
@@ -295,6 +296,7 @@ class PostService
                 'sender_id' => $user->id,
                 'post_id' => $bid->post_id,
                 'notification_type' => 'bid_rejected',
+                'bid_chip' => 1,
             ]
         );
 

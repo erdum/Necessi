@@ -59,6 +59,7 @@ class NotificationObserver implements ShouldQueue
             'other_party_uid' => $other_party_user->uid,
             'post_id' => $notification->additional_data['post_id'] ?? null,
             'chat_id' => $chat_id,
+            'bid_chip' => $notification->additional_data['bid_chip'] ?? null,
         ];
 
         $db->collection('users')->document($notification->user->uid)
@@ -112,6 +113,7 @@ class NotificationObserver implements ShouldQueue
             'status' => $notification->body,
             'post_id' => $notification->additional_data['post_id'] ?? null,
             'chat_id' => $chat_id,
+            'bid_chip' => $notification->additional_data['bid_chip'] ?? null,
         ];
 
         $db->collection('users')->document($notification->user->uid)
