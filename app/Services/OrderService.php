@@ -10,6 +10,7 @@ use App\Models\PostBid;
 use App\Models\Review;
 use App\Models\Transaction;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class OrderService
@@ -353,160 +354,56 @@ class OrderService
             ];
         });
 
-        $total_revenue = OrderHistory::withWhereHas(
-            'bid',
-            function ($query) use ($user) {
-                $query->where('user_id', $user->id)
-                      ->where('status', 'accepted');
-            }
-        )
-            ->whereYear('created_at', $year)
-            ->when($month, function ($query) use ($month) {
-                $query->whereMonth('created_at', $month);
-            })
-            ->whereNotNull('transaction_id')
-            ->get();
-
-        $item_revenue = OrderHistory::withWhereHas(
-            'bid',
-            function ($query) use ($user) {
-                $query->where('user_id', $user->id)
-                      ->where('status', 'accepted')
-                      ->whereHas('post', function ($postQuery) {
-                          $postQuery->where('type', 'item');
-                      });
-            }
-        )
-            ->whereYear('created_at', $year)
-            ->when($month, function ($query) use ($month) {
-                $query->whereMonth('created_at', $month);
-            })
-            ->whereNotNull('transaction_id')
-            ->get();
-
-        $service_revenue = OrderHistory::withWhereHas(
-            'bid',
-            function ($query) use ($user) {
-                $query->where('user_id', $user->id)
-                        ->where('status', 'accepted')
-                        ->whereHas('post', function ($postQuery) {
-                              $postQuery->where('type', 'service');
-                        });
-            }
-        )
-            ->whereYear('created_at', $year)
-            ->when($month, function ($query) use ($month) {
-                $query->whereMonth('created_at', $month);
-            })
-            ->whereNotNull('transaction_id')
-            ->get();
-            
-
-        $total_amount = $total_revenue->sum(function ($order) {
-            return $order->bid->amount ?? 0;
-        });
-
-        $total_item_revenue = $item_revenue->sum(function ($order) {
-            return $order->bid->amount ?? 0;
-        });
-
-        $total_service_revenue = $service_revenue->sum(function ($order) {
-            return $order->bid->amount ?? 0;
-        });
-        
         if (! $month) {
-            $points_item = PostBid::withWhereHas(
-                'post',
-                function ($query) {
-                    $query->where('type', 'item');
-                }
-            )->selectRaw(
-                'SUM(amount) as value,
-                MAX(amount) as max,
-                YEAR(created_at) as year,
-                MONTH(created_at) as month,
-                DAY(created_at) as day,
-                post_id'
-            )
-                ->whereHas('order', function ($query) {
-                    $query->whereNotNull('transaction_id');
-                })
-                ->where('user_id', $user->id)
-                ->where('status', 'accepted')
-                ->whereYear('created_at', $year)
-                ->groupByRaw('MONTH(`created_at`)')
-                ->orderByRaw('MONTH(`created_at`)')
-                ->get();
-
-            $points_service = PostBid::withWhereHas(
-                'post',
-                function ($query) {
-                    $query->where('type', 'service');
-                }
-            )->selectRaw(
-                'SUM(amount) as value,
-                MAX(amount) as max,
-                YEAR(created_at) as year,
-                MONTH(created_at) as month,
-                DAY(created_at) as day,
-                post_id'
-            )
-                ->whereHas('order', function ($query) {
-                    $query->whereNotNull('transaction_id');
-                })
-                ->where('user_id', $user->id)
-                ->where('status', 'accepted')
-                ->whereYear('created_at', $year)
-                ->groupByRaw('MONTH(`created_at`)')
-                ->orderByRaw('MONTH(`created_at`)')
+            $points = DB::table('post_bids')
+                ->join('posts', 'post_bids.post_id', '=', 'posts.id')
+                ->join(
+                    'order_histories',
+                    'order_histories.bid_id',
+                    '=',
+                    'post_bids.id'
+                )
+                ->selectRaw(
+                    'SUM(post_bids.amount) as value,
+                    YEAR(post_bids.created_at) as year,
+                    MONTH(post_bids.created_at) as month,
+                    DAY(post_bids.created_at) as day,
+                    post_bids.post_id,
+                    posts.type'
+                )
+                ->whereIn('posts.type', ['item', 'service'])
+                ->whereNotNull('order_histories.transaction_id')
+                ->where('post_bids.user_id', $user->id)
+                ->where('post_bids.status', 'accepted')
+                ->whereYear('post_bids.created_at', $year)
+                ->groupByRaw('posts.type, MONTH(post_bids.created_at)')
+                ->orderByRaw('posts.type, MONTH(post_bids.created_at)')
                 ->get();
         } else {
-            $points_item = PostBid::withWhereHas(
-                'post',
-                function ($query) {
-                    $query->where('type', 'item');
-                }
-            )->selectRaw(
-                'SUM(amount) as value,
-                MAX(amount) as max,
-                YEAR(created_at) as year,
-                MONTH(created_at) as month,
-                DAY(created_at) as day,
-                post_id'
-            )
-                ->whereHas('order', function ($query) {
-                    $query->whereNotNull('transaction_id');
-                })
-                ->where('user_id', $user->id)
-                ->where('status', 'accepted')
-                ->whereYear('created_at', $year)
-                ->whereMonth('created_at', $month)
-                ->groupByRaw('DAY(`created_at`)')
-                ->orderByRaw('DAY(`created_at`)')
-                ->get();
-
-            $points_service = PostBid::withWhereHas(
-                'post',
-                function ($query) {
-                    $query->where('type', 'service');
-                }
-            )->selectRaw(
-                'SUM(amount) as value,
-                MAX(amount) as max,
-                YEAR(created_at) as year,
-                MONTH(created_at) as month,
-                DAY(created_at) as day,
-                post_id'
-            )
-                ->whereHas('order', function ($query) {
-                    $query->whereNotNull('transaction_id');
-                })
-                ->where('user_id', $user->id)
-                ->where('status', 'accepted')
-                ->whereYear('created_at', $year)
-                ->whereMonth('created_at', $month)
-                ->groupByRaw('DAY(`created_at`)')
-                ->orderByRaw('DAY(`created_at`)')
+            $points = DB::table('post_bids')
+                ->join('posts', 'post_bids.post_id', '=', 'posts.id')
+                ->join(
+                    'order_histories',
+                    'order_histories.bid_id',
+                    '=',
+                    'post_bids.id'
+                )
+                ->selectRaw(
+                    'SUM(post_bids.amount) as value,
+                    MAX(post_bids.amount) as max,
+                    YEAR(post_bids.created_at) as year,
+                    MONTH(post_bids.created_at) as month,
+                    DAY(post_bids.created_at) as day,
+                    post_bids.post_id,
+                    posts.type'
+                )
+                ->whereNotNull('order_histories.transaction_id')
+                ->where('post_bids.user_id', $user->id)
+                ->where('post_bids.status', 'accepted')
+                ->whereYear('post_bids.created_at', $year)
+                ->whereMonth('post_bids.created_at', $month)
+                ->groupByRaw('posts.type, DAY(post_bids.created_at)')
+                ->orderByRaw('posts.type DAY(post_bids.created_at)')
                 ->get();
         }
 
@@ -515,43 +412,45 @@ class OrderService
         $max_items_point = 0;
         $max_services_point = 0;
 
-        foreach ($points_item as $point) {
+        foreach ($points as $point) {
 
-            if ($point->value > $max_items_point) {
-                $max_items_point = $point->value;
+            if ($point->type == 'item') {
+
+                if ($point->value > $max_items_point) {
+                    $max_items_point = $point->value;
+                }
+
+                array_push(
+                    $items_points,
+                    [
+                        'value' => $point->value,
+                        'year' => $point->year,
+                        'month' => $point->month,
+                        'day' => $point->day,
+                    ]
+                );
+            } else if ($point->type == 'service') {
+
+                if ($point->value > $max_services_point) {
+                    $max_services_point = $point->value;
+                }
+
+                array_push(
+                    $services_points,
+                    [
+                        'value' => $point->value,
+                        'year' => $point->year,
+                        'month' => $point->month,
+                        'day' => $point->day,
+                    ]
+                );
             }
-
-            array_push(
-                $items_points,
-                [
-                    'value' => $point->value,
-                    'year' => $point->year,
-                    'month' => $point->month,
-                    'day' => $point->day,
-                ]
-            );
-        }
-
-        foreach ($points_service as $point) {
-            if ($point->value > $max_services_point) {
-                $max_services_point = $point->value;
-            }
-
-            array_push(
-                $services_points,
-                [
-                    'value' => $point->value,
-                    'year' => $point->year,
-                    'month' => $point->month,
-                    'day' => $point->day,
-                ]
-            );
         }
 
         return [
-            'total_revenue' => $total_amount,
-            'item_revenue' => $total_item_revenue,
-            'service_revenue' => $total_service_revenue,
+            'total_revenue' => $max_items_point + $max_services_point,
+            'item_revenue' => $max_items_point,
+            'service_revenue' => $max_services_point,
             'orders' => $orders,
             'graph' => [
                 'view' => $month ? 'monthly' : 'yearly',
