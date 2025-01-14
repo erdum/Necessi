@@ -10,6 +10,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use App\Services\FirebaseNotificationService;
+use App\Services\NotificationType;
 
 class RemindOrderMark implements ShouldQueue
 {
@@ -24,13 +25,13 @@ class RemindOrderMark implements ShouldQueue
 
 	protected $notification_service;
 
-	public function __construct(FirebaseNotificationService $notification_service)
+	public function __construct()
 	{
-		$this->notification_service = $notification_service;
 	}
 	
     public function handle()
     {
+    	$this->notification_service = app(FirebaseNotificationService::class);
         try {
             $borrower_pickups = PostBid::withWhereHas(
             	'post',
