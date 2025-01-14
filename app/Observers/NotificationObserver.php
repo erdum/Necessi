@@ -43,7 +43,7 @@ class NotificationObserver implements ShouldQueue
         $chat_id = $connection_request?->chat_id ?? null;
         
         $data = [
-            'type' => $notification->type,
+            'type' => $notification->additional_data['notification_type'] ?? $notification->type,
             'title' => $notification->title,
             'body' => $notification->body,
             'image' => $notification->image,
@@ -99,7 +99,7 @@ class NotificationObserver implements ShouldQueue
         $chat_id = $connection_request?->chat_id ?? null;
 
         $data = [
-            'type' => $notification->type,
+            'type' => $notification->additional_data['notification_type'] ?? $notification->type,
             'title' => $notification->title,
             'body' => $notification->body,
             'image' => $notification->image,

@@ -149,6 +149,7 @@ class UserService
                         'sender_id' => $user->id,
                         'connection_request_id' => $existing_request->id,
                         'is_connection_request' => true,
+                        'notification_type' => 'connection',
                     ]
                 );
 
@@ -180,6 +181,7 @@ class UserService
                 'sender_id' => $user->id,
                 'connection_request_id' => $connection_request->id,
                 'is_connection_request' => true,
+                'notification_type' => 'connection',
             ]
         );
 
@@ -753,6 +755,7 @@ class UserService
                 'description' => $user->about,
                 'sender_id' => $user->id,
                 'connection_request_id' => $connection_request->id,
+                'notification_type' => 'connection',
             ]
         );
 
