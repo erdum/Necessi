@@ -109,7 +109,7 @@ class NotificationObserver implements ShouldQueue
             'sender_id' => $notification->additional_data['sender_id'] ?? null,
             'other_party_id' => $other_party_user->id,
             'other_party_uid' => $other_party_user->uid,
-            'status' => $notification->status,
+            'status' => $notification->body,
             'post_id' => $notification->additional_data['post_id'] ?? null,
             'chat_id' => $chat_id,
         ];
