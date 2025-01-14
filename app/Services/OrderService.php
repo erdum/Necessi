@@ -397,6 +397,7 @@ class OrderService
                     post_bids.post_id,
                     posts.type'
                 )
+                ->whereIn('posts.type', ['item', 'service'])
                 ->whereNotNull('order_histories.transaction_id')
                 ->where('post_bids.user_id', $user->id)
                 ->where('post_bids.status', 'accepted')
