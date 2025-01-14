@@ -241,20 +241,29 @@ class PostService
 
         $receiver_user = $bid->user;
 
-        $this->notification_service->push_notification(
-            $receiver_user,
-            NotificationType::BID,
-            $receiver_user->full_name,
-            ' Your bid has been accepted! View details and next steps',
-            $receiver_user->avatar ?? '',
-            [
-                'description' => $user->about,
-                'sender_id' => $user->id,
-                'post_id' => $bid->post_id,
-                'notification_type' => 'bid_accepted',
-                'bid_chip' => 0,
-            ]
-        );
+        foreach ([$user, $receiver_user] as $not_user) {
+            $notification_receiver = $not_user->id === $user->id 
+              ? $receiver_user : $user;
+    
+            $this->notification_service->push_notification(
+                $not_user,
+                NotificationType::BID,
+                $not_user->full_name,
+                $not_user->id === $user->id
+                    ? "You accepted a bid for {$bid->post->title}. Payment must be made within 24 hours to confirm the bid."
+                    : "Your bid has been accepted! View details and next steps.",
+                $notification_receiver->avatar ?? '',
+                [
+                    'description' => $user->about,
+                    'sender_id' => $user->id,
+                    'post_id' => $bid->post_id,
+                    'notification_type' => $not_user->id === $user->id
+                        ? 'you_accepted_bid'
+                        : 'bid_accepted',
+                    'bid_chip' => 0,
+                ]
+            );
+        }
 
         return [
             'message' => 'You have successfully accepted the bid',
