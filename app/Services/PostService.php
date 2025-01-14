@@ -205,6 +205,7 @@ class PostService
                 'description' => $user->about,
                 'sender_id' => $user->id,
                 'post_id' => $post->id,
+                'notification_type' => 'post_details',
             ]
         );
 
@@ -250,6 +251,7 @@ class PostService
                 'description' => $user->about,
                 'sender_id' => $user->id,
                 'post_id' => $bid->post_id,
+                'notification_type' => 'bid_accepted',
             ]
         );
 
@@ -292,6 +294,7 @@ class PostService
                 'description' => $user->about,
                 'sender_id' => $user->id,
                 'post_id' => $bid->post_id,
+                'notification_type' => 'bid_rejected',
             ]
         );
 
@@ -572,6 +575,7 @@ class PostService
                     'description' => $user->about,
                     'sender_id' => $user->id,
                     'post_id' => $post->id,
+                    'notification_type' => 'post_details',
                 ]
             );
         }
@@ -604,6 +608,7 @@ class PostService
                     'description' => $user->about,
                     'sender_id' => $user->id,
                     'post_id' => $post->id,
+                    'notification_type' => 'post_details',
                 ]
             );
         }
