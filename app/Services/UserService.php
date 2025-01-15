@@ -637,6 +637,8 @@ class UserService
             // ->orWhere('state', $current_user->state)
             // ->orWhere('city', $current_user->city)
             ->whereNot('id', $current_user->id)
+            ->whereNotNull('lat')
+            ->whereNotNull('long')
             ->chunk(10, function ($users) use (&$nearby_users, $current_user) {
                 foreach ($users as $user) {
                     $distance = $this->haversineDistance(
