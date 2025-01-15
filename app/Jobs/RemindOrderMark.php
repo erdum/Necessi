@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Models\PostBid;
-use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -25,10 +24,6 @@ class RemindOrderMark implements ShouldQueue
 
 	protected $notification_service;
 
-	public function __construct()
-	{
-	}
-	
     public function handle()
     {
     	$this->notification_service = app(FirebaseNotificationService::class);
@@ -85,7 +80,7 @@ class RemindOrderMark implements ShouldQueue
 
         } catch (\Exception $e) {
         	logger()->error(
-        		'Error executing RemindOrderMark job: '.$e->getMessage(),
+        		'Error executing RemindOrderMark job: '.$e->getMessage()."\n".$e->getTraceAsString(),
         	);
         }
     }

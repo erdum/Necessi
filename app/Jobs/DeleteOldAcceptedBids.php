@@ -33,7 +33,7 @@ class DeleteOldAcceptedBids implements ShouldQueue
 
         } catch (\Exception $e) {
             logger()->error(
-                'Error in DeleteOldAcceptedBids job: '.$e->getMessage()
+                'Error in DeleteOldAcceptedBids job: '.$e->getMessage()."\n".$e->getTraceAsString()
             );
         }
     }

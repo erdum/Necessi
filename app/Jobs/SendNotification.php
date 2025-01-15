@@ -82,7 +82,7 @@ class SendNotification implements ShouldQueue
 	        }
         } catch (\Exception $e) {
             logger()->error(
-                'Error in SendNotification job: '.$e->getMessage()
+                'Error in SendNotification job: '.$e->getMessage()."\n".$e->getTraceAsString()
             );
         }
     }
