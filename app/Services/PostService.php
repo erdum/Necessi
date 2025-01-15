@@ -1119,7 +1119,7 @@ class PostService
         return $placed_bids;
     }
 
-    public function remove_rejected_bid(User $user, Post $bid)
+    public function remove_rejected_bid(User $user, PostBid $bid)
     {
         if ($bid->status == 'rejected') {
             $bid->delete();
