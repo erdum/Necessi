@@ -162,8 +162,8 @@ class UserService
 
         $this->notification_service->push_notification(
             NotificationData::CONNECTION_REQUEST_SENT->get(
-                $connection_request->receiver,
-                $connection_request->sender,
+                $receiver_user,
+                $user,
                 $connection_request
             )
         );
