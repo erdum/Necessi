@@ -8,10 +8,7 @@ use App\Models\User;
 use App\Models\Post;
 use App\Models\ConnectionRequest;
 use App\Models\UserNotificationDevice;
-use Illuminate\Support\Facades\Log;
-use Kreait\Firebase\Factory;
-use Kreait\Firebase\Messaging\CloudMessage;
-use Kreait\Firebase\Messaging\Notification as FirebaseNotification;
+use App\Jobs\SendNotification;
 
 enum NotificationType: string
 {
@@ -240,18 +237,6 @@ enum NotificationData
 
 class FirebaseNotificationService
 {
-    protected $messaging;
-
-    public function __construct(Factory $factory)
-    {
-        $firebase = $factory->withServiceAccount(
-            base_path()
-            .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
-        );
-        $this->messaging = $firebase->createMessaging();
-    }
-
     public function store_fcm_token(User $user, string $token)
     {
         try {
@@ -339,33 +324,16 @@ class FirebaseNotificationService
         $notification->additional_data = $additional_data;
         $receiver_user->notifications()->save($notification);
 
-        $firebaseNotification = FirebaseNotification::create(
+        SendNotification::dispatch(
+            $notification_device->fcm_token,
             $title,
             $body,
-            $image
+            $image ?? null,
+            $additional_data ?? []
         );
-
-        $message = CloudMessage::new()
-            ->withNotification($firebaseNotification)
-            ->withData($additional_data)
-            ->withDefaultSounds();
-
-        $send_report = $this->messaging->sendMulticast(
-            $message,
-            [$notification_device->fcm_token]
-        );
-
-        if ($send_report->hasFailures()) {
-            $messages = [];
-            foreach ($send_report->failures()->getItems() as $failure) {
-                $messages[] = $failure->error()->getMessage();
-            }
-            Log::warning('Failed to send notifications: ', $messages);
-        }
 
         return [
-            'message' => 'Notifications successfully sent',
-            'send_report' => $send_report ?? null,
+            'message' => 'Notifications successfully sent'
         ];
     }
 }
