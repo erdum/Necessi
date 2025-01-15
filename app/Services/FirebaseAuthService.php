@@ -38,7 +38,7 @@ class FirebaseAuthService
 
     protected function is_user_already_registered(string $email)
     {
-        return User::where('email', $email)->firstOrFail();
+        return User::where('email', $email)->first();
     }
 
     public function register(
