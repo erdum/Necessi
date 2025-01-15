@@ -24,6 +24,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Kreait\Firebase\Factory;
+use App\Services\NotificationData;
 
 class UserService
 {
@@ -137,20 +138,11 @@ class UserService
                 )->delete();
 
                 $this->notification_service->push_notification(
-                    $receiver_user,
-                    NotificationType::ACTIVITY,
-                    $user->full_name,
-                    ' has sent you a connection request',
-                    $user->avatar ?? '',
-                    [
-                        'user_name' => $user->full_name,
-                        'user_avatar' => $user->avatar,
-                        'description' => $user->about,
-                        'sender_id' => $user->id,
-                        'connection_request_id' => $existing_request->id,
-                        'is_connection_request' => true,
-                        'notification_type' => 'connection',
-                    ]
+                    NotificationData::CONNECTION_REQUEST_SENT->get(
+                        $existing_request->receiver,
+                        $existing_request->sender,
+                        $existing_request
+                    )
                 );
 
                 return [
@@ -169,20 +161,11 @@ class UserService
         $user = User::find($sender_id);
 
         $this->notification_service->push_notification(
-            $receiver_user,
-            NotificationType::ACTIVITY,
-            $user->full_name,
-            ' has sent you a connection request',
-            $user->avatar ?? '',
-            [
-                'user_name' => $user->full_name,
-                'user_avatar' => $user->avatar,
-                'description' => $user->about,
-                'sender_id' => $user->id,
-                'connection_request_id' => $connection_request->id,
-                'is_connection_request' => true,
-                'notification_type' => 'connection',
-            ]
+            NotificationData::CONNECTION_REQUEST_SENT->get(
+                $connection_request->receiver,
+                $connection_request->sender,
+                $connection_request
+            )
         );
 
         return ['message' => 'Connection request successfully sent'];
@@ -746,19 +729,11 @@ class UserService
         $connection_request->save();
 
         $this->notification_service->push_notification(
-            $other_user,
-            NotificationType::ACTIVITY,
-            $user->full_name,
-            ' has accept your connection request',
-            $user->avatar ?? '',
-            [
-                'user_name' => $user->full_name,
-                'user_avatar' => $user->avatar,
-                'description' => $user->about,
-                'sender_id' => $user->id,
-                'connection_request_id' => $connection_request->id,
-                'notification_type' => 'connection',
-            ]
+            NotificationData::CONNECTION_REQUEST_ACCEPTED->get(
+                $connection_request->sender,
+                $connection_request->receiver,
+                $connection_request
+            )
         );
 
         return ['message' => 'Connections successfully created'];
@@ -1151,16 +1126,11 @@ class UserService
         $connection = $this->is_connected($user, $receiver_user);
 
         $this->notification_service->push_notification(
-            $receiver_user,
-            NotificationType::MESSAGE,
-            $user->full_name,
-            ' has sent you a message',
-            $user->avatar ?? '',
-            [
-                'description' => $user->about,
-                'sender_id' => $user->id,
-                'connection_request_id' => $connection ? $connection->id : null,
-            ]
+            NotificationData::NEW_MESSAGE->get(
+                $receiver_user,
+                $user,
+                $connection
+            )
         );
 
         return ['message' => 'Message notification successfully sent'];

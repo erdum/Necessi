@@ -15,6 +15,7 @@ use App\Models\ReportedPost;
 use App\Models\Review;
 use App\Models\User;
 use Carbon\Carbon;
+use App\Services\NotificationData;
 
 class PostService
 {
@@ -193,20 +194,8 @@ class PostService
         $post_bid->status = 'pending';
         $post_bid->save();
 
-        $receiver_user = $post->user;
-
         $this->notification_service->push_notification(
-            $receiver_user,
-            NotificationType::BID,
-            $receiver_user->full_name,
-            " you have received a new bid on {$post->title}. Accept or decline now!",
-            $receiver_user->avatar ?? '',
-            [
-                'description' => $user->about,
-                'sender_id' => $user->id,
-                'post_id' => $post->id,
-                'notification_type' => 'bid_received_accept_decline',
-            ]
+            NotificationData::BID_RECEIVED->get($post->user, $user, $post)
         );
 
         return [
@@ -244,24 +233,15 @@ class PostService
         foreach ([$user, $receiver_user] as $not_user) {
             $notification_receiver = $not_user->id === $user->id 
               ? $receiver_user : $user;
+            $sender_user = $not_user->id === $user->id 
+              ? $user : $receiver_user;
     
             $this->notification_service->push_notification(
-                $not_user,
-                NotificationType::BID,
-                $not_user->full_name,
-                $not_user->id === $user->id
-                    ? "You accepted a bid for {$bid->post->title}. Payment must be made within 24 hours to confirm the bid."
-                    : "Your bid has been accepted! View details and next steps.",
-                $notification_receiver->avatar ?? '',
-                [
-                    'description' => $user->about,
-                    'sender_id' => $user->id,
-                    'post_id' => $bid->post_id,
-                    'notification_type' => $not_user->id === $user->id
-                        ? 'you_accepted_bid'
-                        : 'bid_accepted',
-                    'bid_chip' => 0,
-                ]
+                NotificationData::BID_ACCEPTED->get(
+                    $notification_receiver,
+                    $sender_user,
+                    $bid->post
+                )
             );
         }
 
@@ -295,18 +275,7 @@ class PostService
         $receiver_user = $bid->user;
 
         $this->notification_service->push_notification(
-            $receiver_user,
-            NotificationType::BID,
-            $receiver_user->full_name,
-            ' Unfortunately, your bid was rejected. View details to try again',
-            $receiver_user->avatar ?? '',
-            [
-                'description' => $user->about,
-                'sender_id' => $user->id,
-                'post_id' => $bid->post_id,
-                'notification_type' => 'bid_rejected',
-                'bid_chip' => 1,
-            ]
+            NotificationData::BID_REJECTED->get($bid->user, $user, $bid->post)
         );
 
         return [
@@ -577,17 +546,7 @@ class PostService
             $receiver_user = Post::find($post->id)?->user;
 
             $this->notification_service->push_notification(
-                $receiver_user,
-                NotificationType::ACTIVITY,
-                $user->full_name,
-                ' has liked your post',
-                $user->avatar ?? '',
-                [
-                    'description' => $user->about,
-                    'sender_id' => $user->id,
-                    'post_id' => $post->id,
-                    'notification_type' => 'post_details',
-                ]
+                NotificationData::POST_LIKED->get($receiver_user, $user, $post)
             );
         }
 
@@ -610,17 +569,11 @@ class PostService
             $type = 'placed_comment';
 
             $this->notification_service->push_notification(
-                $receiver_user,
-                NotificationType::ACTIVITY,
-                $user->full_name,
-                ' has commented on your post',
-                $user->avatar ?? '',
-                [
-                    'description' => $user->about,
-                    'sender_id' => $user->id,
-                    'post_id' => $post->id,
-                    'notification_type' => 'post_details',
-                ]
+                NotificationData::POST_COMMENT->get(
+                    $receiver_user,
+                    $user,
+                    $post
+                )
             );
         }
 
@@ -1242,17 +1195,11 @@ class PostService
 
         if ($user_bid->status === 'accepted') {
             $this->notification_service->push_notification(
-                $user_bid->post->user,
-                NotificationType::BID,
-                $user_bid->post->user->full_name,
-                ' your accepted bid has been canceled',
-                $user->avatar ?? '',
-                [
-                    'description' => $user->about,
-                    'sender_id' => $user->id,
-                    'post_id' => $user_bid->post_id,
-                    'notification_type' => 'bid_canceled',
-                ]
+                NotificationData::ACCEPTED_BID_CANCELED->get(
+                    $post->user,
+                    $user,
+                    $post
+                )
             );
         }
 

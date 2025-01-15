@@ -10,7 +10,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use App\Services\FirebaseNotificationService;
-use App\Services\NotificationType;
+use App\Services\NotificationData;
 
 class RemindOrderMark implements ShouldQueue
 {
@@ -49,21 +49,13 @@ class RemindOrderMark implements ShouldQueue
 	            ->get();
 
 	        foreach ($borrower_pickups as $pickup) {
-	        	$user = $pickup->post->user;
-
 	        	$this->notification_service->push_notification(
-	                $user,
-	                NotificationType::TRANSACTION,
-	                $user->full_name,
-	                "Your order pickup date as arrived, please mark it if you have received the item",
-	                $pickup->user->avatar ?? '',
-	                [
-	                    'description' => $user->about,
-	                    'sender_id' => $user->id,
-	                    'post_id' => $pickup->post_id,
-	                    'notification_type' => 'bid_canceled',
-	                ]
-	            );
+	        		NotificationData::PICKUP_DATE_REMINDER->get(
+	        			$pickup->post->user,
+	        			$pickup->user,
+	        			$pickup->post
+	        		)
+	        	);
 	        }
 
 	        $provider_pickups = PostBid::withWhereHas(
@@ -82,21 +74,13 @@ class RemindOrderMark implements ShouldQueue
 	            ->get();
 
 	        foreach ($provider_pickups as $pickup) {
-	        	$user = $pickup->user;
-
 	        	$this->notification_service->push_notification(
-	                $user,
-	                NotificationType::TRANSACTION,
-	                $user->full_name,
-	                "Your order return date as arrived, please mark it if you have received the item",
-	                $pickup->post->user->avatar ?? '',
-	                [
-	                    'description' => $user->about,
-	                    'sender_id' => $user->id,
-	                    'post_id' => $pickup->post_id,
-	                    'notification_type' => 'bid_canceled',
-	                ]
-	            );
+	        		NotificationData::RETURN_DATE_REMINDER->get(
+	        			$pickup->user,
+	        			$pickup->post->user,
+	        			$pickup->post
+	        		)
+	        	);
 	        }
 
         } catch (\Exception $e) {

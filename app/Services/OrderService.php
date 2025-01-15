@@ -12,6 +12,7 @@ use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Services\NotificationData;
 
 class OrderService
 {
@@ -179,17 +180,11 @@ class OrderService
                 ? $order->bid->post->user : $order->bid->user;
 
             $this->notification_service->push_notification(
-                $receiver_user,
-                NotificationType::BID,
-                $receiver_user->full_name,
-                "Your order status changed to {$post->order_status}",
-                $not_user->avatar ?? '',
-                [
-                    'description' => $not_user->about,
-                    'sender_id' => $not_user->id,
-                    'post_id' => $post->id,
-                    'notification_type' => 'post_details',
-                ]
+                NotificationData::ORDER_STATUS_CHANGED->get(
+                    $receiver_user,
+                    $not_user,
+                    $post
+                )
             );
         }
 
@@ -342,16 +337,11 @@ class OrderService
         $receiver_user = $bid->user;
 
         $this->notification_service->push_notification(
-            $receiver_user,
-            NotificationType::TRANSACTION,
-            $receiver_user->full_name,
-            " payment for your accepted bid on {$bid->post->title} has been successfully completed",
-            $user->avatar ?? '',
-            [
-                'description' => $user->about,
-                'sender_id' => $user->id,
-                'post_id' => $bid->post_id,
-            ]
+            NotificationData::ORDER_PAYMENT_SUCCESSFULL->get(
+                $bid->user,
+                $user,
+                $bid->post
+            )
         );
 
         foreach ([$user, $receiver_user] as $not_user) {
@@ -359,16 +349,11 @@ class OrderService
                 ? $receiver_user : $user;
 
             $this->notification_service->push_notification(
-                $not_user,
-                NotificationType::TRANSACTION,
-                $not_user->full_name,
-                "Your order with {$receiver_user->full_name} has moved to upcoming",
-                $receiver_user->avatar ?? '',
-                [
-                    'description' => $user->about,
-                    'sender_id' => $user->id,
-                    'post_id' => $bid->post_id,
-                ]
+                NotificationData::ORDER_STATUS_CHANGED->get(
+                    $receiver_user,
+                    $not_user,
+                    $bid->post
+                )
             );
         }
 
