@@ -60,6 +60,7 @@ class NotificationObserver implements ShouldQueue
             'post_id' => $notification->additional_data['post_id'] ?? null,
             'chat_id' => $chat_id,
             'bid_chip' => $notification->additional_data['bid_chip'] ?? null,
+            'bid_id' => $notification->additional_data['bid_id'] ?? null
         ];
 
         $db->collection('users')->document($notification->user->uid)
@@ -114,6 +115,7 @@ class NotificationObserver implements ShouldQueue
             'post_id' => $notification->additional_data['post_id'] ?? null,
             'chat_id' => $chat_id,
             'bid_chip' => $notification->additional_data['bid_chip'] ?? null,
+            'bid_id' => $notification->additional_data['bid_id'] ?? null,
         ];
 
         $db->collection('users')->document($notification->user->uid)
