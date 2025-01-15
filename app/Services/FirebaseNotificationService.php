@@ -280,8 +280,9 @@ class FirebaseNotificationService
     ) {
 
         if (
-            $receiver_user->is_blocked(auth()->user()->id)
-            || $receiver_user->is_blocker(auth()->user()->id)
+            auth()->user()
+            && ($receiver_user->is_blocked(auth()->user()->id)
+            || $receiver_user->is_blocker(auth()->user()->id))
         ) {
             return;
         }
