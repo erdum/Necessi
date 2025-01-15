@@ -150,7 +150,7 @@ enum NotificationData
             self::POST_LIKED => [
                 'type' => NotificationType::ACTIVITY,
                 'receiver_user' => $receiver_user,
-                'title' => $receiver_user->full_name,
+                'title' => $sender_user->full_name,
                 'body' => " has liked your post",
                 'image' => $sender_user->avatar ?? '',
                 'additional_data' => [
@@ -164,7 +164,7 @@ enum NotificationData
             self::POST_COMMENT => [
                 'type' => NotificationType::ACTIVITY,
                 'receiver_user' => $receiver_user,
-                'title' => $receiver_user->full_name,
+                'title' => $sender_user->full_name,
                 'body' => " has commented on your post",
                 'image' => $sender_user->avatar ?? '',
                 'additional_data' => [
@@ -192,7 +192,7 @@ enum NotificationData
             self::CONNECTION_REQUEST_SENT => [
                 'type' => NotificationType::ACTIVITY,
                 'receiver_user' => $receiver_user,
-                'title' => $receiver_user->full_name,
+                'title' => $sender_user->full_name,
                 'body' => " has sent you a connection request",
                 'image' => $sender_user->avatar ?? '',
                 'additional_data' => [
@@ -209,7 +209,7 @@ enum NotificationData
             self::CONNECTION_REQUEST_ACCEPTED => [
                 'type' => NotificationType::ACTIVITY,
                 'receiver_user' => $receiver_user,
-                'title' => $receiver_user->full_name,
+                'title' => $sender_user->full_name,
                 'body' => " has accept your connection request",
                 'image' => $sender_user->avatar ?? '',
                 'additional_data' => [
@@ -225,7 +225,7 @@ enum NotificationData
             self::NEW_MESSAGE => [
                 'type' => NotificationType::MESSAGE,
                 'receiver_user' => $receiver_user,
-                'title' => $receiver_user->full_name,
+                'title' => $sender_user->full_name,
                 'body' => " has sent you a message",
                 'image' => $sender_user->avatar ?? '',
                 'additional_data' => [
