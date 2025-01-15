@@ -120,7 +120,7 @@ class User extends Authenticatable
     public function connections()
     {
         return $this->hasMany(ConnectionRequest::class, 'sender_id')
-            ->orWhere('receiver_id', $this->id)->withTrashed();
+            ->orWhere('receiver_id', $this->id);
     }
 
     public function blocked_users()

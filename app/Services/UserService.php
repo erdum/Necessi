@@ -899,7 +899,7 @@ class UserService
         $notifications->getCollection()->transform(
             function ($notif) {
 
-                $connection_request = ConnectionRequest::withTrashed()->find(
+                $connection_request = ConnectionRequest::find(
                     $notif->additional_data['connection_request_id'] ?? 0
                 );
 

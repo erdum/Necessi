@@ -83,7 +83,7 @@ class NotificationObserver implements ShouldQueue
         $is_request_rejected = false;
         $is_connection_request = false;
 
-        $connection_request = ConnectionRequest::withTrashed()->find(
+        $connection_request = ConnectionRequest::find(
             $notification->additional_data['connection_request_id'] ?? 0
         );
 
