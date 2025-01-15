@@ -96,6 +96,7 @@ enum NotificationData
                     'sender_id' => $sender_user->id,
                     'post_id' => $post?->id,
                     'bid_id' => $post->bids[0]->id,
+                    'notification_type' => 'bid_payment_complete',
                 ]
             ],
 
