@@ -972,7 +972,7 @@ class UserService
         )
             ->whereNotIn('status', ['rejected', 'accepted'])
             ->with('sender:id,first_name,last_name,avatar')
-            ->paginate();
+            ->get();
 
         $connection_requests->getCollection()->transform(
             function ($con) {
