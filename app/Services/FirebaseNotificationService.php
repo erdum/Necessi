@@ -125,7 +125,7 @@ enum NotificationData
                     'notification_type' => $receiver_user->id == $post?->user_id
                         ? 'you_accepted_bid'
                         : 'bid_accepted',
-                    'bid_id' => $post->bids[0]->id
+                    'bid_id' => $post->bids[0]->id,
                     'bid_chip' => 0,
                 ]
             ],
