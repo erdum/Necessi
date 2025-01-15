@@ -9,6 +9,7 @@ use App\Models\Post;
 use App\Models\ConnectionRequest;
 use App\Models\UserNotificationDevice;
 use App\Jobs\SendNotification;
+use Carbon\Carbon;
 
 enum NotificationType: string
 {
@@ -23,6 +24,7 @@ enum NotificationData
 {
     case PICKUP_DATE_REMINDER;
     case RETURN_DATE_REMINDER;
+    case ORDER_PAYMENT_REMINDER;
     case ORDER_STATUS_CHANGED;
     case ORDER_PAYMENT_SUCCESSFULL;
     case ORDER_MOVED_TO_UPCOMING;
@@ -68,6 +70,20 @@ enum NotificationData
                     'sender_id' => $sender_user->id,
                     'post_id' => $post?->id,
                     'notification_type' => 'bid_canceled',
+                ]
+            ],
+
+            self::ORDER_PAYMENT_REMINDER => [
+                'type' => NotificationType::BID,
+                'receiver_user' => $receiver_user,
+                'title' => $receiver_user->full_name,
+                'body' => "Payment is due for the accepted bid on {$post->title}. Time left: {$post->bids[0]->updated_at->diffInHours(now()->subDay())} hours. Make the payment now",
+                'image' => $sender_user->avatar ?? '',
+                'additional_data' => [
+                    'description' => $sender_user->about,
+                    'sender_id' => $sender_user->id,
+                    'post_id' => $post?->id,
+                    'notification_type' => 'post_details',
                 ]
             ],
 

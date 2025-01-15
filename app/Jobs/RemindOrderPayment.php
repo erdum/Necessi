@@ -1,0 +1,49 @@
+<?php
+
+namespace App\Jobs;
+
+use App\Models\PostBid;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use App\Services\FirebaseNotificationService;
+use App\Services\NotificationData;
+
+class RemindOrderPayment implements ShouldQueue
+{
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    /**
+     * Execute the job.
+     *
+     * @param  Factory  $factory
+     * @return void
+     */
+
+	protected $notification_service;
+	
+    public function handle()
+    {
+    	$this->notification_service = app(FirebaseNotificationService::class);
+        try {
+            $payment_reminders = PostBid::where('status', 'accepted')
+                ->whereDoesntHave('order')->get();
+
+	        foreach ($payment_reminders as $reminder) {
+	        	$this->notification_service->push_notification(
+	        		...NotificationData::ORDER_PAYMENT_REMINDER->get(
+	        			$reminder->post->user,
+	        			$reminder->user,
+	        			$reminder->post
+	        		)
+	        	);
+	        }
+        } catch (\Exception $e) {
+        	logger()->error(
+        		'Error executing RemindOrderMark job: '.$e->getMessage()."\n".$e->getTraceAsString(),
+        	);
+        }
+    }
+}
