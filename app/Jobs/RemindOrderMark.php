@@ -50,7 +50,7 @@ class RemindOrderMark implements ShouldQueue
 
 	        foreach ($borrower_pickups as $pickup) {
 	        	$this->notification_service->push_notification(
-	        		NotificationData::PICKUP_DATE_REMINDER->get(
+	        		...NotificationData::PICKUP_DATE_REMINDER->get(
 	        			$pickup->post->user,
 	        			$pickup->user,
 	        			$pickup->post
@@ -75,7 +75,7 @@ class RemindOrderMark implements ShouldQueue
 
 	        foreach ($provider_pickups as $pickup) {
 	        	$this->notification_service->push_notification(
-	        		NotificationData::RETURN_DATE_REMINDER->get(
+	        		...NotificationData::RETURN_DATE_REMINDER->get(
 	        			$pickup->user,
 	        			$pickup->post->user,
 	        			$pickup->post

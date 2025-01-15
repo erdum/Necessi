@@ -138,7 +138,7 @@ class UserService
                 )->delete();
 
                 $this->notification_service->push_notification(
-                    NotificationData::CONNECTION_REQUEST_SENT->get(
+                    ...NotificationData::CONNECTION_REQUEST_SENT->get(
                         $existing_request->receiver,
                         $existing_request->sender,
                         $existing_request
@@ -161,7 +161,7 @@ class UserService
         $user = User::find($sender_id);
 
         $this->notification_service->push_notification(
-            NotificationData::CONNECTION_REQUEST_SENT->get(
+            ...NotificationData::CONNECTION_REQUEST_SENT->get(
                 $receiver_user,
                 $user,
                 $connection_request
@@ -729,7 +729,7 @@ class UserService
         $connection_request->save();
 
         $this->notification_service->push_notification(
-            NotificationData::CONNECTION_REQUEST_ACCEPTED->get(
+            ...NotificationData::CONNECTION_REQUEST_ACCEPTED->get(
                 $connection_request->sender,
                 $connection_request->receiver,
                 $connection_request
@@ -1126,7 +1126,7 @@ class UserService
         $connection = $this->is_connected($user, $receiver_user);
 
         $this->notification_service->push_notification(
-            NotificationData::NEW_MESSAGE->get(
+            ...NotificationData::NEW_MESSAGE->get(
                 $receiver_user,
                 $user,
                 $connection

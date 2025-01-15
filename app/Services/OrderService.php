@@ -180,7 +180,7 @@ class OrderService
                 ? $order->bid->post->user : $order->bid->user;
 
             $this->notification_service->push_notification(
-                NotificationData::ORDER_STATUS_CHANGED->get(
+                ...NotificationData::ORDER_STATUS_CHANGED->get(
                     $receiver_user,
                     $not_user,
                     $post
@@ -337,7 +337,7 @@ class OrderService
         $receiver_user = $bid->user;
 
         $this->notification_service->push_notification(
-            NotificationData::ORDER_PAYMENT_SUCCESSFULL->get(
+            ...NotificationData::ORDER_PAYMENT_SUCCESSFULL->get(
                 $bid->user,
                 $user,
                 $bid->post
@@ -349,7 +349,7 @@ class OrderService
                 ? $receiver_user : $user;
 
             $this->notification_service->push_notification(
-                NotificationData::ORDER_STATUS_CHANGED->get(
+                ...NotificationData::ORDER_STATUS_CHANGED->get(
                     $receiver_user,
                     $not_user,
                     $bid->post

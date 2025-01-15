@@ -267,8 +267,8 @@ class FirebaseNotificationService
     }
 
     public function push_notification(
-        User $user,
         NotificationType $type,
+        User $receiver_user,
         string $title,
         string $body,
         ?string $image = null,
@@ -276,15 +276,15 @@ class FirebaseNotificationService
     ) {
 
         if (
-            $user->is_blocked(auth()->user()->id)
-            || $user->is_blocker(auth()->user()->id)
+            $receiver_user->is_blocked(auth()->user()->id)
+            || $receiver_user->is_blocker(auth()->user()->id)
         ) {
             return;
         }
 
         $notification_device = UserNotificationDevice::where(
             'user_id',
-            $user->id
+            $receiver_user->id
         )->first();
 
         if (! $notification_device) {
@@ -294,35 +294,35 @@ class FirebaseNotificationService
         switch ($type) {
             case NotificationType::GENERAL:
 
-                if (! $user?->preferences?->general_notifications) {
+                if (! $receiver_user?->preferences?->general_notifications) {
                     return;
                 }
                 break;
 
             case NotificationType::BID:
 
-                if (! $user?->preferences?->biding_notifications) {
+                if (! $receiver_user?->preferences?->biding_notifications) {
                     return;
                 }
                 break;
 
             case NotificationType::TRANSACTION:
 
-                if (! $user?->preferences?->transaction_notifications) {
+                if (! $receiver_user?->preferences?->transaction_notifications) {
                     return;
                 }
                 break;
 
             case NotificationType::ACTIVITY:
 
-                if (! $user?->preferences?->activity_notifications) {
+                if (! $receiver_user?->preferences?->activity_notifications) {
                     return;
                 }
                 break;
 
             case NotificationType::MESSAGE:
 
-                if (! $user?->preferences?->messages_notifications) {
+                if (! $receiver_user?->preferences?->messages_notifications) {
                     return;
                 }
                 break;
@@ -337,7 +337,7 @@ class FirebaseNotificationService
         $notification->body = $body;
         $notification->image = $image;
         $notification->additional_data = $additional_data;
-        $user->notifications()->save($notification);
+        $receiver_user->notifications()->save($notification);
 
         $firebaseNotification = FirebaseNotification::create(
             $title,

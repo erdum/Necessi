@@ -195,7 +195,7 @@ class PostService
         $post_bid->save();
 
         $this->notification_service->push_notification(
-            NotificationData::BID_RECEIVED->get($post->user, $user, $post)
+            ...NotificationData::BID_RECEIVED->get($post->user, $user, $post)
         );
 
         return [
@@ -237,7 +237,7 @@ class PostService
               ? $user : $receiver_user;
     
             $this->notification_service->push_notification(
-                NotificationData::BID_ACCEPTED->get(
+                ...NotificationData::BID_ACCEPTED->get(
                     $notification_receiver,
                     $sender_user,
                     $bid->post
@@ -275,7 +275,11 @@ class PostService
         $receiver_user = $bid->user;
 
         $this->notification_service->push_notification(
-            NotificationData::BID_REJECTED->get($bid->user, $user, $bid->post)
+            ...NotificationData::BID_REJECTED->get(
+                $bid->user,
+                $user,
+                $bid->post
+            )
         );
 
         return [
@@ -546,7 +550,11 @@ class PostService
             $receiver_user = Post::find($post->id)?->user;
 
             $this->notification_service->push_notification(
-                NotificationData::POST_LIKED->get($receiver_user, $user, $post)
+                ...NotificationData::POST_LIKED->get(
+                    $receiver_user,
+                    $user,
+                    $post
+                )
             );
         }
 
@@ -569,7 +577,7 @@ class PostService
             $type = 'placed_comment';
 
             $this->notification_service->push_notification(
-                NotificationData::POST_COMMENT->get(
+                ...NotificationData::POST_COMMENT->get(
                     $receiver_user,
                     $user,
                     $post
@@ -1195,7 +1203,7 @@ class PostService
 
         if ($user_bid->status === 'accepted') {
             $this->notification_service->push_notification(
-                NotificationData::ACCEPTED_BID_CANCELED->get(
+                ...NotificationData::ACCEPTED_BID_CANCELED->get(
                     $post->user,
                     $user,
                     $post
