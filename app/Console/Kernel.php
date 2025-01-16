@@ -17,8 +17,8 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
         $schedule->job(new DeleteOldAcceptedBids)->daily();
-        $schedule->job(new RemindOrderMark)->everyMinute();
-        $schedule->job(new RemindOrderPayment)->everyMinute();
+        $schedule->job(new RemindOrderMark)->everyThreeHours();
+        $schedule->job(new RemindOrderPayment)->everySixHours();
     }
 
     /**
