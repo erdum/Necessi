@@ -34,6 +34,7 @@ class Post extends Model
 
                 $status = $this->end_date->isPast()
                     && $bid->order?->received_by_lender == null
+                    && $bid->user_id == auth()->user()->id
                         ? 'past due' : $status;
                         
                 $status = $bid->order?->received_by_lender
