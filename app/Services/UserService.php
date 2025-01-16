@@ -989,6 +989,21 @@ class UserService
 
     public function initiate_chat(User $user, User $other_user)
     {
+
+        if ($user->is_blocked($other_user->id)) {
+            throw new Exceptions\BaseException(
+                "You're blocked by the other user",
+                400
+            );
+        }
+
+        if ($user->is_blocker($other_user->id)) {
+            throw new Exceptions\BaseException(
+                "You've blocked the other user",
+                400
+            );
+        }
+
         $connection_request = ConnectionRequest::where([
             ['sender_id', '=', $other_user->id],
             ['receiver_id', '=', $user->id],
@@ -1014,7 +1029,20 @@ class UserService
 
     public function initiate_chats(User $user, array $other_party_uids)
     {
-        $other_users = User::whereIn('uid', $other_party_uids)->get();
+        $other_users = User::whereIn('uid', $other_party_uids)
+            ->whereDoesntHave(
+                'blocked_users',
+                function ($query) use ($user) {
+                    $query->where('blocked_id', $user->id);
+                }
+            )
+            ->whereDoesntHave(
+                'blocker_users',
+                function ($query) use ($user) {
+                    $query->where('blocker_id', $user->id);
+                }
+            )
+            ->get();
 
         $other_users->transform(function ($other_party) use ($user) {
             $chat_response = $this->create_chat($user, $other_party);
