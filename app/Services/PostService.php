@@ -900,8 +900,6 @@ class PostService
     public function search_all(User $current_user, string $search_query)
     {
         $search_terms = explode(' ', $search_query);
-        $searched_posts = [];
-        $searched_users = [];   
 
         $posts = Post::where(
             function ($query) use ($search_query, $search_terms) {
@@ -925,47 +923,19 @@ class PostService
                 }
             )
             ->with('user')
-            ->orderBy('created_at', 'desc')->get();
-        
-        $users = User::where(
-            function ($query) use ($search_terms) {
-                foreach ($search_terms as $term) {
-                    $query->orWhere('first_name', 'like', '%'. $term .'%')
-                        ->orWhere('last_name', 'like', '%'. $term .'%');
-                }
-            }
-        )
-            ->whereDoesntHave(
-                'blocked_users',
-                function ($query) use ($current_user) {
-                    $query->where('blocked_id', $current_user->id);
-                }
-            )
-            ->whereDoesntHave(
-                'blocker_users',
-                function ($query) use ($current_user) {
-                    $query->where('blocker_id', $current_user->id);
-                }
-            )
-            ->get();
+            ->latest()
+            ->paginate();
 
-        foreach ($users as $user) {
-            $searched_users[] = [
-                'type' => 'peoples',
-                'user_id' => $user->id,
-                'user_name' => $user->full_name,
-                'avatar' => $user->avatar,
-            ];
-
-            foreach ($user->posts as $post) {
+        $posts->getCollection()->transform(
+            function ($post) use ($current_user) {
                 $distance = $this->calculateDistance(
                     $current_user->lat,
                     $current_user->long,
                     $post->lat,
                     $post->long,
                 );
-    
-                $searched_posts[] = [
+
+                return [
                     'type' => 'posts',
                     'post_id' => $post->id,
                     'user_id' => $post->user->id,
@@ -985,40 +955,29 @@ class PostService
                     'description' => $post->description,
                 ];
             }
-        }
+        );
+        
+        $users = User::where(
+            function ($query) use ($search_terms) {
+                foreach ($search_terms as $term) {
+                    $query->orWhere('first_name', 'like', '%'. $term .'%')
+                        ->orWhere('last_name', 'like', '%'. $term .'%');
+                }
+            }
+        )->paginate();
 
-        foreach ($posts as $post) {
-            $distance = $this->calculateDistance(
-                $current_user->lat,
-                $current_user->long,
-                $post->lat,
-                $post->long,
-            );
-
-            $searched_posts[] = [
-                'type' => 'posts',
-                'post_id' => $post->id,
-                'user_id' => $post->user->id,
-                'user_name' => $post->user->full_name,
-                'avatar' => $post->user->avatar,
-                'post_type' => $post->type,
-                'created_at' => $post->created_at->diffForHumans(),
-                'budget' => $post->budget,
-                'duration' => ($post->start_time && $post->end_time)
-                    ? Carbon::parse($post->start_time)->format('h:i A').' - '.Carbon::parse($post->end_time)->format('h:i A')
-                    : null,
-                'date' => Carbon::parse($post->start_date)->format('d M').' - '.Carbon::parse($post->end_date)->format('d M y'),
-                'location' => $post->location,
-                'location_details' => $post->city . ', ' . $post->state,
-                'distance' => round($distance, 2).' miles away',
-                'title' => $post->title,
-                'description' => $post->description,
+        $users->getCollection()->transform(function ($user) {
+            return [
+                'type' => 'peoples',
+                'user_id' => $user->id,
+                'user_name' => $user->full_name,
+                'avatar' => $user->avatar,
             ];
-        }
+        });
 
         return [
-            'posts' => $searched_posts,
-            'people' => $searched_users,
+            'posts' => $posts,
+            'people' => $users,
         ];
     }
 
