@@ -924,7 +924,7 @@ class PostService
             )
             ->with('user')
             ->latest()
-            ->paginate();
+            ->paginate(10, ['*'], 'posts_page');
 
         $posts->getCollection()->transform(
             function ($post) use ($current_user) {
@@ -964,7 +964,8 @@ class PostService
                         ->orWhere('last_name', 'like', '%'. $term .'%');
                 }
             }
-        )->paginate();
+        )
+            ->paginate(10, ['*'], 'users_page');
 
         $users->getCollection()->transform(function ($user) {
             return [
