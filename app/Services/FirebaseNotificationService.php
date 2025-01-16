@@ -99,7 +99,7 @@ enum NotificationData
                     'description' => $sender_user->about,
                     'sender_id' => $sender_user->id,
                     'post_id' => $post?->id,
-                    'notification_type' => 'post_details',
+                    'notification_type' => 'transaction',
                 ]
             ],
 
