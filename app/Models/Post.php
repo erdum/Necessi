@@ -29,12 +29,21 @@ class Post extends Model
 
             if ($this->type == 'item') {
                 $status = $this->start_date->isPast()
-                    && $bid->order?->received_by_borrower
+                    && $bid->user_id == auth()->user()->id
                         ? 'underway' : 'upcoming';
 
                 $status = $this->end_date->isPast()
                     && $bid->order?->received_by_lender == null
                         ? 'past due' : $status;
+                        
+                $status = $bid->order?->received_by_lender
+                    && $bid->user_id == auth()->user()->id
+                        ? 'completed' : $status;
+                
+                $status = $bid->order?->received_by_borrower
+                    && $bid->order?->received_by_lender == null 
+                    && $bid->user_id !== auth()->user()->id
+                        ? 'completed' : $status;
 
                 $status = $bid->order?->received_by_borrower
                     && $bid->order?->received_by_lender
