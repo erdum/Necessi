@@ -38,6 +38,7 @@ enum NotificationData
     case CONNECTION_REQUEST_ACCEPTED;
     case NEW_MESSAGE;
     case NEW_SHARE_POST_MESSAGE;
+    case POST_REVIEW;
 
     public function get(
         User $receiver_user,
@@ -262,6 +263,20 @@ enum NotificationData
                     'description' => $sender_user->about,
                     'sender_id' => $sender_user->id,
                     'connection_request_id' => $post?->id,
+                ]
+            ],
+
+            self::POST_REVIEW => [
+                'type' => NotificationType::ACTIVITY,
+                'receiver_user' => $receiver_user,
+                'title' => $sender_user->full_name,
+                'body' => " has feedback on your post",
+                'image' => $sender_user->avatar ?? '',
+                'additional_data' => [
+                    'description' => $sender_user->about,
+                    'sender_id' => $sender_user->id,
+                    'post_id' => $post?->id,
+                    'notification_type' => 'feedback',
                 ]
             ],
         };

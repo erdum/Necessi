@@ -442,6 +442,10 @@ class PostService
         $review->rating = $rating;
         $review->save();
 
+        $this->notification_service->push_notification(
+            ...NotificationData::POST_REVIEW->get($post->user, $user, $post)
+        );
+
         return $review;
     }
 
