@@ -360,7 +360,8 @@ class UserController extends Controller
         $response = $user_service->send_message_notificatfion(
             $request->user(),
             $other_user,
-            $request->chat_id
+            $request->chat_id,
+            $request?->type ?? 'text'
         );
 
         return response()->json($response);

@@ -37,6 +37,7 @@ enum NotificationData
     case CONNECTION_REQUEST_SENT;
     case CONNECTION_REQUEST_ACCEPTED;
     case NEW_MESSAGE;
+    case NEW_SHARE_POST_MESSAGE;
 
     public function get(
         User $receiver_user,
@@ -243,6 +244,19 @@ enum NotificationData
                 'receiver_user' => $receiver_user,
                 'title' => $sender_user->full_name,
                 'body' => " has sent you a message",
+                'image' => $sender_user->avatar ?? '',
+                'additional_data' => [
+                    'description' => $sender_user->about,
+                    'sender_id' => $sender_user->id,
+                    'connection_request_id' => $post?->id,
+                ]
+            ],
+
+            self::NEW_SHARE_POST_MESSAGE => [
+                'type' => NotificationType::MESSAGE,
+                'receiver_user' => $receiver_user,
+                'title' => $sender_user->full_name,
+                'body' => " has shared a post with you",
                 'image' => $sender_user->avatar ?? '',
                 'additional_data' => [
                     'description' => $sender_user->about,

@@ -1136,7 +1136,8 @@ class UserService
     public function send_message_notificatfion(
         User $user,
         User $receiver_user,
-        string $chat_id
+        string $chat_id,
+        string $type
     ) {
         $chat_snap = $this->firestore->collection('chats')->document($chat_id)
             ->snapshot();
@@ -1153,13 +1154,37 @@ class UserService
 
         $connection = $this->is_connected($user, $receiver_user);
 
-        $this->notification_service->push_notification(
-            ...NotificationData::NEW_MESSAGE->get(
-                $receiver_user,
-                $user,
-                $connection
-            )
-        );
+        switch ($type) {
+            case 'text':
+                $this->notification_service->push_notification(
+                    ...NotificationData::NEW_MESSAGE->get(
+                        $receiver_user,
+                        $user,
+                        $connection
+                    )
+                );
+                break;
+
+            case 'image':
+                $this->notification_service->push_notification(
+                    ...NotificationData::NEW_MESSAGE->get(
+                        $receiver_user,
+                        $user,
+                        $connection
+                    )
+                );
+                break;
+
+            case 'sharepost':
+                $this->notification_service->push_notification(
+                    ...NotificationData::NEW_SHARE_POST_MESSAGE->get(
+                        $receiver_user,
+                        $user,
+                        $connection
+                    )
+                );
+                break;
+        }
 
         return ['message' => 'Message notification successfully sent'];
     }
