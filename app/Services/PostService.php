@@ -408,7 +408,7 @@ class PostService
             ->first();
 
         if (! $review) {
-            return [];
+            return $post->reviews->first();
         }
 
         return [
@@ -775,20 +775,20 @@ class PostService
 
     public function get_post_reviews(Post $post)
     {
-        $reviews = [];
+        // $reviews = [];
 
-        foreach ($post->reviews as $review) {
-            $reviews[] = [
-                'user_id' => $review->user->id,
-                'user_name' => $review->user->full_name,
-                'avatar' => $review->user->avatar,
-                'rating' => $review->rating,
-                'description' => $review->data,
-                'created_at' => $review->created_at->format('d M'),
-            ];
-        }
+        // foreach ($post->reviews as $review) {
+        //     $reviews[] = [
+        //         'user_id' => $review->user->id,
+        //         'user_name' => $review->user->full_name,
+        //         'avatar' => $review->user->avatar,
+        //         'rating' => $review->rating,
+        //         'description' => $review->data,
+        //         'created_at' => $review->created_at->format('d M'),
+        //     ];
+        // }
 
-        return $reviews;
+        return $post->reviews->first();
     }
 
     public function get_post_comments(User $user, Post $post)
