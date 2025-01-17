@@ -66,7 +66,7 @@ class FirebaseAuthService
 
         OtpService::send(
             $user->email,
-            mt_rand(1000, 9999),
+            mt_rand(100000, 999999),
             function ($otp) use ($user) {
                 $subject = 'OTP | '.config('app.name');
                 $content = "Hello {$user->full_name},\n\nHere is your One-Time Password (OTP) for authentication:\n\n{$otp}.\n\nPlease use this code to complete your action.\n\nThank you,\n".config('app.name');
@@ -139,7 +139,7 @@ class FirebaseAuthService
 
         OtpService::send(
             $user->email,
-            mt_rand(1000, 9999),
+            mt_rand(100000, 999999),
             function ($otp) use ($user) {
                 $subject = 'OTP | '.config('app.name');
                 $content = "Hello {$user->full_name},\n\nHere is your One-Time Password (OTP) for authentication:\n\n{$otp}.\n\nPlease use this code to complete your action.\n\nThank you,\n".config('app.name');
