@@ -6,7 +6,6 @@ use App\Exceptions;
 use App\Models\User;
 use App\Services\OtpService;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 use Kreait\Firebase\Exception\Auth\FailedToVerifyToken;
 use Kreait\Firebase\Factory;
 use App\Jobs\SendEmails;
@@ -61,13 +60,13 @@ class FirebaseAuthService
                 'last_name' => $last_name,
                 'phone_number' => preg_replace('/^\+1/', '', $phone_number),
                 'password' => Hash::make($password),
-                'uid' => Str::random(28),
+                'uid' => str()->random(28),
             ]
         );
 
         OtpService::send(
             $user->email,
-            str()->random(4),
+            mt_rand(1000, 9999),
             function ($otp) use ($user) {
                 $subject = 'OTP | '.config('app.name');
                 $content = "Hello {$user->full_name},\n\nHere is your One-Time Password (OTP) for authentication:\n\n{$otp}.\n\nPlease use this code to complete your action.\n\nThank you,\n".config('app.name');
@@ -140,7 +139,7 @@ class FirebaseAuthService
 
         OtpService::send(
             $user->email,
-            str()->random(4),
+            mt_rand(1000, 9999),
             function ($otp) use ($user) {
                 $subject = 'OTP | '.config('app.name');
                 $content = "Hello {$user->full_name},\n\nHere is your One-Time Password (OTP) for authentication:\n\n{$otp}.\n\nPlease use this code to complete your action.\n\nThank you,\n".config('app.name');
