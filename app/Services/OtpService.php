@@ -19,15 +19,15 @@ class OtpService
                 [$identifier => [
                     'retries' => 0,
                     'sent_at' => now(),
-                    'expires_at' => now()->addMinutes(config('otp.expiry_duration')),
+                    'expires_at' => now()->addSeconds(config('otp.expiry_duration')),
                     'verified_at' => null,
                 ]],
-                now()->addMinutes(config('otp.retry_duration'))
+                now()->addSeconds(config('otp.retry_duration'))
             );
 
             cache(
                 [$value => $identifier],
-                now()->addMinutes(config('otp.retry_duration'))
+                now()->addSeconds(config('otp.retry_duration'))
             );
 
             return $send($value);
@@ -36,7 +36,7 @@ class OtpService
         if ($otp['retries'] >= config('otp.retries')) {
             throw new Exceptions\BaseException(
                 'Too many OTP\'s requested, try again after: '
-                .$otp['sent_at']->addMinutes(config('otp.retry_duration'))->diffInSeconds(now()),
+                .$otp['sent_at']->addSeconds(config('otp.retry_duration'))->diffInSeconds(now()),
                 429
             );
         }
@@ -52,15 +52,15 @@ class OtpService
             [$identifier => [
                 'retries' => $otp['retries'] + 1,
                 'sent_at' => now(),
-                'expires_at' => now()->addMinutes(config('otp.expiry_duration')),
+                'expires_at' => now()->addSeconds(config('otp.expiry_duration')),
                 'verified_at' => null,
             ]],
-            now()->addMinutes(config('otp.retry_duration'))
+            now()->addSeconds(config('otp.retry_duration'))
         );
 
         cache(
             [$value => $identifier],
-            now()->addMinutes(config('otp.retry_duration'))
+            now()->addSeconds(config('otp.retry_duration'))
         );
 
         return $send($value);
@@ -83,7 +83,7 @@ class OtpService
                         'verified_at' => now(),
                         'retries' => 0,
                     ]],
-                    now()->addMinutes(config('otp.retry_duration'))
+                    now()->addSeconds(config('otp.retry_duration'))
                 );
 
                 return $identifier;
