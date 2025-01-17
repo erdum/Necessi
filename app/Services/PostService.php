@@ -289,7 +289,7 @@ class PostService
 
     public function get_user_posts(User $user)
     {
-        $posts = $user->posts()->orderBy('created_at', 'desc')->paginate(10);
+        $posts = $user->posts()->orderBy('created_at', 'desc')->paginate(2);
     
         $posts->getCollection()->transform(function ($post) use ($user) {
             $current_user_like = PostLike::where('user_id', $user->id)
