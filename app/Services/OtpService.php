@@ -27,7 +27,7 @@ class OtpService
 
             cache(
                 [$value => $identifier],
-                now()->addSeconds(config('otp.retry_duration'))
+                now()->addSeconds(config('otp.expiry_duration'))
             );
 
             return $send($value);
@@ -60,7 +60,7 @@ class OtpService
 
         cache(
             [$value => $identifier],
-            now()->addSeconds(config('otp.retry_duration'))
+            now()->addSeconds(config('otp.expiry_duration'))
         );
 
         return $send($value);
