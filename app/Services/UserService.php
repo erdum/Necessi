@@ -952,11 +952,14 @@ class UserService
             $connection_requests->getCollection()->transform(
                 function ($con) {
                     return [
-                        'user_id' => $con->sender->id,
-                        'user_name' => $con->sender->full_name,
-                        'avatar' => $con->sender->avatar,
+                        'id' => $con->id,
+                        'sender_id' => $con->sender_id,
+                        'receiver_id' => $con->receiver_id,
                         'status' => $con->status,
-                        'request_id' => $con->id,
+                        'chat_id' => $con->chat_id,
+                        'created_at' => $con->created_at,
+                        'updated_at' => $con->updated_at,
+                        'sender' => $con->sender,
                     ];
                 }
             );
