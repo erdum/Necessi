@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Exceptions;
+
 class OtpService
 {
     public static function send(
@@ -32,14 +34,14 @@ class OtpService
         }
 
         if ($otp['retries'] >= config('otp.retries')) {
-            throw new \Exception(
+            throw new Exceptions\BaseException(
                 'Too many OTP\'s requested, try again after: '
                 .$otp['sent_at']->addMinutes(config('otp.retry_duration'))->diffInSeconds(now())
             );
         }
 
         if ($otp['expires_at']->isFuture()) {
-            throw new \Exception(
+            throw new Exceptions\BaseException(
                 'Recently OTP requested, try again after: '.$otp['expires_at']->diffInSeconds(now())
             );
         }
