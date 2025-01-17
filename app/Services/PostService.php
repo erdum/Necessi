@@ -290,22 +290,23 @@ class PostService
     public function get_user_posts(User $user)
     {
         $posts = $user->posts()->orderBy('created_at', 'desc')->paginate(10);
-
-        return $posts->map(function ($post) use ($user) {
+    
+        $posts->getCollection()->transform(function ($post) use ($user) {
             $current_user_like = PostLike::where('user_id', $user->id)
-                ->where('post_id', $post->id)->exists();
-
+                ->where('post_id', $post->id)
+                ->exists();
+    
             $distance = $this->calculateDistance(
                 $user->lat,
                 $user->long,
                 $post->lat,
                 $post->long,
             );
-
+    
             $order_status = $post->bids->filter(function ($bid) {
                 return $bid->order !== null;
             })->isNotEmpty();
-
+    
             return [
                 'post_id' => $post->id,
                 'first_name' => $user->first_name,
@@ -319,12 +320,12 @@ class PostService
                 'location_details' => $post->city . ', ' . $post->state,
                 'lat' => $post->lat,
                 'long' => $post->long,
-                'distance' => round($distance, 2).' miles away',
+                'distance' => round($distance, 2) . ' miles away',
                 'budget' => $post->budget,
                 'duration' => ($post->start_time && $post->end_time)
-                    ? Carbon::parse($post->start_time)->format('h:i A').' - '.Carbon::parse($post->end_time)->format('h:i A')
+                    ? Carbon::parse($post->start_time)->format('h:i A') . ' - ' . Carbon::parse($post->end_time)->format('h:i A')
                     : null,
-                'date' => Carbon::parse($post->start_date)->format('d M').' - '.Carbon::parse($post->end_date)->format('d M y'),
+                'date' => Carbon::parse($post->start_date)->format('d M') . ' - ' . Carbon::parse($post->end_date)->format('d M y'),
                 'start_date' => $post->start_date->format('d M Y'),
                 'end_date' => $post->end_date->format('d M Y'),
                 'start_time' => $post->start_time?->format('h:i A'),
@@ -342,7 +343,9 @@ class PostService
                 }),
             ];
         });
-    }
+    
+        return $posts;
+    }    
 
     public function get_user_posts_reviews(
         User $user,
