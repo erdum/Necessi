@@ -16,9 +16,9 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // $schedule->command('inspire')->hourly();
-        $schedule->job(new DeleteOldAcceptedBids)->daily();
-        $schedule->job(new RemindOrderMark)->everyThreeHours();
-        $schedule->job(new RemindOrderPayment)->everySixHours();
+        $schedule->job(new DeleteOldAcceptedBids)->daily()->onOneServer();
+        $schedule->job(new RemindOrderMark)->everyThreeHours()->onOneServer();
+        $schedule->job(new RemindOrderPayment)->everySixHours()->onOneServer();
     }
 
     /**
