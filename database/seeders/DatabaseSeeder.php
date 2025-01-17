@@ -15,6 +15,8 @@ class DatabaseSeeder extends Seeder
     {
         $this->clear_firestore();
 
+        \App\Models\Admin::factory()->create();
+
         \App\Models\User::factory(5)->create();
 
         $test_user_provider = \App\Models\User::factory()->create([

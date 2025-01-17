@@ -5,6 +5,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,7 +19,43 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['auth:sanctum'])->group(function () {
+Route::prefix('admin')->group(function () {
+
+    // Login
+    Route::post('/login', [AdminController::class, 'login']);
+
+    // Forget password
+    Route::post(
+        '/forget-password',
+        [AdminController::class, 'forget_password']
+    );
+
+    // Resend OTP
+    Route::post(
+        'resend-otp',
+        [AdminController::class, 'forget_password']
+    );
+
+    // Verify OTP
+    Route::post(
+        '/verify-otp',
+        [AdminController::class, 'verify_otp']
+    );
+
+    // Update password
+    Route::post(
+        '/update-password',
+        [AdminController::class, 'update_password']
+    );
+
+    Route::middleware('auth:sanctum')->group(function () {
+        // Get dashboard data
+        Route::get('/dashboard', [AdminController::class, 'get_dashboard']);
+    });
+
+});
+
+Route::middleware('auth:sanctum')->group(function () {
 
     // Get user profile
     Route::get(
