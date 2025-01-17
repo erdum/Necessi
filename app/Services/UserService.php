@@ -845,25 +845,24 @@ class UserService
                 'sender',
                 'receiver',
             ])
-            ->get();
-
-        $connection_list = [];
-
-        foreach ($connections as $con) {
-            $sender_user = $con->sender['id'] == $user->id
-                ? $con->receiver : $con->sender;
-
-            $sender_user['chat_id'] = $con->chat_id;
-
-            $connection_list[] = [
+            ->paginate(2);
+    
+        $connections->getCollection()->transform(function ($con) use ($user) {
+            $connected_user = $con->sender['id'] == $user->id
+                ? $con->receiver
+                : $con->sender;
+    
+            $connected_user['chat_id'] = $con->chat_id;
+    
+            return [
                 'id' => $con->id,
                 'status' => $con->status,
                 'created_at' => $con->created_at,
-                'user' => $sender_user,
+                'user' => $connected_user,
             ];
-        }
+        });
 
-        return $connection_list;
+        return $connections;
     }
 
     public function get_chat_users(User $user)
