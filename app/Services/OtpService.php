@@ -93,6 +93,11 @@ class OtpService
         return false;
     }
 
+    public static function clear_otp(string $identifier): void
+    {
+        cache([$identifier => null]);
+    }
+
     public static function is_verified(string $identifier): bool
     {
         $otp = cache($identifier);
