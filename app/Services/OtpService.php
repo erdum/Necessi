@@ -36,13 +36,15 @@ class OtpService
         if ($otp['retries'] >= config('otp.retries')) {
             throw new Exceptions\BaseException(
                 'Too many OTP\'s requested, try again after: '
-                .$otp['sent_at']->addMinutes(config('otp.retry_duration'))->diffInSeconds(now())
+                .$otp['sent_at']->addMinutes(config('otp.retry_duration'))->diffInSeconds(now()),
+                429
             );
         }
 
         if ($otp['expires_at']->isFuture()) {
             throw new Exceptions\BaseException(
-                'Recently OTP requested, try again after: '.$otp['expires_at']->diffInSeconds(now())
+                'Recently OTP requested, try again after: '.$otp['expires_at']->diffInSeconds(now()),
+                429
             );
         }
 
