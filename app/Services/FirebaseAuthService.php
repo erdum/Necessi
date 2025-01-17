@@ -81,7 +81,7 @@ class FirebaseAuthService
 
         return [
             'message' => 'OTP has been successfully sent',
-            'retry_duration' => config('otp.retry_duration'),
+            'retry_duration' => config('otp.expiry_duration'),
         ];
     }
 
@@ -154,7 +154,7 @@ class FirebaseAuthService
 
         return [
             'message' => 'OTP has been successfully resent',
-            'retry_duration' => config('otp.retry_duration'),
+            'retry_duration' => config('otp.expiry_duration'),
         ];
     }
 
