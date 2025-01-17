@@ -4,16 +4,16 @@ namespace App\Services;
 
 use App\Exceptions;
 use App\Models\User;
+use App\Services\OtpService;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Kreait\Firebase\Exception\Auth\FailedToVerifyToken;
 use Kreait\Firebase\Factory;
+use App\Jobs\SendEmails;
 
 class FirebaseAuthService
 {
     protected $auth;
-
-    protected $otp_service;
 
     protected $user_service;
 
@@ -21,7 +21,6 @@ class FirebaseAuthService
 
     public function __construct(
         Factory $factory,
-        OtpService $otp_service,
         UserService $user_service,
         FirebaseNotificationService $notification
     ) {
@@ -32,7 +31,6 @@ class FirebaseAuthService
         );
         $this->auth = $firebase->createAuth();
         $this->user_service = $user_service;
-        $this->otp_service = $otp_service;
         $this->notification = $notification;
     }
 
@@ -67,7 +65,25 @@ class FirebaseAuthService
             ]
         );
 
-        return $this->otp_service->send_otp($user, $email);
+        OtpService::send(
+            $user->email,
+            str()->random(4),
+            function ($otp) use ($user) {
+                $subject = 'OTP | '.config('app.name');
+                $content = "Hello {$user->full_name},\n\nHere is your One-Time Password (OTP) for authentication:\n\n{$otp}.\n\nPlease use this code to complete your action.\n\nThank you,\n".config('app.name');
+
+                SendEmails::dispatchAfterResponse(
+                    $subject,
+                    $content,
+                    [$user->email]
+                );
+            }
+        );
+
+        return [
+            'message' => 'OTP has been successfully sent',
+            'retry_duration' => config('otp.retry_duration'),
+        ];
     }
 
     public function generate_token(User $user)
@@ -79,7 +95,7 @@ class FirebaseAuthService
 
     public function verify_email(string $email, string $otp)
     {
-        $verified = $this->otp_service->verify_otp($email, $otp);
+        $verified = OtpService::verify($otp);
 
         if (! $verified) {
             throw new Exceptions\InvalidOtp;
@@ -122,7 +138,25 @@ class FirebaseAuthService
             );
         }
 
-        return $this->otp_service->resend_otp($email);
+        OtpService::send(
+            $user->email,
+            str()->random(4),
+            function ($otp) use ($user) {
+                $subject = 'OTP | '.config('app.name');
+                $content = "Hello {$user->full_name},\n\nHere is your One-Time Password (OTP) for authentication:\n\n{$otp}.\n\nPlease use this code to complete your action.\n\nThank you,\n".config('app.name');
+
+                SendEmails::dispatchAfterResponse(
+                    $subject,
+                    $content,
+                    [$user->email]
+                );
+            }
+        );
+
+        return [
+            'message' => 'OTP has been successfully resent',
+            'retry_duration' => config('otp.retry_duration'),
+        ];
     }
 
     public function reset_password(string $email, string $password)
