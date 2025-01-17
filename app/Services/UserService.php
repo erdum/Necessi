@@ -947,17 +947,19 @@ class UserService
         )
             ->whereNotIn('status', ['rejected', 'accepted'])
             ->with('sender:id,first_name,last_name,avatar')
-            ->get();
+            ->paginate(2);
     
-        $connection_requests->map(function ($con) {
-            return [
-                'user_id' => $con->sender->id,
-                'user_name' => $con->sender->full_name,
-                'avatar' => $con->sender->avatar,
-                'status' => $con->status,
-                'request_id' => $con->id,
-            ];
-        });
+            $connection_requests->getCollection()->transform(
+                function ($con) {
+                    return [
+                        'user_id' => $con->sender->id,
+                        'user_name' => $con->sender->full_name,
+                        'avatar' => $con->sender->avatar,
+                        'status' => $con->status,
+                        'request_id' => $con->id,
+                    ];
+                }
+            );
 
         return $connection_requests;
     }
