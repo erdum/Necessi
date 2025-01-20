@@ -119,6 +119,7 @@ class Dashboard
 
     public static function revenue_graph()
     {
+        $revenue_max_yearly = 0;
         $revenue_graph_yearly = DB::table('post_bids')
             ->join(
                 'order_histories',
@@ -136,6 +137,7 @@ class Dashboard
             ->groupByRaw('MONTH(post_bids.created_at)')
             ->get();
 
+        $revenue_max_monthly = 0;
         $revenue_graph_monthly = DB::table('post_bids')
             ->join(
                 'order_histories',
@@ -153,6 +155,7 @@ class Dashboard
             ->groupByRaw('DAY(post_bids.created_at)')
             ->get();
 
+        $revenue_max_weekly = 0;
         $revenue_graph_weekly = DB::table('post_bids')
             ->join(
                 'order_histories',
@@ -174,10 +177,6 @@ class Dashboard
             ->get();
 
         $platform_fee = $revenue = config('services.stripe.application_fee');
-
-        $revenue_max_yearly = 0;
-        $revenue_max_monthly = 0;
-        $revenue_max_weekly = 0;
 
         $revenue_graph_yearly->transform(
             function ($point) use (&$revenue_max_yearly, $platform_fee) {
