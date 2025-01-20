@@ -15,6 +15,15 @@ use App\Jobs\SendEmails;
 
 class AdminService
 {
+    protected function calculate_percentage_change($current, $yesterday) {
+
+        if ($yesterday == 0) {
+            return number_format($current > 0 ? 100 : 0);
+        }
+
+        return number_format((($current - $yesterday) / $yesterday) * 100);
+    }
+
     public function register(string $name, string $email, string $password)
     {}
 
@@ -116,6 +125,31 @@ class AdminService
             'services.stripe.application_fee'
         ) * $total_sales;
 
+        $yesterday_start = Carbon::yesterday()->startOfDay();
+        $user_count_yesterday = User::where(
+            'created_at',
+            '<=',
+            $yesterday_start
+        )->count();
+        $post_count_yesterday = Post::where(
+            'created_at',
+            '<=',
+            $yesterday_start
+        )->count();
+        $total_sales_yesterday = PostBid::where(
+            'created_at',
+            '<=',
+            $yesterday_start
+        )
+            ->where('status', 'accepted')
+            ->withWhereHas('order', function ($query) {
+                $query->whereNotNull('transaction_id');
+            })
+            ->sum('amount');
+        $total_revenue_yesterday = config(
+            'services.stripe.application_fee'
+        ) * $total_sales_yesterday;
+
         $revenue_graph_yearly = DB::table('post_bids')
             ->join(
                 'order_histories',
@@ -216,15 +250,33 @@ class AdminService
 
         return [
             'total_users' => [
-                'value' => $user_count,
-                'change_from_yesterday' => null,
+                'value' => number_format($user_count),
+                'change_from_yesterday' => $this->calculate_percentage_change(
+                    $user_count,
+                    $user_count_yesterday
+                ),
             ],
             'total_posts' => [
-                'value' => $post_count,
-                'change_from_yesterday' => null,
+                'value' => number_format($post_count),
+                'change_from_yesterday' => $this->calculate_percentage_change(
+                    $post_count,
+                    $post_count_yesterday
+                ),
             ],
-            'total_sales' => number_format($total_sales),
-            'total_revenue' => number_format($total_revenue),
+            'total_sales' => [
+                'value' => number_format($total_sales),
+                'change_from_yesterday' => $this->calculate_percentage_change(
+                    $total_sales,
+                    $total_sales_yesterday
+                ),
+            ],
+            'total_revenue' => [
+                'value' => number_format($total_revenue),
+                'change_from_yesterday' => $this->calculate_percentage_change(
+                    $total_revenue,
+                    $total_revenue_yesterday
+                ),
+            ],
             'revenue_graph' => [
                 'yearly' => [
                     'max_value' => $revenue_max_yearly,
