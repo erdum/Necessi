@@ -3,18 +3,18 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Services\AdminService;
+use App\Services\Admin;
 
 class AdminController extends Controller
 {
-    public function login(Request $request, AdminService $admin)
+    public function login(Request $request)
     {
         $request->validate([
             'email' => 'required|exists:admins,email',
             'password' => 'required'
         ]);
 
-        $response = $admin->login(
+        $response = Admin\Auth::login(
             $request->email,
             $request->password,
             $request->fcm_token
@@ -23,30 +23,30 @@ class AdminController extends Controller
         return $response;
     }
 
-    public function forget_password(Request $request, AdminService $admin)
+    public function forget_password(Request $request)
     {
         $request->validate([
             'email' => 'required|exists:admins,email',
         ]);
 
-        $response = $admin->forget_password($request->email);
+        $response = Admin\Auth::forget_password($request->email);
 
         return $response;
     }
 
-    public function verify_otp(Request $request, AdminService $admin)
+    public function verify_otp(Request $request)
     {
         $request->validate([
             'email' => 'required|exists:admins,email',
             'otp' => 'required|size:4',
         ]);
 
-        $response = $admin->verify_otp($request->email, $request->otp);
+        $response = Admin\Auth::verify_otp($request->email, $request->otp);
 
         return $response;
     }
 
-    public function update_password(Request $request, AdminService $admin)
+    public function update_password(Request $request)
     {
         $request->validate([
             'email' => 'required|exists:admins,email',
@@ -54,7 +54,7 @@ class AdminController extends Controller
             'new_password' => 'required',
         ]);
 
-        $response = $admin->update_password(
+        $response = Admin\Auth::update_password(
             $request->email,
             $request->otp,
             $request->new_password
@@ -63,9 +63,17 @@ class AdminController extends Controller
         return $response;
     }
 
-    public function get_dashboard(Request $request, AdminService $admin)
+    public function get_dashboard(Request $request)
     {
-        $response = $admin->get_dashboard();
+        $sales_revenue = Admin\Dashboard::sales_revenue();
+
+        $response = [
+            'total_users' => Admin\Dashboard::users(),
+            'total_posts' => Admin\Dashboard::posts(),
+            'total_sales' => $sales_revenue['sales'],
+            'total_revenue' => $sales_revenue['revenue'],
+            'revenue_graph' => Admin\Dashboard::revenue_graph(),
+        ];
 
         return $response;
     }
