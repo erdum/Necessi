@@ -80,4 +80,11 @@ class AdminController extends Controller
 
         return $response;
     }
+
+    public function get_notifications(Request $request)
+    {
+        $response = Admin\Notifications::get();
+
+        return $response;
+    }
 }
