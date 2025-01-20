@@ -247,9 +247,12 @@ enum NotificationData
                 'body' => " has sent you a message",
                 'image' => $sender_user->avatar ?? '',
                 'additional_data' => [
+                    'other_party_id' => $sender_user->id,
+                    'other_party_uid' => $sender_user->uid,
                     'description' => $sender_user->about,
                     'sender_id' => $sender_user->id,
                     'connection_request_id' => $post?->id,
+                    'chat_id' => $post?->chat_id,
                 ]
             ],
 
