@@ -49,13 +49,28 @@ Route::prefix('admin')->group(function () {
     );
 
     Route::middleware('auth:sanctum')->group(function () {
-        // Get dashboard data
-        Route::get('/dashboard', [AdminController::class, 'get_dashboard']);
 
+        // Get dashboard data
+        Route::get(
+            '/dashboard', 
+            [AdminController::class, 'get_dashboard']
+        );
         // Get notifications data
         Route::get(
             '/notifications',
             [AdminController::class, 'get_notifications']
+        );
+
+        // Get Necessi Users
+        Route::get(
+            '/users', 
+            [AdminController::class, 'get_users']
+        );
+
+        // Get User Details
+        Route::get(
+            '/user-details/{uid}', 
+            [AdminController::class, 'user_details']
         );
     });
 

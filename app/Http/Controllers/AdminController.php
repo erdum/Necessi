@@ -87,4 +87,19 @@ class AdminController extends Controller
 
         return $response;
     }
+    public function get_users(Request $request)
+    {
+        $response = Admin\Users::get_users();
+
+        return $response;
+    }
+
+    public function user_details(
+        Request $request,
+        string $uid,
+    ){
+        $response = Admin\Users::user_details($uid);
+
+        return $response;
+    }
 }
