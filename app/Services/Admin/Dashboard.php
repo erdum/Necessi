@@ -345,4 +345,101 @@ class Dashboard
             ],
         ];
     }
+
+    public static function users_growth_graph()
+    {
+        $yearly_max = 0;
+        $users_graph_yearly = User::selectRaw(
+            'COUNT(id) as value,
+            MONTH(created_at) as month'
+        )
+            ->whereYear('created_at', now()->format('Y'))
+            ->groupByRaw('MONTH(created_at)')
+            ->get();
+
+        $last_month_max = 0;
+        $users_graph_last_month = User::selectRaw(
+            'COUNT(id) as value,
+            DAY(created_at) as day'
+        )
+            ->whereYear('created_at', now()->subMonth()->format('Y'))
+            ->whereMonth('created_at', now()->subMonth()->format('m'))
+            ->groupByRaw('DAY(created_at)')
+            ->get();
+
+        $monthly_max = 0;
+        $users_graph_monthly = User::selectRaw(
+            'COUNT(id) as value,
+            DAY(created_at) as day'
+        )
+            ->whereYear('created_at', now()->format('Y'))
+            ->whereMonth('created_at', now()->format('m'))
+            ->groupByRaw('DAY(created_at)')
+            ->get();
+
+        $weekly_max = 0;
+        $users_graph_weekly = User::selectRaw('
+            COUNT(id) as value,
+            WEEKDAY(created_at) as week_day'
+        )
+            ->whereBetween(
+                'created_at',
+                [now()->startOfWeek(), now()->endOfWeek()]
+            )
+            ->groupByRaw('WEEKDAY(created_at)')
+            ->get();
+
+        $today_max = 0;
+        $users_graph_today = User::selectRaw(
+            'COUNT(id) as value,
+            HOUR(created_at) as hour'
+        )
+            ->whereDate('created_at', self::today_date())
+            ->groupByRaw('HOUR(created_at)')
+            ->get();
+
+        foreach ($users_graph_yearly as $point) {
+            if ($point->value > $yearly_max) $yearly_max = $point->value;
+        }
+
+        foreach ($users_graph_last_month as $point) {
+            if ($point->value > $last_month_max)
+                $last_month_max = $point->value;
+        }
+
+        foreach ($users_graph_monthly as $point) {
+            if ($point->value > $monthly_max) $monthly_max = $point->value;
+        }
+
+        foreach ($users_graph_weekly as $point) {
+            if ($point->value > $weekly_max) $weekly_max = $point->value;
+        }
+
+        foreach ($users_graph_today as $point) {
+            if ($point->value > $today_max) $today_max = $point->value;
+        }
+
+        return [
+            'yearly' => [
+                'max_value' => $yearly_max,
+                'points' => $users_graph_yearly,
+            ],
+            'last_month' => [
+                'max_value' => $last_month_max,
+                'points' => $users_graph_last_month,
+            ],
+            'monthly' => [
+                'max_value' => $monthly_max,
+                'points' => $users_graph_monthly,
+            ],
+            'weekly' => [
+                'max_value' => $weekly_max,
+                'points' => $users_graph_weekly,
+            ],
+            'today' => [
+                'max_value' => $today_max,
+                'points' => $users_graph_today,
+            ],
+        ];
+    }
 }
