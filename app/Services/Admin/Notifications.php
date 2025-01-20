@@ -13,3 +13,6 @@ class Notifications
         return $notifications;
     }
 
+    public static function push_admin_notification()
+    {}
+}
