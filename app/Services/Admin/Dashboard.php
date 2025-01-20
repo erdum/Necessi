@@ -127,7 +127,7 @@ class Dashboard
             ->whereYear('post_bids.created_at', date('Y'))
             ->where('post_bids.status', 'accepted')
             ->whereNotNull('order_histories.transaction_id')
-            ->groupByRaw('YEAR(post_bids.created_at)')
+            ->groupByRaw('MONTH(post_bids.created_at)')
             ->get();
 
         $revenue_graph_monthly = DB::table('post_bids')
