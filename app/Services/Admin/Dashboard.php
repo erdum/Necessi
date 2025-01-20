@@ -164,7 +164,7 @@ class Dashboard
             )
             ->where('post_bids.status', 'accepted')
             ->whereNotNull('order_histories.transaction_id')
-            ->groupByRaw('DAY(post_bids.created_at)')
+            ->groupByRaw('WEEKDAY(post_bids.created_at)')
             ->get();
 
         $revenue_max_yearly = 0;
