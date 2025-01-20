@@ -11,14 +11,18 @@ class Dashboard
 {
     protected static function calculate_percentage_change(
         $current,
-        $yesterday
+        $yesterday,
+        $decimals = 0
     ) {
 
         if ($yesterday == 0) {
-            return number_format($current > 0 ? 100 : 0);
+            return number_format($current > 0 ? 100 : 0, $decimals);
         }
 
-        return number_format((($current - $yesterday) / $yesterday) * 100);
+        return number_format(
+            (($current - $yesterday) / $yesterday) * 100,
+            $decimals
+        );
     }
 
     protected static function today_date()
@@ -95,17 +99,19 @@ class Dashboard
 
         return [
             'sales' => [
-                'value' => number_format($sales),
+                'value' => number_format($sales, 2),
                 'change_from_yesterday' => self::calculate_percentage_change(
                     $sales,
-                    $sales_yesterday
+                    $sales_yesterday,
+                    2
                 ),
             ],
             'revenue' => [
-                'value' => number_format($revenue),
+                'value' => number_format($revenue, 2),
                 'change_from_yesterday' => self::calculate_percentage_change(
                     $revenue,
-                    $revenue_yesterday
+                    $revenue_yesterday,
+                    2
                 ),
             ],
         ];
@@ -167,45 +173,50 @@ class Dashboard
             ->groupByRaw('WEEKDAY(post_bids.created_at)')
             ->get();
 
+        $platform_fee = $revenue = config('services.stripe.application_fee');
+
         $revenue_max_yearly = 0;
         $revenue_max_monthly = 0;
         $revenue_max_weekly = 0;
 
         $revenue_graph_yearly->transform(
-            function ($point) use (&$revenue_max_yearly) {
+            function ($point) use (&$revenue_max_yearly, $platform_fee) {
+                $val = $platform_fee * $point->value;
 
-                if ($point->value > $revenue_max_yearly) {
-                    $revenue_max_yearly = $point->value;
+                if ($val > $revenue_max_yearly) {
+                    $revenue_max_yearly = number_format($val, 2);
                 }
 
                 return [
-                    'value' => $point->value,
+                    'value' => number_format($val, 2),
                     'month' => $point->month,
                 ];
             }
         );
         $revenue_graph_monthly->transform(
-            function ($point) use (&$revenue_max_monthly) {
+            function ($point) use (&$revenue_max_monthly, $platform_fee) {
+                $val = $platform_fee * $point->value;
 
-                if ($point->value > $revenue_max_monthly) {
-                    $revenue_max_monthly = $point->value;
+                if ($val > $revenue_max_monthly) {
+                    $revenue_max_monthly = number_format($val, 2);
                 }
 
                 return [
-                    'value' => $point->value,
+                    'value' => number_format($val, 2),
                     'day' => $point->day,
                 ];
             }
         );
         $revenue_graph_weekly->transform(
-            function ($point) use (&$revenue_max_weekly) {
+            function ($point) use (&$revenue_max_weekly, $platform_fee) {
+                $val = $platform_fee * $point->value;
 
-                if ($point->value > $revenue_max_weekly) {
-                    $revenue_max_weekly = $point->value;
+                if ($val > $revenue_max_weekly) {
+                    $revenue_max_weekly = number_format($val, 2);
                 }
 
                 return [
-                    'value' => $point->value,
+                    'value' => number_format($val, 2),
                     'week_day' => $point->week_day,
                 ];
             }

@@ -75,7 +75,7 @@ class AdminController extends Controller
             'revenue_graph' => Admin\Dashboard::revenue_graph(),
             'posts_graph' => Admin\Dashboard::posts_graph(),
             'users_growth_graph' => Admin\Dashboard::users_growth_graph(),
-            // 'sales_graph' => ,
+            'sales_graph' => Admin\Dashboard::sales_graph(),
         ];
 
         return $response;
