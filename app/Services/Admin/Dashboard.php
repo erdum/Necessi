@@ -453,4 +453,7 @@ class Dashboard
             ],
         ];
     }
+
+    public static function sales_graph()
+    {}
 }
