@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Models\PostBid;
-use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -23,7 +22,7 @@ class DeleteOldAcceptedBids implements ShouldQueue
     public function handle()
     {
         try {
-            $one_day_ago = Carbon::now()->subDay();
+            $one_day_ago = now()->subDay();
             $bids = PostBid::where('status', 'accepted')
                 ->where('updated_at', '<', $one_day_ago)
                 ->whereHas('order', function ($query) {

@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Models\Post;
 use App\Models\PostBid;
-use Carbon\Carbon;
 
 class Dashboard
 {
@@ -22,9 +21,14 @@ class Dashboard
         return number_format((($current - $yesterday) / $yesterday) * 100);
     }
 
+    protected static function today_date()
+    {
+        return now()->startOfDay();
+    }
+
     protected static function yesterday_date()
     {
-        return Carbon::yesterday()->startOfDay();
+        return now()->subDay()->startOfDay();
     }
 
     public static function users()
@@ -156,7 +160,7 @@ class Dashboard
             )
             ->whereBetween(
                 'post_bids.created_at',
-                [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]
+                [now()->startOfWeek(), now()->endOfWeek()]
             )
             ->where('post_bids.status', 'accepted')
             ->whereNotNull('order_histories.transaction_id')

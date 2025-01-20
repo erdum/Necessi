@@ -9,7 +9,6 @@ use App\Models\Post;
 use App\Models\ConnectionRequest;
 use App\Models\UserNotificationDevice;
 use App\Jobs\SendNotification;
-use Carbon\Carbon;
 
 enum NotificationType: string
 {
