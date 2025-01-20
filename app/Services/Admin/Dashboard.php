@@ -131,7 +131,7 @@ class Dashboard
                 'SUM(post_bids.amount) as value,
                 MONTH(post_bids.created_at) as month'
             )
-            ->whereYear('post_bids.created_at', date('Y'))
+            ->whereYear('post_bids.created_at', now()->format('Y'))
             ->where('post_bids.status', 'accepted')
             ->whereNotNull('order_histories.transaction_id')
             ->groupByRaw('MONTH(post_bids.created_at)')
@@ -149,7 +149,7 @@ class Dashboard
                 'SUM(post_bids.amount) as value,
                 DAY(post_bids.created_at) as day'
             )
-            ->whereMonth('post_bids.created_at', date('n'))
+            ->whereMonth('post_bids.created_at', now()->format('m'))
             ->where('post_bids.status', 'accepted')
             ->whereNotNull('order_histories.transaction_id')
             ->groupByRaw('DAY(post_bids.created_at)')
@@ -454,5 +454,193 @@ class Dashboard
     }
 
     public static function sales_graph()
-    {}
+    {
+        $yearly_max = 0;
+        $sales_graph_yearly = DB::table('post_bids')
+            ->join(
+                'order_histories',
+                'order_histories.bid_id',
+                '=',
+                'post_bids.id'
+            )
+            ->selectRaw(
+                'SUM(post_bids.amount) as value,
+                MONTH(post_bids.created_at) as month'
+            )
+            ->whereYear('post_bids.created_at', now()->format('Y'))
+            ->where('post_bids.status', 'accepted')
+            ->whereNotNull('order_histories.transaction_id')
+            ->groupByRaw('MONTH(post_bids.created_at)')
+            ->get();
+
+        $last_month_max = 0;
+        $sales_graph_last_month = DB::table('post_bids')
+            ->join(
+                'order_histories',
+                'order_histories.bid_id',
+                '=',
+                'post_bids.id'
+            )
+            ->selectRaw(
+                'SUM(post_bids.amount) as value,
+                DAY(post_bids.created_at) as day'
+            )
+            ->whereYear('post_bids.created_at', now()->subMonth()->format('Y'))
+            ->whereMonth('post_bids.created_at', now()->subMonth()->format('m'))
+            ->where('post_bids.status', 'accepted')
+            ->whereNotNull('order_histories.transaction_id')
+            ->groupByRaw('DAY(post_bids.created_at)')
+            ->get();
+
+        $monthly_max = 0;
+        $sales_graph_monthly = DB::table('post_bids')
+            ->join(
+                'order_histories',
+                'order_histories.bid_id',
+                '=',
+                'post_bids.id'
+            )
+            ->selectRaw(
+                'SUM(post_bids.amount) as value,
+                DAY(post_bids.created_at) as day'
+            )
+            ->whereYear('post_bids.created_at', now()->format('Y'))
+            ->whereMonth('post_bids.created_at', now()->format('m'))
+            ->where('post_bids.status', 'accepted')
+            ->whereNotNull('order_histories.transaction_id')
+            ->groupByRaw('DAY(post_bids.created_at)')
+            ->get();
+
+        $weekly_max = 0;
+        $sales_graph_weekly = DB::table('post_bids')
+            ->join(
+                'order_histories',
+                'order_histories.bid_id',
+                '=',
+                'post_bids.id'
+            )
+            ->selectRaw(
+                'SUM(post_bids.amount) as value,
+                WEEKDAY(post_bids.created_at) as week_day'
+            )
+            ->whereBetween(
+                'post_bids.created_at',
+                [now()->startOfWeek(), now()->endOfWeek()]
+            )
+            ->where('post_bids.status', 'accepted')
+            ->whereNotNull('order_histories.transaction_id')
+            ->groupByRaw('WEEKDAY(post_bids.created_at)')
+            ->get();
+
+        $today_max = 0;
+        $sales_graph_today = DB::table('post_bids')
+            ->join(
+                'order_histories',
+                'order_histories.bid_id',
+                '=',
+                'post_bids.id'
+            )
+            ->selectRaw(
+                'SUM(post_bids.amount) as value,
+                HOUR(post_bids.created_at) as hour'
+            )
+            ->whereDate('post_bids.created_at', self::today_date())
+            ->where('post_bids.status', 'accepted')
+            ->whereNotNull('order_histories.transaction_id')
+            ->groupByRaw('HOUR(post_bids.created_at)')
+            ->get();
+
+        $sales_graph_yearly->transform(
+            function ($point) use (&$yearly_max) {
+
+                if ($point->value > $yearly_max) {
+                    $yearly_max = $point->value;
+                }
+
+                return [
+                    'value' => number_format($point->value, 2),
+                    'month' => $point->month,
+                ];
+            }
+        );
+
+        $sales_graph_last_month->transform(
+            function ($point) use (&$last_month_max) {
+
+                if ($point->value > $last_month_max) {
+                    $last_month_max = $point->value;
+                }
+
+                return [
+                    'value' => number_format($point->value, 2),
+                    'day' => $point->day,
+                ];
+            }
+        );
+
+        $sales_graph_monthly->transform(
+            function ($point) use (&$monthly_max) {
+
+                if ($point->value > $monthly_max) {
+                    $monthly_max = $point->value;
+                }
+
+                return [
+                    'value' => number_format($point->value, 2),
+                    'day' => $point->day,
+                ];
+            }
+        );
+
+        $sales_graph_weekly->transform(
+            function ($point) use (&$weekly_max) {
+
+                if ($point->value > $weekly_max) {
+                    $weekly_max = $point->value;
+                }
+
+                return [
+                    'value' => number_format($point->value, 2),
+                    'week_day' => $point->week_day,
+                ];
+            }
+        );
+
+        $sales_graph_today->transform(
+            function ($point) use (&$today_max) {
+
+                if ($point->value > $today_max) {
+                    $today_max = $point->value;
+                }
+
+                return [
+                    'value' => number_format($point->value, 2),
+                    'hour' => $point->hour,
+                ];
+            }
+        );
+
+        return [
+            'yearly' => [
+                'max_value' => number_format($yearly_max, 2),
+                'points' => $sales_graph_yearly,
+            ],
+            'last_month' => [
+                'max_value' => number_format($last_month_max, 2),
+                'points' => $sales_graph_last_month,
+            ],
+            'monthly' => [
+                'max_value' => number_format($monthly_max, 2),
+                'points' => $sales_graph_monthly,
+            ],
+            'weekly' => [
+                'max_value' => number_format($weekly_max, 2),
+                'points' => $sales_graph_weekly,
+            ],
+            'today' => [
+                'max_value' => number_format($today_max, 2),
+                'points' => $sales_graph_today,
+            ],
+        ];
+    }
 }
