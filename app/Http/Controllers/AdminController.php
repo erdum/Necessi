@@ -73,6 +73,9 @@ class AdminController extends Controller
             'total_sales' => $sales_revenue['sales'],
             'total_revenue' => $sales_revenue['revenue'],
             'revenue_graph' => Admin\Dashboard::revenue_graph(),
+            'posts_graph' => Admin\Dashboard::posts_graph(),
+            // 'users_growth_graph' => ,
+            // 'sales_graph' => ,
         ];
 
         return $response;
