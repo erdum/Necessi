@@ -184,7 +184,7 @@ class Dashboard
                 $val = $platform_fee * $point->value;
 
                 if ($val > $revenue_max_yearly) {
-                    $revenue_max_yearly = number_format($val, 2);
+                    $revenue_max_yearly = $val;
                 }
 
                 return [
@@ -198,7 +198,7 @@ class Dashboard
                 $val = $platform_fee * $point->value;
 
                 if ($val > $revenue_max_monthly) {
-                    $revenue_max_monthly = number_format($val, 2);
+                    $revenue_max_monthly = $val;
                 }
 
                 return [
@@ -212,7 +212,7 @@ class Dashboard
                 $val = $platform_fee * $point->value;
 
                 if ($val > $revenue_max_weekly) {
-                    $revenue_max_weekly = number_format($val, 2);
+                    $revenue_max_weekly = $val;
                 }
 
                 return [
@@ -224,15 +224,15 @@ class Dashboard
 
         return [
             'yearly' => [
-                'max_value' => $revenue_max_yearly,
+                'max_value' => number_format($revenue_max_yearly, 2),
                 'points' => $revenue_graph_yearly,
             ],
             'monthly' => [
-                'max_value' => $revenue_max_monthly,
+                'max_value' => number_format($revenue_max_monthly, 2),
                 'points' => $revenue_graph_monthly,
             ],
             'weekly' => [
-                'max_value' => $revenue_max_weekly,
+                'max_value' => number_format($revenue_max_weekly, 2),
                 'points' => $revenue_graph_weekly,
             ],
         ];
