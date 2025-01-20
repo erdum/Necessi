@@ -16,11 +16,8 @@ class StoreImages implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $data;
-
     protected $file_directory;
-
     protected $file_name;
-
     protected $disk_driver;
 
     /**

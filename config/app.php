@@ -213,4 +213,10 @@ return [
         // 'ExampleClass' => App\Example\ExampleClass::class,
     ])->toArray(),
 
+    'admin' => [
+        'notification' => [
+            'fcm_topic' => env('ADMIN_FCM_TOPIC'),
+        ],
+    ],
+
 ];

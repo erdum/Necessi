@@ -16,13 +16,9 @@ class SendNotification implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $fcm_token;
-
     protected $title;
-
     protected $body;
-
     protected $image;
-
     protected $additional_data;
 
     public function __construct(

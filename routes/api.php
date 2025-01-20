@@ -61,7 +61,7 @@ Route::prefix('admin')->group(function () {
             [AdminController::class, 'get_notifications']
         );
 
-        // Get Necessi Users
+        // Get Users
         Route::get(
             '/users', 
             [AdminController::class, 'get_users']
@@ -71,6 +71,12 @@ Route::prefix('admin')->group(function () {
         Route::get(
             '/user-details/{uid}', 
             [AdminController::class, 'user_details']
+        );
+
+        // Send global notification
+        Route::post(
+            '/notifications',
+            [AdminController::class, 'push_admin_notification']
         );
     });
 

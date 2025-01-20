@@ -9,6 +9,7 @@ use App\Models\Post;
 use App\Models\ConnectionRequest;
 use App\Models\UserNotificationDevice;
 use App\Jobs\SendNotification;
+use App\Jobs\SendAdminNotification;
 
 enum NotificationType: string
 {
@@ -383,5 +384,33 @@ class FirebaseNotificationService
         return [
             'message' => 'Notifications successfully sent'
         ];
+    }
+
+    public function push_admin_notification(
+        string $title,
+        string $body,
+        ?string $image = null,
+        array $additional_data = []
+    ) {
+        $notification = NotificationModel::withoutEvents(
+            function () use ($title, $body, $image, $additional_data) {
+                $notification = new NotificationModel;
+                $notification->type = NotificationType::GENERAL;
+                $notification->title = $title;
+                $notification->body = $body;
+                $notification->image = $image;
+                $notification->additional_data = $additional_data;
+                $notification->save();
+            }
+        );
+
+        SendAdminNotification::dispatch(
+            $title,
+            $body,
+            $image ?? null,
+            $additional_data ?? []
+        );
+
+        return ['message' => 'Admin notification successfully sent'];
     }
 }

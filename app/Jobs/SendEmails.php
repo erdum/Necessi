@@ -14,9 +14,7 @@ class SendEmails implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $subject;
-
     protected $content;
-
     protected $emails;
 
     /**

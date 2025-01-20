@@ -87,6 +87,24 @@ class AdminController extends Controller
 
         return $response;
     }
+
+    public function push_admin_notification(Request $request)
+    {
+        $request->validate([
+            'title' => 'required',
+            'body' => 'required',
+            'image' => 'nullable|image',
+        ]);
+
+        $response = Admin\Notifications::push_admin_notification(
+            $request->title,
+            $request->body,
+            $request->image
+        );
+
+        return $response;
+    }
+
     public function get_users(Request $request)
     {
         $response = Admin\Users::get_users();
@@ -94,10 +112,8 @@ class AdminController extends Controller
         return $response;
     }
 
-    public function user_details(
-        Request $request,
-        string $uid,
-    ){
+    public function user_details(Request $request, string $uid)
+    {
         $response = Admin\Users::user_details($uid);
 
         return $response;
