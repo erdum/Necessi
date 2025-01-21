@@ -55,6 +55,7 @@ Route::prefix('admin')->group(function () {
             '/dashboard', 
             [AdminController::class, 'get_dashboard']
         );
+
         // Get notifications data
         Route::get(
             '/notifications',
@@ -77,6 +78,12 @@ Route::prefix('admin')->group(function () {
         Route::get(
             '/user-details/{uid}', 
             [AdminController::class, 'user_details']
+        );
+
+        // Get posts
+        Route::get(
+            '/posts',
+            [AdminController::class, 'get_posts']
         );
     });
 

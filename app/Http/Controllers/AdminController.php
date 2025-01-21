@@ -118,4 +118,11 @@ class AdminController extends Controller
 
         return $response;
     }
+
+    public function get_posts(Request $request)
+    {
+        $response = Admin\Posts::get();
+
+        return $response;
+    }
 }
