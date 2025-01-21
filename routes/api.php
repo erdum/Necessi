@@ -91,6 +91,12 @@ Route::prefix('admin')->group(function () {
             '/logout',
             [AdminController::class, 'logout']
         );
+
+        // Get Orders
+        Route::get(
+            '/orders', 
+            [AdminController::class, 'get_orders']
+        );
     });
 
 });

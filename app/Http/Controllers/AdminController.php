@@ -132,4 +132,11 @@ class AdminController extends Controller
 
         return $response;
     }
+
+    public function get_orders(Request $request)
+    {
+        $response = Admin\Orders::get_orders();
+
+        return $response;
+    }
 }
