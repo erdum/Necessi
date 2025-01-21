@@ -64,19 +64,30 @@ class Users
             $user
         )['available'][0]['amount'] / 100;
 
-        $total_revenue = OrderHistory::withWhereHas(
+        $orders = OrderHistory::withWhereHas(
             'bid',
             function ($query) use ($user) {
                 $query->where('user_id', $user->id)
                       ->where('status', 'accepted');
             })
             ->whereNotNull('transaction_id')
+            ->orderBy('created_at', 'desc')
             ->get();
 
-        $total_revenue_amount = $total_revenue->sum(function ($order) {
+        $total_revenue_amount = $orders->sum(function ($order) {
             return $order->bid->amount ?? 0;
         });
-    
+
+        $orders = $orders->transform(function ($order) {
+            return [
+                'order_id' => $order->id,
+                'transaction_id' => $order->transaction_id,
+                'type' => $order->bid->post->type,
+                'created_at' => $order->created_at->format('d F Y'),
+                'amount' => $order->bid->amount,
+            ];
+        });
+
         if ($snapshot->exists()) {
             $user_data = $snapshot->data();
     
@@ -90,13 +101,13 @@ class Users
                 'balance' => $balance,
                 'total_revenue' => $total_revenue_amount,
             ];
-        }
+        }      
     
         return [
             'user' => $user_details,
             'user_posts' => $user->posts,
             'user_reviews' => $user->reviews,
+            'transaction_history' => $orders,
         ];
     }
-    
 }
