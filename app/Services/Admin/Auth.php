@@ -102,4 +102,13 @@ class Auth
             'message' => 'Password has been successfully reset'
         ];
     }
+
+    public static function logout(AdminModel $user)
+    {
+        $user->tokens()->delete();
+        $user->fcm_token = null;
+        $user->save();
+
+        return ['message' => 'Admin successfully logged out'];
+    }
 }

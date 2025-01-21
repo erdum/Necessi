@@ -63,6 +63,13 @@ class AdminController extends Controller
         return $response;
     }
 
+    public function logout(Request $request)
+    {
+        $response = Admin\Auth::logout($request->user());
+
+        return $response;
+    }
+
     public function get_dashboard(Request $request)
     {
         $sales_revenue = Admin\Dashboard::sales_revenue();
