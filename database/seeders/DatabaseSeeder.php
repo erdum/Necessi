@@ -16,6 +16,10 @@ class DatabaseSeeder extends Seeder
         $this->clear_firestore();
 
         \App\Models\Admin::factory()->create();
+        \App\Models\Admin::factory()->create([
+            'name' => 'Touqeer',
+            'email' => 'touqeer.hassan@launchbox.pk'
+        ]);
 
         \App\Models\User::factory(5)->create();
 

@@ -1324,12 +1324,22 @@ class UserService
         string $reason_type,
         ?string $other_reason
     ) {
-        $user_report = new ReportedUser;
-        $user_report->reporter_id = $user->id;
-        $user_report->reported_id = $reported_user->id;
-        $user_report->reason_type = $reason_type;
-        $user_report->other_reason = $other_reason ?: null;
-        $user_report->save();
+        $already_reported = $reported_user->reports()->where([
+            ['reporter_id', $user->id],
+        ])->exists();
+
+        if ($already_reported) {
+            throw new Exceptions\BaseException(
+                'You have already reported this user.',
+                422
+            );
+        }
+
+        $reported_user->reports()->create([
+            'reporter_id' => $user->id,
+            'reason_type' => $reason_type,
+            'other_reason' => $other_reason ?: null
+        ]);
 
         return [
             'message' => 'User Successfully reported',

@@ -10,8 +10,7 @@ use App\Models\PostBid;
 use App\Models\PostComment;
 use App\Models\PostImage;
 use App\Models\PostLike;
-use App\Models\ReportedComment;
-use App\Models\ReportedPost;
+use App\Models\Report;
 use App\Models\Review;
 use App\Models\User;
 use Carbon\Carbon;
@@ -616,12 +615,22 @@ class PostService
         string $reason_type,
         ?string $other_reason,
     ) {
-        $comment_report = new ReportedComment;
-        $comment_report->reporter_id = $user->id;
-        $comment_report->reported_id = $comment->id;
-        $comment_report->reason_type = $reason_type;
-        $comment_report->other_reason = $other_reason ?: null;
-        $comment_report->save();
+        $already_reported = $comment->reports()->where([
+            ['reporter_id', $user->id],
+        ])->exists();
+
+        if ($already_reported) {
+            throw new Exceptions\BaseException(
+                'You have already reported this comment.',
+                422
+            );
+        }
+
+        $comment->reports()->create([
+            'reporter_id' => $user->id,
+            'reason_type' => $reason_type,
+            'other_reason' => $other_reason ?: null
+        ]);
 
         return [
             'message' => 'Comment successfully reported',
@@ -634,12 +643,22 @@ class PostService
         string $reason_type,
         ?string $other_reason
     ) {
-        $post_report = new ReportedPost;
-        $post_report->reporter_id = $user->id;
-        $post_report->reported_id = $post->id;
-        $post_report->reason_type = $reason_type;
-        $post_report->other_reason = $other_reason ?: null;
-        $post_report->save();
+        $already_reported = $post->reports()->where([
+            ['reporter_id', $user->id],
+        ])->exists();
+
+        if ($already_reported) {
+            throw new Exceptions\BaseException(
+                'You have already reported this post.',
+                422
+            );
+        }
+
+        $post->reports()->create([
+            'reporter_id' => $user->id,
+            'reason_type' => $reason_type,
+            'other_reason' => $other_reason ?: null
+        ]);
 
         return [
             'message' => 'Post successfully reported',

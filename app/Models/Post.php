@@ -87,4 +87,9 @@ class Post extends Model
     {
         return $this->hasMany(PostBid::class);
     }
+
+    public function reports()
+    {
+        return $this->morphMany(Report::class, 'reportable');
+    }
 }
