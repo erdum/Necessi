@@ -139,4 +139,11 @@ class AdminController extends Controller
 
         return $response;
     }
+
+    public function get_revenues(Request $request)
+    {
+        $response = Admin\Revenues::get_revenues();
+
+        return $response;
+    }
 }

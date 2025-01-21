@@ -97,6 +97,12 @@ Route::prefix('admin')->group(function () {
             '/orders', 
             [AdminController::class, 'get_orders']
         );
+
+        // Get Revenues
+        Route::get(
+            '/revenues', 
+            [AdminController::class, 'get_revenues']
+        );
     });
 
 });
