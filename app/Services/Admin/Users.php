@@ -31,13 +31,18 @@ class Users
     {
         self::initializeFirestore();
         $users_collection = self::$firestore->collection('users')->documents();
-        $all_users = [];
+
+        $users = [
+            'all_users' => [],
+            'active_users' => [],
+            'offline_users' => [],
+        ];
 
         foreach ($users_collection as $user) {
             if ($user->exists()) {
                 $user_data = $user->data();
                 
-                $all_users[] = [
+                $user_entry = [
                     'user_id' => $user_data['id'],
                     'user_uid' => $user_data['uid'],  
                     'user_name' => $user_data['first_name'].' '.$user_data['last_name'] ?? 'Unknown',
@@ -45,10 +50,18 @@ class Users
                     'user_avatar' => $user_data['avatar'],
                     'is_online' => $user_data['is_online'] ?? false,
                 ];
+
+                $users['all_users'][] = $user_entry;
+
+                if ($user_data['is_online'] === true) {
+                    $users['active_users'][] = $user_entry;
+                } else {
+                    $users['offline_users'][] = $user_entry;
+                }
             }
         }
 
-        return $all_users;
+        return $users;
     }
 
     public static function user_details(string $uid)
