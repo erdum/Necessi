@@ -59,7 +59,6 @@ class Users
         $snapshot = $firebase_user->snapshot();
         $stripe_service = new StripeService();
         $user_details = [];
-        $year = now()->year;        
 
         $balance = $stripe_service->get_account_balance(
             $user
