@@ -9,7 +9,24 @@ class Posts
 {
     public static function get()
     {
-        $posts = Post::with(['user'])->withCount('likes', 'bids')->latest()
+        $posts = Post::select(
+            'id',
+            'user_id',
+            'type',
+            'title',
+            'description',
+            'budget',
+            'state',
+            'city',
+            'start_date',
+            'end_date',
+            'start_time',
+            'end_time',
+            'created_at',
+        )
+            ->with(['user:id,uid,first_name,last_name,avatar'])
+            ->withCount('likes', 'bids')
+            ->latest()
             ->paginate();
 
         $items = [];
