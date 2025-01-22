@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Services\Admin;
 use App\Models\Report;
 use App\Models\User;
+use App\Models\Withdraw;
 
 class AdminController extends Controller
 {
@@ -156,6 +157,15 @@ class AdminController extends Controller
     public function get_withdrawals(Request $request)
     {
         $response = Admin\Withdrawals::get();
+
+        return $response;
+    }
+
+    public function get_withdraw_details(string $withdraw_id, Request $request)
+    {
+        $withdraw = Withdraw::findOrFail($withdraw_id);
+
+        $response = Admin\Withdrawals::details($withdraw);
 
         return $response;
     }
