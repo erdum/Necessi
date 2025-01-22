@@ -19,16 +19,16 @@ class Revenues
             })
             ->whereNotNull('transaction_id')
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate();
     
-        $revenues = [
-            'all' => [],
-            'received' => [],
-            'withdrawn' => [],
-        ];
+        $all = [];
+        $received = [];
+        $withdrawn = [];
         $total_revenue = 0;
     
-        foreach ($order_history as $order) {
+        $order_history->getCollection()->each(function ($order) use (
+            &$all, &$received, &$total_revenue,
+        ){
             $revenue_data = [
                 'user' => $order->bid->user->full_name,
                 'transaction_date' => $order->created_at->format('Y-m-d h:i'),
@@ -39,15 +39,18 @@ class Revenues
             ];
     
             $total_revenue += $order->bid->amount;
-            $revenues['all'][] = $revenue_data;
-            $revenues['received'][] = $revenue_data;
-        }
+    
+            $all[] = $revenue_data;
+            $received[] = $revenue_data;
+        });
     
         $withdraws = Withdraw::with(['user', 'bank'])
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate();
     
-        foreach ($withdraws as $withdraw) {
+        $withdraws->getCollection()->each(function ($withdraw) use (
+            &$all, &$withdrawn, &$total_revenue,
+        ){
             $revenue_data = [
                 'user' => $withdraw->user->full_name,
                 'transaction_date' => $withdraw->created_at->format('Y-m-d h:i'),
@@ -58,18 +61,23 @@ class Revenues
             ];
     
             $total_revenue -= $withdraw->amount;
-            $revenues['all'][] = $revenue_data;
-            $revenues['withdrawn'][] = $revenue_data;
-        }
     
-        usort($revenues['all'], function ($a, $b) {
+            $all[] = $revenue_data;
+            $withdrawn[] = $revenue_data;
+        });
+    
+        usort($all, function ($a, $b) {
             return strtotime($b['transaction_date']) - strtotime($a['transaction_date']);
         });
     
-        return [
+        $order_history->setCollection(collect([
             'total_revenue' => $total_revenue,
             'platform_earnings' => 0,
-            'revenue_data' => $revenues,
-        ];
-    }
+            'all' => $all,
+            'received' => $received,
+            'withdrawn' => $withdrawn,
+        ]));
+    
+        return $order_history;
+    }    
 }
