@@ -18,7 +18,7 @@ class Orders
             })
         ->whereNotNull('transaction_id')
         ->orderBy('created_at', 'desc')
-        ->paginate(3);
+        ->paginate();
     
         $all_orders = [];
         $item_orders = [];
