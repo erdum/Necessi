@@ -92,10 +92,16 @@ Route::prefix('admin')->group(function () {
             [AdminController::class, 'get_reports']
         );
 
-        // Logout
+        // Get withdrawal requests
         Route::get(
-            '/logout',
-            [AdminController::class, 'logout']
+            '/withdrawals',
+            [AdminController::class 'get_withdrawals']
+        );
+
+        // Get Revenues
+        Route::get(
+            '/revenues', 
+            [AdminController::class, 'get_revenues']
         );
 
         // Get Orders
@@ -104,10 +110,10 @@ Route::prefix('admin')->group(function () {
             [AdminController::class, 'get_orders']
         );
 
-        // Get Revenues
+        // Logout
         Route::get(
-            '/revenues', 
-            [AdminController::class, 'get_revenues']
+            '/logout',
+            [AdminController::class, 'logout']
         );
     });
 

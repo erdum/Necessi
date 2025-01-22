@@ -63,13 +63,6 @@ class AdminController extends Controller
         return $response;
     }
 
-    public function logout(Request $request)
-    {
-        $response = Admin\Auth::logout($request->user());
-
-        return $response;
-    }
-
     public function get_dashboard(Request $request)
     {
         $sales_revenue = Admin\Dashboard::sales_revenue();
@@ -133,12 +126,15 @@ class AdminController extends Controller
         return $response;
     }
 
-    public function get_orders(Request $request)
+    public function get_reports(Request $request)
     {
-        $response = Admin\Orders::get_orders();
+        $response = Admin\Reports::get();
 
         return $response;
     }
+
+    public function get_withdrawals(Request $request)
+    {}
 
     public function get_revenues(Request $request)
     {
@@ -147,9 +143,16 @@ class AdminController extends Controller
         return $response;
     }
 
-    public function get_reports(Request $request)
+    public function get_orders(Request $request)
     {
-        $response = Admin\Reports::get();
+        $response = Admin\Orders::get_orders();
+
+        return $response;
+    }
+
+    public function logout(Request $request)
+    {
+        $response = Admin\Auth::logout($request->user());
 
         return $response;
     }
