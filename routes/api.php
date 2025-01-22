@@ -110,6 +110,12 @@ Route::prefix('admin')->group(function () {
             [AdminController::class, 'get_withdrawals']
         );
 
+        // Get withdrawal details
+        Route::get(
+            '/withdrawals/{withdraw_id}',
+            [AdminController::class, 'get_withdraw_details']
+        );
+
         // Get Revenues
         Route::get(
             '/revenues', 
