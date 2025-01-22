@@ -28,39 +28,48 @@ class Users
         }
     }
 
-    public static function get_users(): array
+    public static function get_users()
     {
         self::initializeFirestore();
-        $users_collection = self::$firestore->collection('users')->documents();
+        $users = User::paginate();
 
-        $users = [
-            'all_users' => [],
-            'active_users' => [],
-            'offline_users' => [],
-        ];
+        $all_users = [];
+        $active_users = [];
+        $offline_users = [];
 
-        foreach ($users_collection as $user) {
-            if ($user->exists()) {
-                $user_data = $user->data();
-                
+        $users->getCollection()->each(
+            function ($user) use (&$all_users, &$active_users, &$offline_users,
+        ){
+            $user_ref = self::$firestore->collection('users')->document($user->uid);
+            $user_snapshot = $user_ref->snapshot();
+    
+            if ($user_snapshot->exists()) {
+                $user_data = $user_snapshot->data();
+    
                 $user_entry = [
-                    'user_id' => $user_data['id'],
-                    'user_uid' => $user_data['uid'],  
-                    'user_name' => $user_data['first_name'].' '.$user_data['last_name'] ?? 'Unknown',
-                    'email' => $user_data['email'],
-                    'user_avatar' => $user_data['avatar'],
+                    'user_id' => $user->id,
+                    'user_uid' => $user->uid,
+                    'user_name' => $user->full_name ?? 'Unknown',
+                    'email' => $user->email,
+                    'user_avatar' => $user->avatar,
                     'is_online' => $user_data['is_online'] ?? false,
                 ];
-
-                $users['all_users'][] = $user_entry;
-
+    
+                $all_users[] = $user_entry;
+    
                 if ($user_data['is_online'] === true) {
-                    $users['active_users'][] = $user_entry;
+                    $active_users[] = $user_entry;
                 } else {
-                    $users['offline_users'][] = $user_entry;
+                    $offline_users[] = $user_entry;
                 }
             }
-        }
+        });
+
+        $users->setCollection(collect([
+            'all_users' => $all_users,
+            'active_users' => $active_users,
+            'offline_users' => $offline_users,
+        ]));
 
         return $users;
     }
