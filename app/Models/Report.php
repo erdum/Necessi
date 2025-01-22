@@ -15,6 +15,11 @@ class Report extends Model
         'other_reason',
     ];
 
+    public function reporter()
+    {
+        return $this->belongsTo(User::class, 'reporter_id');
+    }
+
     public function reportable()
     {
         return $this->morphTo();

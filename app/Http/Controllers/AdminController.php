@@ -146,4 +146,11 @@ class AdminController extends Controller
 
         return $response;
     }
+
+    public function get_reports(Request $request)
+    {
+        $response = Admin\Reports::get();
+
+        return $response;
+    }
 }

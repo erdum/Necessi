@@ -86,6 +86,12 @@ Route::prefix('admin')->group(function () {
             [AdminController::class, 'get_posts']
         );
 
+        // Get reports
+        Route::get(
+            '/reports',
+            [AdminController::class, 'get_reports']
+        );
+
         // Logout
         Route::get(
             '/logout',
