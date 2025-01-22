@@ -5,6 +5,7 @@ namespace App\Services\Admin;
 use App\Exceptions;
 use App\Models\Admin;
 use App\Models\User;
+use App\Models\PostBid;
 use App\Services\StripeService;
 use App\Models\OrderHistory;
 use Kreait\Firebase\Factory;
@@ -101,6 +102,12 @@ class Users
             ];
         });
 
+        $user_post_ids = $user->posts()->pluck('id');
+        $user_spent = PostBid::whereIn('post_id',$user_post_ids)
+            ->where('status', 'accepted')
+            ->WhereHas('order')
+            ->sum('amount');
+
         if ($snapshot->exists()) {
             $user_data = $snapshot->data();
     
@@ -113,6 +120,7 @@ class Users
                 'is_online' => $user_data['is_online'] ?? false,
                 'balance' => $balance,
                 'total_revenue' => $total_revenue_amount,
+                'spent_amount' => $user_spent,
             ];
         }      
     
