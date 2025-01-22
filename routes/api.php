@@ -92,6 +92,12 @@ Route::prefix('admin')->group(function () {
             [AdminController::class, 'get_reports']
         );
 
+        // Get report details
+        Route::get(
+            '/reports/{report_id}',
+            [AdminController::class, 'get_report_details']
+        );
+
         // Get withdrawal requests
         Route::get(
             '/withdrawals',

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\Admin;
+use App\Models\Report;
 
 class AdminController extends Controller
 {
@@ -133,7 +134,15 @@ class AdminController extends Controller
         return $response;
     }
 
-    public function get_withdrawals(Request $request)
+    public function get_report_details(int $report_id, Request $request)
+    {
+        $report = Report::findOrFail($report_id);
+
+        $response = Admin\Reports::details($report);
+
+        return $response;
+    }
+
     {}
 
     public function get_revenues(Request $request)
