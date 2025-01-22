@@ -95,7 +95,7 @@ Route::prefix('admin')->group(function () {
         // Get withdrawal requests
         Route::get(
             '/withdrawals',
-            [AdminController::class 'get_withdrawals']
+            [AdminController::class, 'get_withdrawals']
         );
 
         // Get Revenues
