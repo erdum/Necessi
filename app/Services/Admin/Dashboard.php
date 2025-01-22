@@ -89,13 +89,11 @@ class Dashboard
             })
             ->sum('amount');
 
-        $revenue = config(
-            'services.stripe.application_fee'
-        ) * $sales;
+        $platform_fee = config('services.stripe.application_fee');
 
-        $revenue_yesterday = config(
-            'services.stripe.application_fee'
-        ) * $sales_yesterday;
+        $revenue = $platform_fee * $sales;
+
+        $revenue_yesterday = $platform_fee * $sales_yesterday;
 
         return [
             'sales' => [
@@ -119,8 +117,9 @@ class Dashboard
 
     public static function revenue_graph()
     {
-        $revenue_max_yearly = 0;
-        $revenue_graph_yearly = DB::table('post_bids')
+        $platform_fee = config('services.stripe.application_fee');
+
+        $sales_yearly_data = DB::table('post_bids')
             ->join(
                 'order_histories',
                 'order_histories.bid_id',
@@ -135,10 +134,34 @@ class Dashboard
             ->where('post_bids.status', 'accepted')
             ->whereNotNull('order_histories.transaction_id')
             ->groupByRaw('MONTH(post_bids.created_at)')
-            ->get();
+            ->get()
+            ->keyBy('month');
 
-        $revenue_max_monthly = 0;
-        $revenue_graph_monthly = DB::table('post_bids')
+        $yearly_revenue_labels = [];
+        $yearly_revenue_points = [];
+        $revenue_max_yearly = 0;
+        collect(range(1, 12))->each(
+            function ($month) use (
+                $platform_fee,
+                $sales_yearly_data,
+                &$yearly_revenue_labels,
+                &$yearly_revenue_points,
+                &$revenue_max_yearly
+            ) {
+                $yearly_revenue_labels[] = $month;
+
+                if ($sales_yearly_data->has($month)) {
+                    $value = $platform_fee * $sales_yearly_data[$month]->value;
+                    $revenue_max_yearly = max($revenue_max_yearly, $value);
+
+                    return $yearly_revenue_points[] = number_format($value, 2);
+                }
+
+                return $yearly_revenue_points[] = '0.00';
+            }
+        );
+
+        $sales_monthly_data = DB::table('post_bids')
             ->join(
                 'order_histories',
                 'order_histories.bid_id',
@@ -153,10 +176,34 @@ class Dashboard
             ->where('post_bids.status', 'accepted')
             ->whereNotNull('order_histories.transaction_id')
             ->groupByRaw('DAY(post_bids.created_at)')
-            ->get();
+            ->get()
+            ->keyBy('day');
 
-        $revenue_max_weekly = 0;
-        $revenue_graph_weekly = DB::table('post_bids')
+        $monthly_revenue_labels = [];
+        $monthly_revenue_points = [];
+        $revenue_max_monthly = 0;
+        collect(range(1, date('t')))->each(
+            function ($day) use (
+                $sales_monthly_data,
+                $platform_fee,
+                &$monthly_revenue_labels,
+                &$monthly_revenue_points,
+                &$revenue_max_monthly
+            ) {
+                $monthly_revenue_labels[] = $day;
+
+                if ($sales_monthly_data->has($day)) {
+                    $value = $platform_fee * $sales_monthly_data[$day]->value;
+                    $revenue_max_monthly = max($revenue_max_monthly, $value);
+
+                    return $monthly_revenue_points[] = number_format($value, 2);
+                }
+
+                return $monthly_revenue_points[] = '0.00';
+            }
+        );
+
+        $sales_weekly_data = DB::table('post_bids')
             ->join(
                 'order_histories',
                 'order_histories.bid_id',
@@ -174,65 +221,48 @@ class Dashboard
             ->where('post_bids.status', 'accepted')
             ->whereNotNull('order_histories.transaction_id')
             ->groupByRaw('WEEKDAY(post_bids.created_at)')
-            ->get();
+            ->get()
+            ->keyBy('week_day');
 
-        $platform_fee = $revenue = config('services.stripe.application_fee');
+        $weekly_revenue_labels = [];
+        $weekly_revenue_points = [];
+        $revenue_max_weekly = 0;
+        collect(range(0, 6))->each(
+            function ($week_day) use (
+                $sales_weekly_data,
+                $platform_fee,
+                &$weekly_revenue_labels,
+                &$weekly_revenue_points,
+                &$revenue_max_weekly
+            ) {
+                $weekly_revenue_labels[] = $week_day;
 
-        $revenue_graph_yearly->transform(
-            function ($point) use (&$revenue_max_yearly, $platform_fee) {
-                $val = $platform_fee * $point->value;
+                if ($sales_weekly_data->has($week_day)) {
+                    $value = $platform_fee * $sales_weekly_data[$week_day]->value;
+                    $revenue_max_weekly = max($revenue_max_weekly, $value);
 
-                if ($val > $revenue_max_yearly) {
-                    $revenue_max_yearly = $val;
+                    return $weekly_revenue_points[] = number_format($value, 2);
                 }
 
-                return [
-                    'value' => number_format($val, 2),
-                    'month' => $point->month,
-                ];
-            }
-        );
-        $revenue_graph_monthly->transform(
-            function ($point) use (&$revenue_max_monthly, $platform_fee) {
-                $val = $platform_fee * $point->value;
-
-                if ($val > $revenue_max_monthly) {
-                    $revenue_max_monthly = $val;
-                }
-
-                return [
-                    'value' => number_format($val, 2),
-                    'day' => $point->day,
-                ];
-            }
-        );
-        $revenue_graph_weekly->transform(
-            function ($point) use (&$revenue_max_weekly, $platform_fee) {
-                $val = $platform_fee * $point->value;
-
-                if ($val > $revenue_max_weekly) {
-                    $revenue_max_weekly = $val;
-                }
-
-                return [
-                    'value' => number_format($val, 2),
-                    'week_day' => $point->week_day,
-                ];
+                return $weekly_revenue_points[] = '0.00';
             }
         );
 
         return [
             'yearly' => [
                 'max_value' => number_format($revenue_max_yearly, 2),
-                'points' => $revenue_graph_yearly,
+                'labels' => $yearly_revenue_labels,
+                'points' => $yearly_revenue_points,
             ],
             'monthly' => [
                 'max_value' => number_format($revenue_max_monthly, 2),
-                'points' => $revenue_graph_monthly,
+                'labels' => $monthly_revenue_labels,
+                'points' => $monthly_revenue_points,
             ],
             'weekly' => [
                 'max_value' => number_format($revenue_max_weekly, 2),
-                'points' => $revenue_graph_weekly,
+                'labels' => $weekly_revenue_labels,
+                'points' => $weekly_revenue_points,
             ],
         ];
     }
