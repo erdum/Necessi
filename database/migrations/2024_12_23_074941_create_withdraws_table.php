@@ -17,7 +17,7 @@ return new class extends Migration
             $table->float('amount', 6, 2);
             $table->foreignUuid('bank_id')->constrained('user_banks')
                 ->onDelete('cascade');
-            $table->enum('status', ['pending', 'accepted', 'rejected'])
+            $table->enum('status', ['pending', 'approved', 'rejected'])
                 ->default('pending');
             $table->string('rejection_reason')->nullable();
             $table->timestamps();

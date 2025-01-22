@@ -170,6 +170,26 @@ class AdminController extends Controller
         return $response;
     }
 
+    public function approve_withdrawal(string $withdraw_id, Request $request)
+    {
+        $withdraw = Withdraw::findOrFail($withdraw_id);
+
+        $response = Admin\Withdrawals::approve($withdraw);
+
+        return $response;
+    }
+
+    public function reject_withdrawal(string $withdraw_id, Request $request)
+    {
+        $request->validate(['reason' => 'required']);
+
+        $withdraw = Withdraw::findOrFail($withdraw_id);
+
+        $response = Admin\Withdrawals::reject($withdraw, $request->reason);
+
+        return $response;
+    }
+
     public function get_revenues(Request $request)
     {
         $response = Admin\Revenues::get_revenues();

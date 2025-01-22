@@ -1505,12 +1505,6 @@ class UserService
             throw new Exceptions\BaseException('Insufficient funds', 400);
         }
 
-        $payout_id = $this->stripe_service->payout_to_account(
-            $user,
-            $bank_id,
-            $amount
-        )['id'];
-
         $withdraw = new Withdraw;
         $withdraw->id = $payout_id;
         $withdraw->user_id = $user->id;

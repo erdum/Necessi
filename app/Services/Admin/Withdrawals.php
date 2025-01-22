@@ -3,6 +3,7 @@
 namespace App\Services\Admin;
 
 use App\Models\Withdraw;
+use App\Services\StripeService;
 
 class Withdrawals
 {
@@ -49,5 +50,33 @@ class Withdrawals
 			'request_date' => $withdrawal->created_at->format('Y-m-d'),
 			'history' => $history,
 		];
+	}
+
+	public static function approve(Withdraw $withdrawal)
+	{
+		$stripe_service = app(StripeService::class);
+
+		$payout_id = $stripe_service->payout_to_account(
+		    $withdrawal->user,
+		    $withdrawal->bank_id,
+		    $withdrawal->amount
+		)['id'];
+
+		$withdrawal->status = 'approved';
+		$withdrawal->save();
+
+		return [
+			'message' => 'Funds successfully transferred',
+			'ref' => $payout_id,
+		];
+	}
+
+	public static function reject(Withdraw $withdrawal, string $reason)
+	{
+		$withdrawal->status = 'rejected';
+		$withdrawal->rejection_reason = $reason;
+		$withdrawal->save();
+
+		return ['message' => 'Request successfully rejected'];
 	}
 }

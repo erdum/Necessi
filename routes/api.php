@@ -116,6 +116,18 @@ Route::prefix('admin')->group(function () {
             [AdminController::class, 'get_withdraw_details']
         );
 
+        // Approve withdrawal request
+        Route::get(
+            '/withdrawals/{withdraw_id}/approve',
+            [AdminController::class, 'approve_withdrawal']
+        );
+
+        // Reject withdrawal request
+        Route::post(
+            '/withdrawals/{withdraw_id}/reject',
+            [AdminController::class, 'reject_withdrawal']
+        );
+
         // Get Revenues
         Route::get(
             '/revenues', 
