@@ -584,8 +584,7 @@ class Dashboard
 
     public static function sales_graph()
     {
-        $yearly_max = 0;
-        $sales_graph_yearly = DB::table('post_bids')
+        $sales_yearly_data = DB::table('post_bids')
             ->join(
                 'order_histories',
                 'order_histories.bid_id',
@@ -600,10 +599,33 @@ class Dashboard
             ->where('post_bids.status', 'accepted')
             ->whereNotNull('order_histories.transaction_id')
             ->groupByRaw('MONTH(post_bids.created_at)')
-            ->get();
+            ->get()
+            ->keyBy('month');
 
-        $last_month_max = 0;
-        $sales_graph_last_month = DB::table('post_bids')
+        $yearly_sales_labels = [];
+        $yearly_sales_points = [];
+        $sales_max_yearly = 0;
+        collect(range(1, 12))->each(
+            function ($month) use (
+                $sales_yearly_data,
+                &$yearly_sales_labels,
+                &$yearly_sales_points,
+                &$sales_max_yearly
+            ) {
+                $yearly_sales_labels[] = $month;
+
+                if ($sales_yearly_data->has($month)) {
+                    $value = $sales_yearly_data[$month]->value;
+                    $sales_max_yearly = max($sales_max_yearly, $value);
+
+                    return $yearly_sales_points[] = number_format($value, 2);
+                }
+
+                return $yearly_sales_points[] = '0.00';
+            }
+        );
+
+        $sales_last_month_data = DB::table('post_bids')
             ->join(
                 'order_histories',
                 'order_histories.bid_id',
@@ -619,10 +641,33 @@ class Dashboard
             ->where('post_bids.status', 'accepted')
             ->whereNotNull('order_histories.transaction_id')
             ->groupByRaw('DAY(post_bids.created_at)')
-            ->get();
+            ->get()
+            ->keyBy('day');
 
-        $monthly_max = 0;
-        $sales_graph_monthly = DB::table('post_bids')
+        $last_month_sales_labels = [];
+        $last_month_sales_points = [];
+        $sales_max_last_month = 0;
+        collect(range(1, date('t')))->each(
+            function ($month) use (
+                $sales_last_month_data,
+                &$last_month_sales_labels,
+                &$last_month_sales_points,
+                &$sales_max_last_month
+            ) {
+                $last_month_sales_labels[] = $month;
+
+                if ($sales_last_month_data->has($month)) {
+                    $value = $sales_last_month_data[$month]->value;
+                    $sales_max_last_month = max($sales_max_last_month, $value);
+
+                    return $last_month_sales_points[] = number_format($value, 2);
+                }
+
+                return $last_month_sales_points[] = '0.00';
+            }
+        );
+
+        $sales_monthly_data = DB::table('post_bids')
             ->join(
                 'order_histories',
                 'order_histories.bid_id',
@@ -638,10 +683,33 @@ class Dashboard
             ->where('post_bids.status', 'accepted')
             ->whereNotNull('order_histories.transaction_id')
             ->groupByRaw('DAY(post_bids.created_at)')
-            ->get();
+            ->get()
+            ->keyBy('day');
 
-        $weekly_max = 0;
-        $sales_graph_weekly = DB::table('post_bids')
+        $monthly_sales_labels = [];
+        $monthly_sales_points = [];
+        $sales_max_monthly = 0;
+        collect(range(1, date('t')))->each(
+            function ($month) use (
+                $sales_monthly_data,
+                &$monthly_sales_labels,
+                &$monthly_sales_points,
+                &$sales_max_monthly
+            ) {
+                $monthly_sales_labels[] = $month;
+
+                if ($sales_monthly_data->has($month)) {
+                    $value = $sales_monthly_data[$month]->value;
+                    $sales_max_monthly = max($sales_max_monthly, $value);
+
+                    return $monthly_sales_points[] = number_format($value, 2);
+                }
+
+                return $monthly_sales_points[] = '0.00';
+            }
+        );
+
+        $sales_weekly_data = DB::table('post_bids')
             ->join(
                 'order_histories',
                 'order_histories.bid_id',
@@ -659,10 +727,33 @@ class Dashboard
             ->where('post_bids.status', 'accepted')
             ->whereNotNull('order_histories.transaction_id')
             ->groupByRaw('WEEKDAY(post_bids.created_at)')
-            ->get();
+            ->get()
+            ->keyBy('week_day');
 
-        $today_max = 0;
-        $sales_graph_today = DB::table('post_bids')
+        $weekly_sales_labels = [];
+        $weekly_sales_points = [];
+        $sales_max_weekly = 0;
+        collect(range(0, 6))->each(
+            function ($month) use (
+                $sales_weekly_data,
+                &$weekly_sales_labels,
+                &$weekly_sales_points,
+                &$sales_max_weekly
+            ) {
+                $weekly_sales_labels[] = $month;
+
+                if ($sales_weekly_data->has($month)) {
+                    $value = $sales_weekly_data[$month]->value;
+                    $sales_max_weekly = max($sales_max_weekly, $value);
+
+                    return $weekly_sales_points[] = number_format($value, 2);
+                }
+
+                return $weekly_sales_points[] = '0.00';
+            }
+        );
+
+        $sales_today_data = DB::table('post_bids')
             ->join(
                 'order_histories',
                 'order_histories.bid_id',
@@ -677,98 +768,57 @@ class Dashboard
             ->where('post_bids.status', 'accepted')
             ->whereNotNull('order_histories.transaction_id')
             ->groupByRaw('HOUR(post_bids.created_at)')
-            ->get();
+            ->get()
+            ->keyBy('hour');
 
-        $sales_graph_yearly->transform(
-            function ($point) use (&$yearly_max) {
+        $today_sales_labels = [];
+        $today_sales_points = [];
+        $sales_max_today = 0;
+        collect(range(0, 23))->each(
+            function ($month) use (
+                $sales_today_data,
+                &$today_sales_labels,
+                &$today_sales_points,
+                &$sales_max_today
+            ) {
+                $today_sales_labels[] = $month;
 
-                if ($point->value > $yearly_max) {
-                    $yearly_max = $point->value;
+                if ($sales_today_data->has($month)) {
+                    $value = $sales_today_data[$month]->value;
+                    $sales_max_today = max($sales_max_today, $value);
+
+                    return $today_sales_points[] = number_format($value, 2);
                 }
 
-                return [
-                    'value' => number_format($point->value, 2),
-                    'month' => $point->month,
-                ];
-            }
-        );
-
-        $sales_graph_last_month->transform(
-            function ($point) use (&$last_month_max) {
-
-                if ($point->value > $last_month_max) {
-                    $last_month_max = $point->value;
-                }
-
-                return [
-                    'value' => number_format($point->value, 2),
-                    'day' => $point->day,
-                ];
-            }
-        );
-
-        $sales_graph_monthly->transform(
-            function ($point) use (&$monthly_max) {
-
-                if ($point->value > $monthly_max) {
-                    $monthly_max = $point->value;
-                }
-
-                return [
-                    'value' => number_format($point->value, 2),
-                    'day' => $point->day,
-                ];
-            }
-        );
-
-        $sales_graph_weekly->transform(
-            function ($point) use (&$weekly_max) {
-
-                if ($point->value > $weekly_max) {
-                    $weekly_max = $point->value;
-                }
-
-                return [
-                    'value' => number_format($point->value, 2),
-                    'week_day' => $point->week_day,
-                ];
-            }
-        );
-
-        $sales_graph_today->transform(
-            function ($point) use (&$today_max) {
-
-                if ($point->value > $today_max) {
-                    $today_max = $point->value;
-                }
-
-                return [
-                    'value' => number_format($point->value, 2),
-                    'hour' => $point->hour,
-                ];
+                return $today_sales_points[] = '0.00';
             }
         );
 
         return [
             'yearly' => [
-                'max_value' => number_format($yearly_max, 2),
-                'points' => $sales_graph_yearly,
+                'max_value' => number_format($sales_max_yearly, 2),
+                'labels' => $yearly_sales_labels,
+                'points' => $yearly_sales_points,
             ],
             'last_month' => [
-                'max_value' => number_format($last_month_max, 2),
-                'points' => $sales_graph_last_month,
+                'max_value' => number_format($sales_max_last_month, 2),
+                'labels' => $last_month_sales_labels,
+                'points' => $last_month_sales_points,
             ],
             'monthly' => [
-                'max_value' => number_format($monthly_max, 2),
-                'points' => $sales_graph_monthly,
+                'max_value' => number_format($sales_max_monthly, 2),
+                'labels' => $monthly_sales_labels,
+                'points' => $monthly_sales_points,
             ],
             'weekly' => [
-                'max_value' => number_format($weekly_max, 2),
-                'points' => $sales_graph_weekly,
+                'max_value' => number_format($sales_max_weekly, 2),
+                'labels' => $weekly_sales_labels,
+                'points' => $weekly_sales_points,
             ],
             'today' => [
-                'max_value' => number_format($today_max, 2),
-                'points' => $sales_graph_today,
+                'max_value' => number_format($sales_max_today, 2),
+                'labels' => $today_sales_labels,
+                'points' => $today_sales_points,
             ],
         ];
     }
