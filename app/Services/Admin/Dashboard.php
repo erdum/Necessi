@@ -388,37 +388,105 @@ class Dashboard
 
     public static function users_growth_graph()
     {
-        $yearly_max = 0;
-        $users_graph_yearly = User::selectRaw(
+        $users_yearly_data = User::selectRaw(
             'COUNT(id) as value,
             MONTH(created_at) as month'
         )
             ->whereYear('created_at', now()->format('Y'))
             ->groupByRaw('MONTH(created_at)')
-            ->get();
+            ->get()
+            ->keyBy('month');
 
-        $last_month_max = 0;
-        $users_graph_last_month = User::selectRaw(
+        $yearly_users_labels = [];
+        $yearly_users_points = [];
+        $yearly_max = 0;
+        collect(range(1, 12))->each(
+            function ($month) use (
+                $users_yearly_data,
+                &$yearly_users_labels,
+                &$yearly_users_points,
+                &$yearly_max
+            ) {
+                $yearly_users_labels[] = $month;
+
+                if ($users_yearly_data->has($month)) {
+                    $value = $users_yearly_data[$month]->value;
+                    $yearly_max = max($yearly_max, $value);
+
+                    return $yearly_users_points[] = number_format($value, 2);
+                }
+
+                return $yearly_users_points[] = '0.00';
+            }
+        );
+
+        $users_last_month_data = User::selectRaw(
             'COUNT(id) as value,
             DAY(created_at) as day'
         )
             ->whereYear('created_at', now()->subMonth()->format('Y'))
             ->whereMonth('created_at', now()->subMonth()->format('m'))
             ->groupByRaw('DAY(created_at)')
-            ->get();
+            ->get()
+            ->keyBy('day');
 
-        $monthly_max = 0;
-        $users_graph_monthly = User::selectRaw(
+        $last_month_users_labels = [];
+        $last_month_users_points = [];
+        $last_month_max = 0;
+        collect(range(1, date('t')))->each(
+            function ($day) use (
+                $users_last_month_data,
+                &$last_month_users_labels,
+                &$last_month_users_points,
+                &$last_month_max
+            ) {
+                $last_month_users_labels[] = $day;
+
+                if ($users_last_month_data->has($day)) {
+                    $value = $users_last_month_data[$day]->value;
+                    $last_month_max = max($last_month_max, $value);
+
+                    return $last_month_users_points[] = number_format($value, 2);
+                }
+
+                return $last_month_users_points[] = '0.00';
+            }
+        );
+
+        $users_monthly_data = User::selectRaw(
             'COUNT(id) as value,
             DAY(created_at) as day'
         )
             ->whereYear('created_at', now()->format('Y'))
             ->whereMonth('created_at', now()->format('m'))
             ->groupByRaw('DAY(created_at)')
-            ->get();
+            ->get()
+            ->keyBy('day');
 
-        $weekly_max = 0;
-        $users_graph_weekly = User::selectRaw('
+        $monthly_users_labels = [];
+        $monthly_users_points = [];
+        $monthly_max = 0;
+        collect(range(1, date('t')))->each(
+            function ($day) use (
+                $users_monthly_data,
+                &$monthly_users_labels,
+                &$monthly_users_points,
+                &$monthly_max
+            ) {
+                $monthly_users_labels[] = $day;
+
+                if ($users_monthly_data->has($day)) {
+                    $value = $users_monthly_data[$day]->value;
+                    $monthly_max = max($monthly_max, $value);
+
+                    return $monthly_users_points[] = number_format($value, 2);
+                }
+
+                return $monthly_users_points[] = '0.00';
+            }
+        );
+
+        $users_weekly_data = User::selectRaw('
             COUNT(id) as value,
             WEEKDAY(created_at) as week_day'
         )
@@ -427,58 +495,89 @@ class Dashboard
                 [now()->startOfWeek(), now()->endOfWeek()]
             )
             ->groupByRaw('WEEKDAY(created_at)')
-            ->get();
+            ->get()
+            ->keyBy('week_day');
 
-        $today_max = 0;
-        $users_graph_today = User::selectRaw(
+        $weekly_users_labels = [];
+        $weekly_users_points = [];
+        $weekly_max = 0;
+        collect(range(0, 6))->each(
+            function ($week_day) use (
+                $users_weekly_data,
+                &$weekly_users_labels,
+                &$weekly_users_points,
+                &$weekly_max
+            ) {
+                $weekly_users_labels[] = $week_day;
+
+                if ($users_weekly_data->has($week_day)) {
+                    $value = $users_weekly_data[$week_day]->value;
+                    $weekly_max = max($weekly_max, $value);
+
+                    return $weekly_users_points[] = number_format($value, 2);
+                }
+
+                return $weekly_users_points[] = '0.00';
+            }
+        );
+
+        $users_today_data = User::selectRaw(
             'COUNT(id) as value,
             HOUR(created_at) as hour'
         )
             ->whereDate('created_at', self::today_date())
             ->groupByRaw('HOUR(created_at)')
-            ->get();
+            ->get()
+            ->keyBy('hour');
 
-        foreach ($users_graph_yearly as $point) {
-            if ($point->value > $yearly_max) $yearly_max = $point->value;
-        }
+        $today_users_labels = [];
+        $today_users_points = [];
+        $today_max = 0;
+        collect(range(0, 23))->each(
+            function ($hour) use (
+                $users_today_data,
+                &$today_users_labels,
+                &$today_users_points,
+                &$today_max
+            ) {
+                $today_users_labels[] = $hour;
 
-        foreach ($users_graph_last_month as $point) {
-            if ($point->value > $last_month_max)
-                $last_month_max = $point->value;
-        }
+                if ($users_today_data->has($hour)) {
+                    $value = $users_today_data[$hour]->value;
+                    $today_max = max($today_max, $value);
 
-        foreach ($users_graph_monthly as $point) {
-            if ($point->value > $monthly_max) $monthly_max = $point->value;
-        }
+                    return $today_users_points[] = number_format($value, 2);
+                }
 
-        foreach ($users_graph_weekly as $point) {
-            if ($point->value > $weekly_max) $weekly_max = $point->value;
-        }
-
-        foreach ($users_graph_today as $point) {
-            if ($point->value > $today_max) $today_max = $point->value;
-        }
+                return $today_users_points[] = '0.00';
+            }
+        );
 
         return [
             'yearly' => [
-                'max_value' => $yearly_max,
-                'points' => $users_graph_yearly,
+                'max_value' => number_format($yearly_max, 2),
+                'labels' => $yearly_users_labels,
+                'points' => $yearly_users_points,
             ],
             'last_month' => [
-                'max_value' => $last_month_max,
-                'points' => $users_graph_last_month,
+                'max_value' => number_format($last_month_max, 2),
+                'labels' => $last_month_users_labels,
+                'points' => $last_month_users_points,
             ],
             'monthly' => [
-                'max_value' => $monthly_max,
-                'points' => $users_graph_monthly,
+                'max_value' => number_format($monthly_max, 2),
+                'labels' => $monthly_users_labels,
+                'points' => $monthly_users_points,
             ],
             'weekly' => [
-                'max_value' => $weekly_max,
-                'points' => $users_graph_weekly,
+                'max_value' => number_format($weekly_max, 2),
+                'labels' => $weekly_users_labels,
+                'points' => $weekly_users_points,
             ],
             'today' => [
-                'max_value' => $today_max,
-                'points' => $users_graph_today,
+                'max_value' => number_format($today_max, 2),
+                'labels' => $today_users_labels,
+                'points' => $today_users_points,
             ],
         ];
     }
