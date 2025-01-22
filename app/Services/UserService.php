@@ -1506,7 +1506,7 @@ class UserService
         }
 
         $withdraw = new Withdraw;
-        $withdraw->id = $payout_id;
+        $withdraw->id = (string) str()->uuid();
         $withdraw->user_id = $user->id;
         $withdraw->amount = $amount;
         $withdraw->bank_id = $bank_id;

@@ -62,13 +62,11 @@ class Withdrawals
 		    $withdrawal->amount
 		)['id'];
 
+		$withdrawal->id = (string) $payout_id;
 		$withdrawal->status = 'approved';
 		$withdrawal->save();
 
-		return [
-			'message' => 'Funds successfully transferred',
-			'ref' => $payout_id,
-		];
+		return ['message' => 'Funds successfully transferred'];
 	}
 
 	public static function reject(Withdraw $withdrawal, string $reason)
