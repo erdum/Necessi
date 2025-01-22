@@ -98,6 +98,12 @@ Route::prefix('admin')->group(function () {
             [AdminController::class, 'get_report_details']
         );
 
+        // Deactivate user
+        Route::post(
+            '/deactivate-user/{user_id}',
+            [AdminController::class, 'deactivate_user']
+        );
+
         // Get withdrawal requests
         Route::get(
             '/withdrawals',

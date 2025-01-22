@@ -130,4 +130,7 @@ class Reports
             // Admin panel doesn't have Report type Post Comment
         }
     }
+
+    public static function deactivate_user(User $user)
+    {}
 }

@@ -143,6 +143,14 @@ class AdminController extends Controller
         return $response;
     }
 
+    public function deactivate_user(int $user_id, Request $request)
+    {
+        $user = User::findOrFail($user_id);
+
+        $response = Admin\Reports::deactivate_user($user);
+
+        return $response;
+    }
     public function get_revenues(Request $request)
     {
         $response = Admin\Revenues::get_revenues();
