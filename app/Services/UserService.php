@@ -673,7 +673,7 @@ class UserService
                 $connection_request->id
             )->first();
 
-            $notification->delete();
+            $notification?->delete();
             $connection_request->delete();
 
             return [
