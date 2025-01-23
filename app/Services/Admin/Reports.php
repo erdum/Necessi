@@ -74,8 +74,26 @@ class Reports
                     $query->user_id = $reported_entity->id;
                 }
             )
-                ->with('user')
+                ->with('user:id,uid,first_name,last_name')
                 ->paginate(4);
+
+            $reviews->getCollection()->transform(
+                function ($review) {
+                    return [
+                        'id' => $review->id,
+                        'post_id' => $review->post_id,
+                        'data' => $review->data,
+                        'rating' => $review->rating,
+                        'created_at' => $review->created_at->format('Y-m-d'),
+                        'user' => [
+                            'id' => $review->user->id,
+                            'uid' => $review->user->uid,
+                            'name' => $review->user->full_name,
+                            'avatar' => $review->user->avatar,
+                        ],
+                    ];
+                }
+            );
 
             return [
                 'reporter' => [
