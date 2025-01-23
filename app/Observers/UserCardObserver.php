@@ -11,10 +11,8 @@ class UserCardObserver implements ShouldQueue
     /**
      * Handle the UserCard "created" event.
      */
-    public function created(
-        UserCard $userCard,
-        StripeService $stripe_service
-    ): void {
+    public function created(UserCard $userCard): void {
+        // $stripe_service = app(StripeService::class);
         // $stripe_service->add_card($userCard->user, $userCard->id);
     }
 
@@ -29,10 +27,8 @@ class UserCardObserver implements ShouldQueue
     /**
      * Handle the UserCard "deleted" event.
      */
-    public function deleted(
-        UserCard $userCard,
-        StripeService $stripe_service
-    ): void {
+    public function deleted(UserCard $userCard): void {
+        // $stripe_service = app(StripeService::class);
         // $stripe_service->detach_bank($userCard->user, $userCard->id);
     }
 

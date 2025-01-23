@@ -11,9 +11,10 @@ class UserObserver implements ShouldQueue
     /**
      * Handle the User "created" event.
      */
-    public function created(User $user, StripeService $stripe_service): void
+    public function created(User $user): void
     {
         $db = app('firebase')->createFirestore()->database();
+        $stripe_service = app(StripeService::class);
 
         $data = [
             'id' => $user->id,
@@ -41,9 +42,10 @@ class UserObserver implements ShouldQueue
     /**
      * Handle the User "updated" event.
      */
-    public function updated(User $user, StripeService $stripe_service): void
+    public function updated(User $user): void
     {
         $db = app('firebase')->createFirestore()->database();
+        $stripe_service = app(StripeService::class);
 
         $data = [
             'id' => $user->id,
