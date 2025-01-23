@@ -212,27 +212,29 @@ class FirebaseAuthService
             $firebase_uid = $verified_id_token->claims()->get('sub');
             $email_verified_at = now();
 
-            $user = User::updateOrCreate(
-                ['email' => $verified_id_token->claims()->get('email')],
-                [
-                    'first_name' => $verified_id_token->claims()->get('name') ?? 'Necessi User',
-                    'last_name' => $verified_id_token->claims()->get('family_name') ?? '',
-                ]
-            );
+            $user = User::firstOrNew([
+                'email' => $verified_id_token->claims()->get('email'),
+            ]);
+
+            if ($user->uid) {
+                $firebase_user = $this->auth->getUserByEmail($user->email);
+
+                if ($firebase_user) {
+                    $this->auth->deleteUser($firebase_uid);
+                    $this->auth->createUser([
+                        'email' => $user->email,
+                        'uid' => $user->uid,
+                    ]);
+                }
+            } else {
+                $user->first_name = $verified_id_token->claims()->get('name') ?? 'Necessi User';
+                $user->last_name = $verified_id_token->claims()->get('family_name') ?? '';
+                $user->uid = $firebase_uid;
+            }
 
             if ($user->email_verified_at == null) {
                 $user->email_verified_at = now();
                 $user->save();
-            }
-
-            $firebase_user = $this->auth->getUserByEmail($user->email);
-
-            if ($firebase_user) {
-                $this->auth->deleteUser($firebase_uid);
-                $this->auth->createUser([
-                    'email' => $user->email,
-                    'uid' => $user->uid,
-                ]);
             }
 
             if (! $user->preferences) {
