@@ -11,7 +11,8 @@ class UserBankObserver implements ShouldQueue
     /**
      * Handle the UserBank "created" event.
      */
-    public function created(UserBank $userBank): void {
+    public function created(UserBank $userBank): void
+    {
         // $stripe_service = app(StripeService::class);
         // $stripe_service->add_bank($userBank->user, $userBank->id);
     }
@@ -27,7 +28,8 @@ class UserBankObserver implements ShouldQueue
     /**
      * Handle the UserBank "deleted" event.
      */
-    public function deleted(UserBank $userBank): void {
+    public function deleted(UserBank $userBank): void
+    {
         $stripe_service = app(StripeService::class);
         $stripe_service->detach_bank($userBank->user, $userBank->id);
     }

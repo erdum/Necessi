@@ -2,10 +2,10 @@
 
 namespace App\Services\Admin;
 
-use Illuminate\Support\Facades\DB;
-use App\Models\User;
 use App\Models\Post;
 use App\Models\PostBid;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class Dashboard
 {
@@ -327,11 +327,11 @@ class Dashboard
 
             if ($point->type == 'service') {
                 $points['services'] = [
-                    'value' => $point->value
+                    'value' => $point->value,
                 ];
-            } else if ($point->type == 'item') {
+            } elseif ($point->type == 'item') {
                 $points['items'] = [
-                    'value' => $point->value
+                    'value' => $point->value,
                 ];
             }
         };

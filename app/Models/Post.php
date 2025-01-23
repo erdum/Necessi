@@ -36,13 +36,13 @@ class Post extends Model
                     && $bid->order?->received_by_lender == null
                     && $bid->user_id == auth()->user()->id
                         ? 'past due' : $status;
-                        
+
                 $status = $bid->order?->received_by_lender
                     && $bid->user_id == auth()->user()->id
                         ? 'completed' : $status;
-                
+
                 $status = $bid->order?->received_by_borrower
-                    && $bid->order?->received_by_lender == null 
+                    && $bid->order?->received_by_lender == null
                     && $bid->user_id !== auth()->user()->id
                         ? 'completed' : $status;
 

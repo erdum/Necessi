@@ -15,8 +15,11 @@ class SendAdminNotification implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $title;
+
     protected $body;
+
     protected $image;
+
     protected $additional_data;
 
     public function __construct(
@@ -24,8 +27,7 @@ class SendAdminNotification implements ShouldQueue
         $body,
         $image,
         $additional_data
-    )
-    {
+    ) {
         $this->title = $title;
         $this->body = $body;
         $this->image = $image;

@@ -1,11 +1,11 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\FirebaseAuthController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -52,7 +52,7 @@ Route::prefix('admin')->group(function () {
 
         // Get dashboard data
         Route::get(
-            '/dashboard', 
+            '/dashboard',
             [AdminController::class, 'get_dashboard']
         );
 
@@ -70,13 +70,13 @@ Route::prefix('admin')->group(function () {
 
         // Get Users
         Route::get(
-            '/users', 
+            '/users',
             [AdminController::class, 'get_users']
         );
 
         // Get User Details
         Route::get(
-            '/user-details/{uid}', 
+            '/user-details/{uid}',
             [AdminController::class, 'user_details']
         );
 
@@ -130,13 +130,13 @@ Route::prefix('admin')->group(function () {
 
         // Get Revenues
         Route::get(
-            '/revenues', 
+            '/revenues',
             [AdminController::class, 'get_revenues']
         );
 
         // Get Orders
         Route::get(
-            '/orders', 
+            '/orders',
             [AdminController::class, 'get_orders']
         );
 

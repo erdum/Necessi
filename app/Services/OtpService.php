@@ -75,7 +75,9 @@ class OtpService
 
             if ($otp) {
 
-                if (self::is_expired($identifier)) return false;
+                if (self::is_expired($identifier)) {
+                    return false;
+                }
 
                 cache(
                     [$identifier => [

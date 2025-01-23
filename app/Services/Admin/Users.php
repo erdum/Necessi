@@ -2,12 +2,10 @@
 
 namespace App\Services\Admin;
 
-use App\Exceptions;
-use App\Models\Admin;
-use App\Models\User;
-use App\Models\PostBid;
-use App\Services\StripeService;
 use App\Models\OrderHistory;
+use App\Models\PostBid;
+use App\Models\User;
+use App\Services\StripeService;
 
 class Users
 {
@@ -20,8 +18,7 @@ class Users
         $offline_users = [];
 
         $users->getCollection()->each(
-            function ($user) use 
-            (
+            function ($user) use (
                 &$all_users,
                 &$active_users,
                 &$offline_users
@@ -30,10 +27,10 @@ class Users
                 $user_ref = $firestore->collection('users')
                     ->document($user->uid);
                 $user_snapshot = $user_ref->snapshot();
-        
+
                 if ($user_snapshot->exists()) {
                     $user_data = $user_snapshot->data();
-        
+
                     $user_entry = [
                         'user_id' => $user->id,
                         'user_uid' => $user->uid,
@@ -42,9 +39,9 @@ class Users
                         'user_avatar' => $user->avatar,
                         'is_online' => $user_data['is_online'] ?? false,
                     ];
-        
+
                     $all_users[] = $user_entry;
-        
+
                     if ($user_data['is_online'] === true) {
                         $active_users[] = $user_entry;
                     } else {
@@ -69,7 +66,7 @@ class Users
         $firebase_user = $firestore->collection('users')->document($uid);
         $user = User::where('uid', $uid)->first();
         $snapshot = $firebase_user->snapshot();
-        $stripe_service = new StripeService();
+        $stripe_service = app(StripeService::class);
         $user_details = [];
 
         $balance = $stripe_service->get_account_balance(
@@ -80,7 +77,7 @@ class Users
             'bid',
             function ($query) use ($user) {
                 $query->where('user_id', $user->id)
-                      ->where('status', 'accepted');
+                    ->where('status', 'accepted');
             })
             ->whereNotNull('transaction_id')
             ->orderBy('created_at', 'desc')
@@ -101,18 +98,18 @@ class Users
         });
 
         $user_post_ids = $user->posts()->pluck('id');
-        $user_spent = PostBid::whereIn('post_id',$user_post_ids)
+        $user_spent = PostBid::whereIn('post_id', $user_post_ids)
             ->where('status', 'accepted')
             ->WhereHas('order')
             ->sum('amount');
 
         if ($snapshot->exists()) {
             $user_data = $snapshot->data();
-    
+
             $user_details = [
                 'user_id' => $user_data['id'],
-                'user_uid' => $user_data['uid'],  
-                'user_name' => ($user_data['first_name'] ?? 'Unknown') . ' ' . ($user_data['last_name'] ?? ''),
+                'user_uid' => $user_data['uid'],
+                'user_name' => ($user_data['first_name'] ?? 'Unknown').' '.($user_data['last_name'] ?? ''),
                 'email' => $user_data['email'],
                 'user_avatar' => $user_data['avatar'] ?? null,
                 'is_online' => $user_data['is_online'] ?? false,
@@ -120,8 +117,8 @@ class Users
                 'total_revenue' => $total_revenue_amount,
                 'spent_amount' => $user_spent,
             ];
-        }      
-    
+        }
+
         return [
             'user' => $user_details,
             'user_posts' => $user->posts,

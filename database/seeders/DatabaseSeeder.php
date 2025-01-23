@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
         \App\Models\Admin::factory()->create();
         \App\Models\Admin::factory()->create([
             'name' => 'Touqeer',
-            'email' => 'touqeer.hassan@launchbox.pk'
+            'email' => 'touqeer.hassan@launchbox.pk',
         ]);
 
         \App\Models\User::factory(5)->create();

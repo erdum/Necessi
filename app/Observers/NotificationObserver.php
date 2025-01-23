@@ -23,7 +23,7 @@ class NotificationObserver implements ShouldQueue
             $notification->additional_data['connection_request_id'] ?? 0
         );
 
-        if($notification->type !== 'message'){
+        if ($notification->type !== 'message') {
             $is_request_accepted = $connection_request?->status == 'accepted';
             $is_request_rejected = $connection_request?->status == 'rejected';
             $is_connection_request = (! ($is_request_accepted || $is_request_rejected)) && str_contains(
@@ -34,7 +34,7 @@ class NotificationObserver implements ShouldQueue
 
         $other_party_user = User::find($notification->additional_data['sender_id']);
         $chat_id = $connection_request?->chat_id ?? null;
-        
+
         $data = [
             'type' => $notification->additional_data['notification_type'] ?? $notification->type,
             'title' => $notification->title,
@@ -53,7 +53,7 @@ class NotificationObserver implements ShouldQueue
             'post_id' => $notification->additional_data['post_id'] ?? null,
             'chat_id' => $chat_id,
             'bid_chip' => $notification->additional_data['bid_chip'] ?? null,
-            'bid_id' => $notification->additional_data['bid_id'] ?? null
+            'bid_id' => $notification->additional_data['bid_id'] ?? null,
         ];
 
         $db->collection('users')->document($notification->user->uid)
@@ -75,7 +75,7 @@ class NotificationObserver implements ShouldQueue
             $notification->additional_data['connection_request_id'] ?? 0
         );
 
-        if($notification->type !== 'message'){
+        if ($notification->type !== 'message') {
             $is_request_accepted = $connection_request?->status == 'accepted';
             $is_request_rejected = $connection_request?->status == 'rejected';
             $is_connection_request = (! ($is_request_accepted || $is_request_rejected)) && str_contains(

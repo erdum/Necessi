@@ -3,7 +3,6 @@
 namespace App\Services\Admin;
 
 use App\Models\Notification;
-use App\Jobs\SendAdminNotification;
 use App\Services\FirebaseNotificationService;
 
 class Notifications

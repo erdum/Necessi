@@ -2,12 +2,11 @@
 
 namespace App\Services\Admin;
 
-use App\Models\Report;
-use App\Models\User;
 use App\Models\Post;
 use App\Models\PostComment;
+use App\Models\Report;
+use App\Models\User;
 use App\Services\StripeService;
-use Illuminate\Pagination\LengthAwarePaginator;
 
 class Reports
 {
@@ -59,12 +58,14 @@ class Reports
                 ->document($reported_entity->uid)
                 ->snapshot();
 
-            if ($user_snap->exists()) $user_firestore_data = $user_snap->data();
+            if ($user_snap->exists()) {
+                $user_firestore_data = $user_snap->data();
+            }
 
             $stripe_service = app(StripeService::class);
             $user_balance = $stripe_service->get_account_balance(
                 $reported_entity
-            )['available'][0]['amount'] / 100;;
+            )['available'][0]['amount'] / 100;
 
             return [
                 'reporter' => [
@@ -86,7 +87,7 @@ class Reports
                     'wallet_balance' => $user_balance,
                 ],
             ];
-        } else if ($reported_entity instanceof Post) {
+        } elseif ($reported_entity instanceof Post) {
 
             return [
                 'reporter' => [
@@ -118,11 +119,10 @@ class Reports
                     'likes_count' => $reported_entity->likes()->count(),
                 ],
             ];
-        } else if ($reported_entity instanceof PostComment) {
+        } elseif ($reported_entity instanceof PostComment) {
             // Admin panel doesn't have Report type Post Comment
         }
     }
 
-    public static function deactivate_user(User $user)
-    {}
+    public static function deactivate_user(User $user) {}
 }

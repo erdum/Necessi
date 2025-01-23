@@ -3,13 +3,13 @@
 namespace App\Services;
 
 use App\Exceptions;
-use App\Models\Notification as NotificationModel;
-use App\Models\User;
-use App\Models\Post;
-use App\Models\ConnectionRequest;
-use App\Models\UserNotificationDevice;
-use App\Jobs\SendNotification;
 use App\Jobs\SendAdminNotification;
+use App\Jobs\SendNotification;
+use App\Models\ConnectionRequest;
+use App\Models\Notification as NotificationModel;
+use App\Models\Post;
+use App\Models\User;
+use App\Models\UserNotificationDevice;
 
 enum NotificationType: string
 {
@@ -44,35 +44,34 @@ enum NotificationData
         User $receiver_user,
         User $sender_user,
         Post|ConnectionRequest|null $post
-    ): array
-    {
+    ): array {
         return match ($this) {
             self::PICKUP_DATE_REMINDER => [
                 'type' => NotificationType::TRANSACTION,
                 'receiver_user' => $receiver_user,
                 'title' => $receiver_user->full_name,
-                'body' => "Your order pickup date as arrived, please mark it if you have received the item",
+                'body' => 'Your order pickup date as arrived, please mark it if you have received the item',
                 'image' => $sender_user->avatar ?? '',
                 'additional_data' => [
                     'description' => $sender_user->about,
                     'sender_id' => $sender_user->id,
                     'post_id' => $post?->id,
                     'notification_type' => 'bid_canceled',
-                ]
+                ],
             ],
 
             self::RETURN_DATE_REMINDER => [
                 'type' => NotificationType::TRANSACTION,
                 'receiver_user' => $receiver_user,
                 'title' => $receiver_user->full_name,
-                'body' => "Your order return date as arrived, please mark it if you have received the item",
+                'body' => 'Your order return date as arrived, please mark it if you have received the item',
                 'image' => $sender_user->avatar ?? '',
                 'additional_data' => [
                     'description' => $sender_user->about,
                     'sender_id' => $sender_user->id,
                     'post_id' => $post?->id,
                     'notification_type' => 'bid_canceled',
-                ]
+                ],
             ],
 
             self::ORDER_PAYMENT_REMINDER => [
@@ -86,7 +85,7 @@ enum NotificationData
                     'sender_id' => $sender_user->id,
                     'post_id' => $post?->id,
                     'notification_type' => 'post_details',
-                ]
+                ],
             ],
 
             self::ORDER_STATUS_CHANGED => [
@@ -100,7 +99,7 @@ enum NotificationData
                     'sender_id' => $sender_user->id,
                     'post_id' => $post?->id,
                     'notification_type' => $post?->order_status,
-                ]
+                ],
             ],
 
             self::ORDER_PAYMENT_SUCCESSFULL => [
@@ -115,7 +114,7 @@ enum NotificationData
                     'post_id' => $post?->id,
                     'bid_id' => $post->bids[0]->id,
                     'notification_type' => 'bid_payment_complete',
-                ]
+                ],
             ],
 
             self::BID_RECEIVED => [
@@ -136,7 +135,7 @@ enum NotificationData
                 'type' => NotificationType::BID,
                 'receiver_user' => $receiver_user,
                 'title' => $receiver_user->full_name,
-                'body' => $receiver_user->id == $post?->user_id ? "You accepted a bid for {$post?->title}. Payment must be made within 24 hours to confirm the bid." : "Your bid has been accepted! View details and next steps.",
+                'body' => $receiver_user->id == $post?->user_id ? "You accepted a bid for {$post?->title}. Payment must be made within 24 hours to confirm the bid." : 'Your bid has been accepted! View details and next steps.',
                 'image' => $sender_user->avatar ?? '',
                 'additional_data' => [
                     'description' => $sender_user->about,
@@ -147,14 +146,14 @@ enum NotificationData
                         : 'bid_accepted',
                     'bid_id' => $post->bids[0]->id,
                     'bid_chip' => 0,
-                ]
+                ],
             ],
 
             self::BID_REJECTED => [
                 'type' => NotificationType::BID,
                 'receiver_user' => $receiver_user,
                 'title' => $receiver_user->full_name,
-                'body' => " Unfortunately, your bid was rejected. View details to try again",
+                'body' => ' Unfortunately, your bid was rejected. View details to try again',
                 'image' => $sender_user->avatar ?? '',
                 'additional_data' => [
                     'description' => $sender_user->about,
@@ -162,56 +161,56 @@ enum NotificationData
                     'post_id' => $post?->id,
                     'notification_type' => 'bid_rejected',
                     'bid_chip' => 1,
-                ]
+                ],
             ],
 
             self::POST_LIKED => [
                 'type' => NotificationType::ACTIVITY,
                 'receiver_user' => $receiver_user,
                 'title' => $sender_user->full_name,
-                'body' => " has liked your post",
+                'body' => ' has liked your post',
                 'image' => $sender_user->avatar ?? '',
                 'additional_data' => [
                     'description' => $sender_user->about,
                     'sender_id' => $sender_user->id,
                     'post_id' => $post?->id,
                     'notification_type' => 'post_details',
-                ]
+                ],
             ],
 
             self::POST_COMMENT => [
                 'type' => NotificationType::ACTIVITY,
                 'receiver_user' => $receiver_user,
                 'title' => $sender_user->full_name,
-                'body' => " has commented on your post",
+                'body' => ' has commented on your post',
                 'image' => $sender_user->avatar ?? '',
                 'additional_data' => [
                     'description' => $sender_user->about,
                     'sender_id' => $sender_user->id,
                     'post_id' => $post?->id,
                     'notification_type' => 'post_details',
-                ]
+                ],
             ],
 
             self::ACCEPTED_BID_CANCELED => [
                 'type' => NotificationType::BID,
                 'receiver_user' => $receiver_user,
                 'title' => $receiver_user->full_name,
-                'body' => " your accepted bid has been canceled",
+                'body' => ' your accepted bid has been canceled',
                 'image' => $sender_user->avatar ?? '',
                 'additional_data' => [
                     'description' => $sender_user->about,
                     'sender_id' => $sender_user->id,
                     'post_id' => $post?->id,
                     'notification_type' => 'bid_canceled',
-                ]
+                ],
             ],
 
             self::CONNECTION_REQUEST_SENT => [
                 'type' => NotificationType::ACTIVITY,
                 'receiver_user' => $receiver_user,
                 'title' => $sender_user->full_name,
-                'body' => " has sent you a connection request",
+                'body' => ' has sent you a connection request',
                 'image' => $sender_user->avatar ?? '',
                 'additional_data' => [
                     'user_name' => $sender_user->full_name,
@@ -221,14 +220,14 @@ enum NotificationData
                     'connection_request_id' => $post?->id,
                     'is_connection_request' => true,
                     'notification_type' => 'connection',
-                ]
+                ],
             ],
 
             self::CONNECTION_REQUEST_ACCEPTED => [
                 'type' => NotificationType::ACTIVITY,
                 'receiver_user' => $receiver_user,
                 'title' => $sender_user->full_name,
-                'body' => " has accept your connection request",
+                'body' => ' has accept your connection request',
                 'image' => $sender_user->avatar ?? '',
                 'additional_data' => [
                     'user_name' => $sender_user->full_name,
@@ -237,14 +236,14 @@ enum NotificationData
                     'sender_id' => $sender_user->id,
                     'connection_request_id' => $post?->id,
                     'notification_type' => 'connection',
-                ]
+                ],
             ],
 
             self::NEW_MESSAGE => [
                 'type' => NotificationType::MESSAGE,
                 'receiver_user' => $receiver_user,
                 'title' => $sender_user->full_name,
-                'body' => " has sent you a message",
+                'body' => ' has sent you a message',
                 'image' => $sender_user->avatar ?? '',
                 'additional_data' => [
                     'other_party_id' => $sender_user->id,
@@ -253,34 +252,34 @@ enum NotificationData
                     'sender_id' => $sender_user->id,
                     'connection_request_id' => $post?->id,
                     'chat_id' => $post?->chat_id,
-                ]
+                ],
             ],
 
             self::NEW_SHARE_POST_MESSAGE => [
                 'type' => NotificationType::MESSAGE,
                 'receiver_user' => $receiver_user,
                 'title' => $sender_user->full_name,
-                'body' => " has shared a post with you",
+                'body' => ' has shared a post with you',
                 'image' => $sender_user->avatar ?? '',
                 'additional_data' => [
                     'description' => $sender_user->about,
                     'sender_id' => $sender_user->id,
                     'connection_request_id' => $post?->id,
-                ]
+                ],
             ],
 
             self::POST_REVIEW => [
                 'type' => NotificationType::ACTIVITY,
                 'receiver_user' => $receiver_user,
                 'title' => $sender_user->full_name,
-                'body' => " has feedback on your post",
+                'body' => ' has feedback on your post',
                 'image' => $sender_user->avatar ?? '',
                 'additional_data' => [
                     'description' => $sender_user->about,
                     'sender_id' => $sender_user->id,
                     'post_id' => $post?->id,
                     'notification_type' => 'feedback',
-                ]
+                ],
             ],
         };
     }
@@ -385,7 +384,7 @@ class FirebaseNotificationService
         );
 
         return [
-            'message' => 'Notifications successfully sent'
+            'message' => 'Notifications successfully sent',
         ];
     }
 

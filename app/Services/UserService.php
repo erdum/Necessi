@@ -9,7 +9,6 @@ use App\Models\Notification;
 use App\Models\Otp;
 use App\Models\PostBid;
 use App\Models\PostLike;
-use App\Models\ReportedUser;
 use App\Models\Review;
 use App\Models\User;
 use App\Models\UserBank;
@@ -23,13 +22,15 @@ use Google\Cloud\Firestore\Filter;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
-use App\Services\NotificationData;
 
 class UserService
 {
     protected $post_service;
+
     protected $notification_service;
+
     protected $stripe_service;
+
     protected $firestore;
 
     public function __construct(
@@ -94,9 +95,9 @@ class UserService
         int $receiver_id,
     ) {
         $existing_request = ConnectionRequest::where([
-                ['sender_id', '=', $sender_id],
-                ['receiver_id', '=', $receiver_id],
-            ])
+            ['sender_id', '=', $sender_id],
+            ['receiver_id', '=', $receiver_id],
+        ])
             ->orWhere([
                 ['sender_id', '=', $receiver_id],
                 ['receiver_id', '=', $sender_id],
@@ -531,7 +532,7 @@ class UserService
                 'title' => $recent_post->title,
                 'description' => $recent_post->description,
                 'location' => $recent_post->location,
-                'location_details' => $recent_post->city . ', ' . $recent_post->state,
+                'location_details' => $recent_post->city.', '.$recent_post->state,
                 'lat' => $recent_post->lat,
                 'long' => $recent_post->long,
                 'distance' => $distance ?? null,
@@ -627,10 +628,14 @@ class UserService
                         $nearby_users[] = $user;
                     }
 
-                    if (count($nearby_users) >= 9) break;
+                    if (count($nearby_users) >= 9) {
+                        break;
+                    }
                 }
 
-                if (count($nearby_users) >= 9) return false;
+                if (count($nearby_users) >= 9) {
+                    return false;
+                }
             });
 
         return $nearby_users;
@@ -653,9 +658,9 @@ class UserService
     public function cancel_connection_request(User $user, User $other_user)
     {
         $connection_request = ConnectionRequest::where([
-                ['sender_id', '=', $user->id],
-                ['receiver_id', '=', $other_user->id],
-            ])
+            ['sender_id', '=', $user->id],
+            ['receiver_id', '=', $other_user->id],
+        ])
             ->orWhere([
                 ['sender_id', '=', $other_user->id],
                 ['receiver_id', '=', $user->id],
@@ -740,8 +745,7 @@ class UserService
     public function decline_connection_request(
         User $user,
         User $other_user
-    )
-    {
+    ) {
         $connection = ConnectionRequest::where([
             ['sender_id', '=', $user->id],
             ['receiver_id', '=', $other_user->id],
@@ -801,7 +805,9 @@ class UserService
 
         $connection->delete();
 
-        if ($connection->chat_id) $this->remove_chat($connection->chat_id);
+        if ($connection->chat_id) {
+            $this->remove_chat($connection->chat_id);
+        }
 
         return [
             'message' => 'user Disconnected Successfully',
@@ -844,14 +850,14 @@ class UserService
                 'receiver',
             ])
             ->paginate(2);
-    
+
         $connections->getCollection()->transform(function ($con) use ($user) {
             $connected_user = $con->sender['id'] == $user->id
                 ? $con->receiver
                 : $con->sender;
-    
+
             $connected_user['chat_id'] = $con->chat_id;
-    
+
             return [
                 'id' => $con->id,
                 'status' => $con->status,
@@ -945,21 +951,21 @@ class UserService
             ->whereNotIn('status', ['rejected', 'accepted'])
             ->with('sender:id,first_name,last_name,avatar')
             ->paginate(2);
-    
-            $connection_requests->getCollection()->transform(
-                function ($con) {
-                    return [
-                        'id' => $con->id,
-                        'sender_id' => $con->sender_id,
-                        'receiver_id' => $con->receiver_id,
-                        'status' => $con->status,
-                        'chat_id' => $con->chat_id,
-                        'created_at' => $con->created_at,
-                        'updated_at' => $con->updated_at,
-                        'sender' => $con->sender,
-                    ];
-                }
-            );
+
+        $connection_requests->getCollection()->transform(
+            function ($con) {
+                return [
+                    'id' => $con->id,
+                    'sender_id' => $con->sender_id,
+                    'receiver_id' => $con->receiver_id,
+                    'status' => $con->status,
+                    'chat_id' => $con->chat_id,
+                    'created_at' => $con->created_at,
+                    'updated_at' => $con->updated_at,
+                    'sender' => $con->sender,
+                ];
+            }
+        );
 
         return $connection_requests;
     }
@@ -1055,7 +1061,7 @@ class UserService
                 'chat_id' => $chat_response['chat_id'],
             ];
         });
-    
+
         return $other_users;
     }
 
@@ -1260,9 +1266,9 @@ class UserService
     {
         return $user->blocked_users->map(function ($blocked_user) use ($user) {
             $chat_id = ConnectionRequest::where([
-                    ['sender_id', '=', $user->id],
-                    ['receiver_id', '=', $blocked_user->id],
-                ])
+                ['sender_id', '=', $user->id],
+                ['receiver_id', '=', $blocked_user->id],
+            ])
                 ->orWhere([
                     ['sender_id', '=', $blocked_user->id],
                     ['receiver_id', '=', $user->id],
@@ -1336,7 +1342,7 @@ class UserService
         $reported_user->reports()->create([
             'reporter_id' => $user->id,
             'reason_type' => $reason_type,
-            'other_reason' => $other_reason ?: null
+            'other_reason' => $other_reason ?: null,
         ]);
 
         return [
@@ -1566,7 +1572,9 @@ class UserService
 
         foreach ($points as $point) {
 
-            if ($point->value > $max_value) $max_value = $point->value;
+            if ($point->value > $max_value) {
+                $max_value = $point->value;
+            }
         }
 
         return [

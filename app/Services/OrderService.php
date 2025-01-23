@@ -7,12 +7,10 @@ use App\Models\ConnectionRequest;
 use App\Models\OrderHistory;
 use App\Models\Post;
 use App\Models\PostBid;
-use App\Models\Review;
 use App\Models\Transaction;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
-use App\Services\NotificationData;
+use Illuminate\Support\Facades\DB;
 
 class OrderService
 {
@@ -85,10 +83,9 @@ class OrderService
                         ['receiver_id', '=', $user->id],
                     ])
                     ->value('chat_id');
-                
+
                 $user_feedback = $post->reviews()->where('user_id', $user->id)
                     ->exists();
-
 
                 if ($post->type == 'item') {
                     array_push($items, [
@@ -254,7 +251,7 @@ class OrderService
             'post_user_id' => $post->user->id,
             'avatar' => $post->user->avatar,
             'location' => $post->location,
-            'location_details' => $post->city . ', ' . $post->state,
+            'location_details' => $post->city.', '.$post->state,
             'distance' => $distance,
             'transaction_id' => $order->transaction_id,
             'title' => $post->title,
@@ -463,7 +460,7 @@ class OrderService
                         'day' => $point->day,
                     ]
                 );
-            } else if ($point->type == 'service') {
+            } elseif ($point->type == 'service') {
 
                 if ($point->value > $max_services_point) {
                     $max_services_point = $point->value;

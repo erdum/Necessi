@@ -10,11 +10,9 @@ use App\Models\PostBid;
 use App\Models\PostComment;
 use App\Models\PostImage;
 use App\Models\PostLike;
-use App\Models\Report;
 use App\Models\Review;
 use App\Models\User;
 use Carbon\Carbon;
-use App\Services\NotificationData;
 
 class PostService
 {
@@ -232,11 +230,11 @@ class PostService
         $receiver_user = $bid->user;
 
         foreach ([$user, $receiver_user] as $not_user) {
-            $notification_receiver = $not_user->id === $user->id 
+            $notification_receiver = $not_user->id === $user->id
               ? $receiver_user : $user;
-            $sender_user = $not_user->id === $user->id 
+            $sender_user = $not_user->id === $user->id
               ? $user : $receiver_user;
-    
+
             $this->notification_service->push_notification(
                 ...NotificationData::BID_ACCEPTED->get(
                     $notification_receiver,
@@ -265,9 +263,9 @@ class PostService
         }
 
         if ($bid->status == 'rejected') {
-             throw new Exceptions\BaseException(
-                 'This bid has already been rejected.', 400
-             );
+            throw new Exceptions\BaseException(
+                'This bid has already been rejected.', 400
+            );
         }
 
         $bid->status = 'rejected';
@@ -291,23 +289,23 @@ class PostService
     public function get_user_posts(User $user)
     {
         $posts = $user->posts()->orderBy('created_at', 'desc')->paginate(2);
-    
+
         $posts->getCollection()->transform(function ($post) use ($user) {
             $current_user_like = PostLike::where('user_id', $user->id)
                 ->where('post_id', $post->id)
                 ->exists();
-    
+
             $distance = $this->calculateDistance(
                 $user->lat,
                 $user->long,
                 $post->lat,
                 $post->long,
             );
-    
+
             $order_status = $post->bids->filter(function ($bid) {
                 return $bid->order !== null;
             })->isNotEmpty();
-    
+
             return [
                 'post_id' => $post->id,
                 'first_name' => $user->first_name,
@@ -318,15 +316,15 @@ class PostService
                 'title' => $post->title,
                 'description' => $post->description,
                 'location' => $post->location,
-                'location_details' => $post->city . ', ' . $post->state,
+                'location_details' => $post->city.', '.$post->state,
                 'lat' => $post->lat,
                 'long' => $post->long,
-                'distance' => round($distance, 2) . ' miles away',
+                'distance' => round($distance, 2).' miles away',
                 'budget' => $post->budget,
                 'duration' => ($post->start_time && $post->end_time)
-                    ? Carbon::parse($post->start_time)->format('h:i A') . ' - ' . Carbon::parse($post->end_time)->format('h:i A')
+                    ? Carbon::parse($post->start_time)->format('h:i A').' - '.Carbon::parse($post->end_time)->format('h:i A')
                     : null,
-                'date' => Carbon::parse($post->start_date)->format('d M') . ' - ' . Carbon::parse($post->end_date)->format('d M y'),
+                'date' => Carbon::parse($post->start_date)->format('d M').' - '.Carbon::parse($post->end_date)->format('d M y'),
                 'start_date' => $post->start_date->format('d M Y'),
                 'end_date' => $post->end_date->format('d M Y'),
                 'start_time' => $post->start_time?->format('h:i A'),
@@ -344,9 +342,9 @@ class PostService
                 }),
             ];
         });
-    
+
         return $posts;
-    }    
+    }
 
     public function get_user_posts_reviews(
         User $user,
@@ -466,12 +464,12 @@ class PostService
                         $query->where('blocked_id', $user->id);
                     }
                 )
-                ->whereDoesntHave(
-                    'user.blocker_users',
-                    function ($query) use ($user) {
-                        $query->where('blocker_id', $user->id);
-                    }
-                );
+                    ->whereDoesntHave(
+                        'user.blocker_users',
+                        function ($query) use ($user) {
+                            $query->where('blocker_id', $user->id);
+                        }
+                    );
             })
             ->orderBy('created_at', 'desc')
             ->with('user:id,first_name,last_name,avatar', 'bids.order')
@@ -507,7 +505,7 @@ class PostService
                 'title' => $post->title,
                 'description' => $post->description,
                 'location' => $post->location,
-                'location_details' => $post->city . ', ' . $post->state,
+                'location_details' => $post->city.', '.$post->state,
                 'lat' => $post->lat,
                 'long' => $post->long,
                 'distance' => round($distance ?? rand(2, 50), 2).' miles away',
@@ -631,7 +629,7 @@ class PostService
         $comment->reports()->create([
             'reporter_id' => $user->id,
             'reason_type' => $reason_type,
-            'other_reason' => $other_reason ?: null
+            'other_reason' => $other_reason ?: null,
         ]);
 
         return [
@@ -659,7 +657,7 @@ class PostService
         $post->reports()->create([
             'reporter_id' => $user->id,
             'reason_type' => $reason_type,
-            'other_reason' => $other_reason ?: null
+            'other_reason' => $other_reason ?: null,
         ]);
 
         return [
@@ -741,7 +739,7 @@ class PostService
                 : null,
             'date' => $post_details->start_date->format('d M').' - '.$post_details->end_date->format('d M Y'),
             'location' => $post_details->location,
-            'location_details' => $post_details->city . ', ' . $post_details->state,
+            'location_details' => $post_details->city.', '.$post_details->state,
             'distance' => round($distance, 2).' miles away',
             'title' => $post_details->title,
             'description' => $post_details->description,
@@ -927,7 +925,7 @@ class PostService
 
         $posts = Post::where(
             function ($query) use ($search_query, $search_terms) {
-                $query->where('title', 'like', '%'. $search_query .'%');
+                $query->where('title', 'like', '%'.$search_query.'%');
 
                 foreach ($search_terms as $term) {
                     $query->orWhere('description', 'like', '%'.$term.'%');
@@ -973,19 +971,19 @@ class PostService
                         : null,
                     'date' => Carbon::parse($post->start_date)->format('d M').' - '.Carbon::parse($post->end_date)->format('d M y'),
                     'location' => $post->location,
-                    'location_details' => $post->city . ', ' . $post->state,
+                    'location_details' => $post->city.', '.$post->state,
                     'distance' => round($distance, 2).' miles away',
                     'title' => $post->title,
                     'description' => $post->description,
                 ];
             }
         );
-        
+
         $users = User::where(
             function ($query) use ($search_terms) {
                 foreach ($search_terms as $term) {
-                    $query->orWhere('first_name', 'like', '%'. $term .'%')
-                        ->orWhere('last_name', 'like', '%'. $term .'%');
+                    $query->orWhere('first_name', 'like', '%'.$term.'%')
+                        ->orWhere('last_name', 'like', '%'.$term.'%');
                 }
             }
         )
@@ -1042,7 +1040,7 @@ class PostService
                 'avatar' => $user_bid->user->avatar,
                 'type' => $user_bid->post->type,
                 'location' => $user_bid->post->location,
-                'location_details' => $user_bid->post->city . ', ' . $user_bid->post->state,
+                'location_details' => $user_bid->post->city.', '.$user_bid->post->state,
                 'distance' => round($distance, 2).' miles away',
                 'title' => $user_bid->post->title,
                 'decscription' => $user_bid->post->description,
@@ -1062,7 +1060,7 @@ class PostService
         }
 
         $user_bids = PostBid::where('user_id', $user->id)->orderBy('created_at', 'desc')
-         ->get();
+            ->get();
         $placed_bids = [
             'pending' => [],
             'accepted' => [],
@@ -1160,7 +1158,7 @@ class PostService
             'avatar' => $post->user->avatar,
             'post_type' => $post->type,
             'location' => $post->location,
-            'location_details' => $post->city . ', ' . $post->state,
+            'location_details' => $post->city.', '.$post->state,
             'created_at' => $post->created_at->diffForHumans(),
             'distance' => round($distance, 2).' miles away',
             'title' => $post->title,
@@ -1230,7 +1228,7 @@ class PostService
                 'avatar' => $received_bid->user->avatar,
                 'budget' => $received_bid->post->budget,
                 'location' => $received_bid->post->location,
-                'location_details' => $received_bid->post->city . ', ' . $received_bid->post->state,
+                'location_details' => $received_bid->post->city.', '.$received_bid->post->state,
                 'duration' => ($received_bid->post->start_time && $received_bid->post->end_time)
                     ? Carbon::parse($received_bid->post->start_time)->format('h:i A').' - '.Carbon::parse($received_bid->post->end_time)->format('h:i A')
                     : null,

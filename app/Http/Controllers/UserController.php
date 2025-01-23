@@ -319,7 +319,7 @@ class UserController extends Controller
     public function create_chat(
         Request $request,
         UserService $user_service
-    ){
+    ) {
         $request->validate([
             'other_party_uids' => 'required|array',
             'other_party_uids.*' => 'exists:users,uid',

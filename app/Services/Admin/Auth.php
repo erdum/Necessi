@@ -3,10 +3,10 @@
 namespace App\Services\Admin;
 
 use App\Exceptions;
+use App\Jobs\SendEmails;
 use App\Models\Admin as AdminModel;
 use App\Services\OtpService;
 use Illuminate\Support\Facades\Hash;
-use App\Jobs\SendEmails;
 
 class Auth
 {
@@ -99,7 +99,7 @@ class Auth
         OtpService::clear_otp($email);
 
         return [
-            'message' => 'Password has been successfully reset'
+            'message' => 'Password has been successfully reset',
         ];
     }
 

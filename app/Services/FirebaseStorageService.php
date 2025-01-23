@@ -5,6 +5,7 @@ namespace App\Services;
 class FirebaseStorageService
 {
     protected $storage;
+
     protected $bucket;
 
     public function __construct()

@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Services\Admin;
 use App\Models\Report;
 use App\Models\User;
 use App\Models\Withdraw;
+use App\Services\Admin;
+use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
@@ -14,7 +14,7 @@ class AdminController extends Controller
     {
         $request->validate([
             'email' => 'required|exists:admins,email',
-            'password' => 'required'
+            'password' => 'required',
         ]);
 
         $response = Admin\Auth::login(

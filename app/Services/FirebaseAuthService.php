@@ -3,16 +3,17 @@
 namespace App\Services;
 
 use App\Exceptions;
+use App\Jobs\SendEmails;
 use App\Models\User;
-use App\Services\OtpService;
 use Illuminate\Support\Facades\Hash;
 use Kreait\Firebase\Exception\Auth\FailedToVerifyToken;
-use App\Jobs\SendEmails;
 
 class FirebaseAuthService
 {
     protected $auth;
+
     protected $user_service;
+
     protected $notification;
 
     public function __construct(
