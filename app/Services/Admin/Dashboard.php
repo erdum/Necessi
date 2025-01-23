@@ -154,7 +154,7 @@ class Dashboard
                     $value = $platform_fee * $sales_yearly_data[$month]->value;
                     $revenue_max_yearly = max($revenue_max_yearly, $value);
 
-                    return $yearly_revenue_points[] = number_format($value, 2);
+                    return $yearly_revenue_points[] = $value;
                 }
 
                 return $yearly_revenue_points[] = '0.00';
@@ -196,7 +196,7 @@ class Dashboard
                     $value = $platform_fee * $sales_monthly_data[$day]->value;
                     $revenue_max_monthly = max($revenue_max_monthly, $value);
 
-                    return $monthly_revenue_points[] = number_format($value, 2);
+                    return $monthly_revenue_points[] = $value;
                 }
 
                 return $monthly_revenue_points[] = '0.00';
@@ -241,7 +241,7 @@ class Dashboard
                     $value = $platform_fee * $sales_weekly_data[$week_day]->value;
                     $revenue_max_weekly = max($revenue_max_weekly, $value);
 
-                    return $weekly_revenue_points[] = number_format($value, 2);
+                    return $weekly_revenue_points[] = $value;
                 }
 
                 return $weekly_revenue_points[] = '0.00';
@@ -250,17 +250,17 @@ class Dashboard
 
         return [
             'yearly' => [
-                'max_value' => number_format($revenue_max_yearly, 2),
+                'max_value' => $revenue_max_yearly,
                 'labels' => $yearly_revenue_labels,
                 'points' => $yearly_revenue_points,
             ],
             'monthly' => [
-                'max_value' => number_format($revenue_max_monthly, 2),
+                'max_value' => $revenue_max_monthly,
                 'labels' => $monthly_revenue_labels,
                 'points' => $monthly_revenue_points,
             ],
             'weekly' => [
-                'max_value' => number_format($revenue_max_weekly, 2),
+                'max_value' => $revenue_max_weekly,
                 'labels' => $weekly_revenue_labels,
                 'points' => $weekly_revenue_points,
             ],
@@ -413,7 +413,7 @@ class Dashboard
                     $value = $users_yearly_data[$month]->value;
                     $yearly_max = max($yearly_max, $value);
 
-                    return $yearly_users_points[] = number_format($value, 2);
+                    return $yearly_users_points[] = $value;
                 }
 
                 return $yearly_users_points[] = '0.00';
@@ -446,7 +446,7 @@ class Dashboard
                     $value = $users_last_month_data[$day]->value;
                     $last_month_max = max($last_month_max, $value);
 
-                    return $last_month_users_points[] = number_format($value, 2);
+                    return $last_month_users_points[] = $value;
                 }
 
                 return $last_month_users_points[] = '0.00';
@@ -479,7 +479,7 @@ class Dashboard
                     $value = $users_monthly_data[$day]->value;
                     $monthly_max = max($monthly_max, $value);
 
-                    return $monthly_users_points[] = number_format($value, 2);
+                    return $monthly_users_points[] = $value;
                 }
 
                 return $monthly_users_points[] = '0.00';
@@ -514,7 +514,7 @@ class Dashboard
                     $value = $users_weekly_data[$week_day]->value;
                     $weekly_max = max($weekly_max, $value);
 
-                    return $weekly_users_points[] = number_format($value, 2);
+                    return $weekly_users_points[] = $value;
                 }
 
                 return $weekly_users_points[] = '0.00';
@@ -546,7 +546,7 @@ class Dashboard
                     $value = $users_today_data[$hour]->value;
                     $today_max = max($today_max, $value);
 
-                    return $today_users_points[] = number_format($value, 2);
+                    return $today_users_points[] = $value;
                 }
 
                 return $today_users_points[] = '0.00';
@@ -555,27 +555,27 @@ class Dashboard
 
         return [
             'yearly' => [
-                'max_value' => number_format($yearly_max, 2),
+                'max_value' => $yearly_max,
                 'labels' => $yearly_users_labels,
                 'points' => $yearly_users_points,
             ],
             'last_month' => [
-                'max_value' => number_format($last_month_max, 2),
+                'max_value' => $last_month_max,
                 'labels' => $last_month_users_labels,
                 'points' => $last_month_users_points,
             ],
             'monthly' => [
-                'max_value' => number_format($monthly_max, 2),
+                'max_value' => $monthly_max,
                 'labels' => $monthly_users_labels,
                 'points' => $monthly_users_points,
             ],
             'weekly' => [
-                'max_value' => number_format($weekly_max, 2),
+                'max_value' => $weekly_max,
                 'labels' => $weekly_users_labels,
                 'points' => $weekly_users_points,
             ],
             'today' => [
-                'max_value' => number_format($today_max, 2),
+                'max_value' => $today_max,
                 'labels' => $today_users_labels,
                 'points' => $today_users_points,
             ],
@@ -618,7 +618,7 @@ class Dashboard
                     $value = $sales_yearly_data[$month]->value;
                     $sales_max_yearly = max($sales_max_yearly, $value);
 
-                    return $yearly_sales_points[] = number_format($value, 2);
+                    return $yearly_sales_points[] = $value;
                 }
 
                 return $yearly_sales_points[] = '0.00';
@@ -660,7 +660,7 @@ class Dashboard
                     $value = $sales_last_month_data[$month]->value;
                     $sales_max_last_month = max($sales_max_last_month, $value);
 
-                    return $last_month_sales_points[] = number_format($value, 2);
+                    return $last_month_sales_points[] = $value;
                 }
 
                 return $last_month_sales_points[] = '0.00';
@@ -702,7 +702,7 @@ class Dashboard
                     $value = $sales_monthly_data[$month]->value;
                     $sales_max_monthly = max($sales_max_monthly, $value);
 
-                    return $monthly_sales_points[] = number_format($value, 2);
+                    return $monthly_sales_points[] = $value;
                 }
 
                 return $monthly_sales_points[] = '0.00';
@@ -746,7 +746,7 @@ class Dashboard
                     $value = $sales_weekly_data[$month]->value;
                     $sales_max_weekly = max($sales_max_weekly, $value);
 
-                    return $weekly_sales_points[] = number_format($value, 2);
+                    return $weekly_sales_points[] = $value;
                 }
 
                 return $weekly_sales_points[] = '0.00';
@@ -787,7 +787,7 @@ class Dashboard
                     $value = $sales_today_data[$month]->value;
                     $sales_max_today = max($sales_max_today, $value);
 
-                    return $today_sales_points[] = number_format($value, 2);
+                    return $today_sales_points[] = $value;
                 }
 
                 return $today_sales_points[] = '0.00';
@@ -796,27 +796,27 @@ class Dashboard
 
         return [
             'yearly' => [
-                'max_value' => number_format($sales_max_yearly, 2),
+                'max_value' => $sales_max_yearly,
                 'labels' => $yearly_sales_labels,
                 'points' => $yearly_sales_points,
             ],
             'last_month' => [
-                'max_value' => number_format($sales_max_last_month, 2),
+                'max_value' => $sales_max_last_month,
                 'labels' => $last_month_sales_labels,
                 'points' => $last_month_sales_points,
             ],
             'monthly' => [
-                'max_value' => number_format($sales_max_monthly, 2),
+                'max_value' => $sales_max_monthly,
                 'labels' => $monthly_sales_labels,
                 'points' => $monthly_sales_points,
             ],
             'weekly' => [
-                'max_value' => number_format($sales_max_weekly, 2),
+                'max_value' => $sales_max_weekly,
                 'labels' => $weekly_sales_labels,
                 'points' => $weekly_sales_points,
             ],
             'today' => [
-                'max_value' => number_format($sales_max_today, 2),
+                'max_value' => $sales_max_today,
                 'labels' => $today_sales_labels,
                 'points' => $today_sales_points,
             ],
