@@ -708,6 +708,12 @@ class UserService
             $request_notification->save();
         }
 
+        $firestore_chat_exists = $this->chat_exists($user, $other_user->uid);
+
+        if ($firestore_chat_exists) {
+            $connection_request->chat_id = $firestore_chat_exists?->id();
+        }
+
         if ($connection_request->chat_id == null) {
             // $chat = $this->create_chat($user, $other_user);
             // $connection_request->chat_id = $chat['chat_id'];
