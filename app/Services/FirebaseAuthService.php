@@ -215,7 +215,7 @@ class FirebaseAuthService
             $user = User::updateOrCreate(
                 ['email' => $verifiedIdToken->claims()->get('email')],
                 [
-                    'uid' => $firebaseUid
+                    'uid' => $firebaseUid,
                     'first_name' => $verifiedIdToken->claims()->get('name') ?? 'Necessi User',
                     'last_name' => $verifiedIdToken->claims()->get('family_name') ?? '',
                 ]
