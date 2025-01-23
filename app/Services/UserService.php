@@ -307,6 +307,13 @@ class UserService
             }
         );
 
+        $firebase_auth = app('firebase')->createAuth();
+        $firebase_user = $firebase_auth->getUserByEmail($user->email);
+
+        if ($firebase_user) {
+            $firebase_auth->deleteUser($user->uid);
+        }
+
         // Stripe customer account
         // Stripe connect account
         // User chats
