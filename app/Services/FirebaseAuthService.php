@@ -231,7 +231,7 @@ class FirebaseAuthService
                 $this->auth->deleteUser($firebase_uid);
                 $this->auth->createUser([
                     'email' => $user->email,
-                    'uid' => $user->uid
+                    'uid' => $user->uid,
                 ]);
             }
 
