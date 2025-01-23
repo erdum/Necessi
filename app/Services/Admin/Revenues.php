@@ -62,10 +62,8 @@ class Revenues
                     'total_amount' => $withdraw->amount,
                     'platform_fee' => 0,
                     'status' => 'withdrawn',
-                    'total_revenue' => 0,
+                    'total_revenue' => $total_revenue,
                 ];
-
-                $total_revenue -= $withdraw->amount;
 
                 $all[] = $revenue_data;
                 $withdrawn[] = $revenue_data;
