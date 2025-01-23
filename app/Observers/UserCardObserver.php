@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\UserCard;
+use App\Services\StripeService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 class UserCardObserver implements ShouldQueue
@@ -10,9 +11,10 @@ class UserCardObserver implements ShouldQueue
     /**
      * Handle the UserCard "created" event.
      */
-    public function created(UserCard $userCard): void
-    {
-        // $stripe_service = app(\App\Services\StripeService::class);
+    public function created(
+        UserCard $userCard,
+        StripeService $stripe_service
+    ): void {
         // $stripe_service->add_card($userCard->user, $userCard->id);
     }
 
@@ -27,9 +29,10 @@ class UserCardObserver implements ShouldQueue
     /**
      * Handle the UserCard "deleted" event.
      */
-    public function deleted(UserCard $userCard): void
-    {
-        // $stripe_service = app(\App\Services\StripeService::class);
+    public function deleted(
+        UserCard $userCard,
+        StripeService $stripe_service
+    ): void {
         // $stripe_service->detach_bank($userCard->user, $userCard->id);
     }
 

@@ -2,22 +2,14 @@
 
 namespace App\Services;
 
-use Kreait\Firebase\Factory;
-
 class FirebaseStorageService
 {
     protected $storage;
-
     protected $bucket;
 
-    public function __construct(Factory $factory)
+    public function __construct()
     {
-        $firebase = $factory->withServiceAccount(
-            base_path()
-            .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
-        );
-        $this->storage = $firebase->createStorage();
+        $this->storage = app('firebase')->createStorage();
 
         $this->bucket = $this->storage->getBucket(
             config('firebase.projects.app.storage.default_bucket')

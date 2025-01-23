@@ -3,7 +3,6 @@
 namespace App\Observers;
 
 use App\Models\UserPreference;
-use Kreait\Firebase\Factory;
 
 class UserPreferenceObserver
 {
@@ -12,13 +11,7 @@ class UserPreferenceObserver
      */
     public function created(UserPreference $user_preference): void
     {
-        $factory = app(Factory::class);
-        $firebase = $factory->withServiceAccount(
-            base_path()
-            .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
-        );
-        $db = $firebase->createFirestore()->database();
+        $db = app('firebase')->createFirestore()->database();
 
         $data = [
             'chat_status' => $user_preference->user->preferences->who_can_send_messages,
@@ -37,13 +30,7 @@ class UserPreferenceObserver
      */
     public function updated(UserPreference $user_preference): void
     {
-        $factory = app(Factory::class);
-        $firebase = $factory->withServiceAccount(
-            base_path()
-            .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
-        );
-        $db = $firebase->createFirestore()->database();
+        $db = app('firebase')->createFirestore()->database();
 
         $data = [
             'chat_status' => $user_preference->user->preferences?->who_can_send_messages,

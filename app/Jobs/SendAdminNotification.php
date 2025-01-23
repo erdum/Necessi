@@ -7,7 +7,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Kreait\Firebase\Factory;
 use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Messaging\Notification as FirebaseNotification;
 
@@ -39,13 +38,7 @@ class SendAdminNotification implements ShouldQueue
     public function handle(): void
     {
         try {
-            $factory = app(Factory::class);
-            $firebase = $factory->withServiceAccount(
-                base_path()
-                .DIRECTORY_SEPARATOR
-                .config('firebase.projects.app.credentials')
-            );
-            $messaging = $firebase->createMessaging();
+            $messaging = app('firebase')->createMessaging();
 
             $firebaseNotification = FirebaseNotification::create(
                 $this->title,

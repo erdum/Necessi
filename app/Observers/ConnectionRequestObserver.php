@@ -4,7 +4,6 @@ namespace App\Observers;
 
 use App\Models\ConnectionRequest;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Kreait\Firebase\Factory;
 
 class ConnectionRequestObserver implements ShouldQueue
 {
@@ -13,13 +12,7 @@ class ConnectionRequestObserver implements ShouldQueue
      */
     public function created(ConnectionRequest $req): void
     {
-        $factory = app(Factory::class);
-        $firebase = $factory->withServiceAccount(
-            base_path()
-            .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
-        );
-        $db = $firebase->createFirestore()->database();
+        $db = app('firebase')->createFirestore()->database();
 
         $db->runTransaction(function ($trx) use ($db, $req) {
             $sender_ref = $db->collection('users')
@@ -59,13 +52,7 @@ class ConnectionRequestObserver implements ShouldQueue
      */
     public function updated(ConnectionRequest $req): void
     {
-        $factory = app(Factory::class);
-        $firebase = $factory->withServiceAccount(
-            base_path()
-            .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
-        );
-        $db = $firebase->createFirestore()->database();
+        $db = app('firebase')->createFirestore()->database();
 
         $db->runTransaction(function ($trx) use ($db, $req) {
             $sender_ref = $db->collection('users')
@@ -97,13 +84,7 @@ class ConnectionRequestObserver implements ShouldQueue
      */
     public function deleted(ConnectionRequest $req): void
     {
-        $factory = app(Factory::class);
-        $firebase = $factory->withServiceAccount(
-            base_path()
-            .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
-        );
-        $db = $firebase->createFirestore()->database();
+        $db = app('firebase')->createFirestore()->database();
 
         $db->runTransaction(function ($trx) use ($db, $req) {
             $sender_ref = $db->collection('users')

@@ -4,7 +4,6 @@ namespace App\Observers;
 
 use App\Models\PostComment;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Kreait\Firebase\Factory;
 
 class PostCommentObserver implements ShouldQueue
 {
@@ -13,13 +12,7 @@ class PostCommentObserver implements ShouldQueue
      */
     public function created(PostComment $postComment): void
     {
-        $factory = app(Factory::class);
-        $firebase = $factory->withServiceAccount(
-            base_path()
-            .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
-        );
-        $db = $firebase->createFirestore()->database();
+        $db = app('firebase')->createFirestore()->database();
 
         $ref = $db->collection('posts')
             ->document($postComment->post_id)->collection('comments')
@@ -40,13 +33,7 @@ class PostCommentObserver implements ShouldQueue
      */
     public function updated(PostComment $postComment): void
     {
-        $factory = app(Factory::class);
-        $firebase = $factory->withServiceAccount(
-            base_path()
-            .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
-        );
-        $db = $firebase->createFirestore()->database();
+        $db = app('firebase')->createFirestore()->database();
 
         $ref = $db->collection('posts')
             ->document($postComment->post_id)->collection('comments')
@@ -67,13 +54,7 @@ class PostCommentObserver implements ShouldQueue
      */
     public function deleted(PostComment $postComment): void
     {
-        $factory = app(Factory::class);
-        $firebase = $factory->withServiceAccount(
-            base_path()
-            .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
-        );
-        $db = $firebase->createFirestore()->database();
+        $db = app('firebase')->createFirestore()->database();
 
         $ref = $db->collection('posts')
             ->document($postComment->post_id)->collection('comments')

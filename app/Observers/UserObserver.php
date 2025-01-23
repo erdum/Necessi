@@ -5,23 +5,15 @@ namespace App\Observers;
 use App\Models\User;
 use App\Services\StripeService;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Kreait\Firebase\Factory;
 
 class UserObserver implements ShouldQueue
 {
     /**
      * Handle the User "created" event.
      */
-    public function created(User $user): void
+    public function created(User $user, StripeService $stripe_service): void
     {
-        $factory = app(Factory::class);
-        $firebase = $factory->withServiceAccount(
-            base_path()
-            .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
-        );
-        $db = $firebase->createFirestore()->database();
-        $stripe_service = app(StripeService::class);
+        $db = app('firebase')->createFirestore()->database();
 
         $data = [
             'id' => $user->id,
@@ -49,16 +41,9 @@ class UserObserver implements ShouldQueue
     /**
      * Handle the User "updated" event.
      */
-    public function updated(User $user): void
+    public function updated(User $user, StripeService $stripe_service): void
     {
-        $factory = app(Factory::class);
-        $firebase = $factory->withServiceAccount(
-            base_path()
-            .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
-        );
-        $db = $firebase->createFirestore()->database();
-        $stripe_service = app(StripeService::class);
+        $db = app('firebase')->createFirestore()->database();
 
         $data = [
             'id' => $user->id,
@@ -88,13 +73,7 @@ class UserObserver implements ShouldQueue
      */
     public function deleted(User $user): void
     {
-        $factory = app(Factory::class);
-        $firebase = $factory->withServiceAccount(
-            base_path()
-            .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
-        );
-        $db = $firebase->createFirestore()->database();
+        $db = app('firebase')->createFirestore()->database();
 
         $ref = $db->collection('users')->document($user->uid);
 

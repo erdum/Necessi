@@ -22,17 +22,14 @@ class RemindOrderPayment implements ShouldQueue
      * @return void
      */
 
-	protected $notification_service;
-	
-    public function handle()
+    public function handle(FirebaseNotificationService $notification_service)
     {
-    	$this->notification_service = app(FirebaseNotificationService::class);
         try {
             $payment_reminders = PostBid::where('status', 'accepted')
                 ->whereDoesntHave('order')->get();
 
 	        foreach ($payment_reminders as $reminder) {
-	        	$this->notification_service->push_notification(
+	        	$notification_service->push_notification(
 	        		...NotificationData::ORDER_PAYMENT_REMINDER->get(
 	        			$reminder->post->user,
 	        			$reminder->user,

@@ -6,7 +6,6 @@ use App\Models\ConnectionRequest;
 use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Kreait\Firebase\Factory;
 
 class NotificationObserver implements ShouldQueue
 {
@@ -15,13 +14,7 @@ class NotificationObserver implements ShouldQueue
      */
     public function created(Notification $notification): void
     {
-        $factory = app(Factory::class);
-        $firebase = $factory->withServiceAccount(
-            base_path()
-            .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
-        );
-        $db = $firebase->createFirestore()->database();
+        $db = app('firebase')->createFirestore()->database();
         $is_request_accepted = false;
         $is_request_rejected = false;
         $is_connection_request = false;
@@ -73,13 +66,7 @@ class NotificationObserver implements ShouldQueue
      */
     public function updated(Notification $notification): void
     {
-        $factory = app(Factory::class);
-        $firebase = $factory->withServiceAccount(
-            base_path()
-            .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
-        );
-        $db = $firebase->createFirestore()->database();
+        $db = app('firebase')->createFirestore()->database();
         $is_request_accepted = false;
         $is_request_rejected = false;
         $is_connection_request = false;
@@ -128,13 +115,7 @@ class NotificationObserver implements ShouldQueue
      */
     public function deleted(Notification $notification): void
     {
-        $factory = app(Factory::class);
-        $firebase = $factory->withServiceAccount(
-            base_path()
-            .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
-        );
-        $db = $firebase->createFirestore()->database();
+        $db = app('firebase')->createFirestore()->database();
 
         $db->collection('users')->document($notification->user->uid)
             ->collection('notifications')->document($notification->id)

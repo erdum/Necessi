@@ -8,29 +8,11 @@ use App\Models\User;
 use App\Models\PostBid;
 use App\Services\StripeService;
 use App\Models\OrderHistory;
-use Kreait\Firebase\Factory;
 
 class Users
 {
-    protected static $firestore;
-
-    public static function initializeFirestore()
-    {
-        if (self::$firestore === null) {
-            $factory = app(Factory::class);
-            $firebase = $factory->withServiceAccount(
-                base_path()
-                .DIRECTORY_SEPARATOR
-                .config('firebase.projects.app.credentials')
-            );
-
-            self::$firestore = $firebase->createFirestore()->database();
-        }
-    }
-
     public static function get_users()
     {
-        self::initializeFirestore();
         $users = User::paginate();
 
         $all_users = [];
@@ -38,32 +20,39 @@ class Users
         $offline_users = [];
 
         $users->getCollection()->each(
-            function ($user) use (&$all_users, &$active_users, &$offline_users,
-        ){
-            $user_ref = self::$firestore->collection('users')->document($user->uid);
-            $user_snapshot = $user_ref->snapshot();
-    
-            if ($user_snapshot->exists()) {
-                $user_data = $user_snapshot->data();
-    
-                $user_entry = [
-                    'user_id' => $user->id,
-                    'user_uid' => $user->uid,
-                    'user_name' => $user->full_name ?? 'Unknown',
-                    'email' => $user->email,
-                    'user_avatar' => $user->avatar,
-                    'is_online' => $user_data['is_online'] ?? false,
-                ];
-    
-                $all_users[] = $user_entry;
-    
-                if ($user_data['is_online'] === true) {
-                    $active_users[] = $user_entry;
-                } else {
-                    $offline_users[] = $user_entry;
+            function ($user) use 
+            (
+                &$all_users,
+                &$active_users,
+                &$offline_users
+            ) {
+                $firestore = app('firebase')->createFirestore()->database();
+                $user_ref = $firestore->collection('users')
+                    ->document($user->uid);
+                $user_snapshot = $user_ref->snapshot();
+        
+                if ($user_snapshot->exists()) {
+                    $user_data = $user_snapshot->data();
+        
+                    $user_entry = [
+                        'user_id' => $user->id,
+                        'user_uid' => $user->uid,
+                        'user_name' => $user->full_name ?? 'Unknown',
+                        'email' => $user->email,
+                        'user_avatar' => $user->avatar,
+                        'is_online' => $user_data['is_online'] ?? false,
+                    ];
+        
+                    $all_users[] = $user_entry;
+        
+                    if ($user_data['is_online'] === true) {
+                        $active_users[] = $user_entry;
+                    } else {
+                        $offline_users[] = $user_entry;
+                    }
                 }
             }
-        });
+        );
 
         $users->setCollection(collect([
             'all_users' => $all_users,
@@ -76,8 +65,8 @@ class Users
 
     public static function user_details(string $uid)
     {
-        self::initializeFirestore();
-        $firebase_user = self::$firestore->collection('users')->document($uid);
+        $firestore = app('firebase')->createFirestore()->database();
+        $firebase_user = $firestore->collection('users')->document($uid);
         $user = User::where('uid', $uid)->first();
         $snapshot = $firebase_user->snapshot();
         $stripe_service = new StripeService();

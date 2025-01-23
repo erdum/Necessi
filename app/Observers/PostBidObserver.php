@@ -5,7 +5,6 @@ namespace App\Observers;
 use App\Models\PostBid;
 use Google\Cloud\Firestore\FieldValue;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Kreait\Firebase\Factory;
 
 class PostBidObserver implements ShouldQueue
 {
@@ -14,13 +13,7 @@ class PostBidObserver implements ShouldQueue
      */
     public function created(PostBid $postBid): void
     {
-        $factory = app(Factory::class);
-        $firebase = $factory->withServiceAccount(
-            base_path()
-            .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
-        );
-        $db = $firebase->createFirestore()->database();
+        $db = app('firebase')->createFirestore()->database();
 
         $lowest_ref = $db->collection('posts')
             ->document($postBid->post->id)->collection('bids')
@@ -54,13 +47,7 @@ class PostBidObserver implements ShouldQueue
      */
     public function updated(PostBid $postBid): void
     {
-        $factory = app(Factory::class);
-        $firebase = $factory->withServiceAccount(
-            base_path()
-            .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
-        );
-        $db = $firebase->createFirestore()->database();
+        $db = app('firebase')->createFirestore()->database();
 
         $lowest_ref = $db->collection('posts')
             ->document($postBid->post->id)->collection('bids')
@@ -92,13 +79,7 @@ class PostBidObserver implements ShouldQueue
      */
     public function deleted(PostBid $postBid): void
     {
-        $factory = app(Factory::class);
-        $firebase = $factory->withServiceAccount(
-            base_path()
-            .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
-        );
-        $db = $firebase->createFirestore()->database();
+        $db = app('firebase')->createFirestore()->database();
 
         $lowest_ref = $db->collection('posts')
             ->document($postBid->post->id)->collection('bids')

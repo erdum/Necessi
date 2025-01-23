@@ -7,7 +7,6 @@ use App\Models\User;
 use App\Models\Post;
 use App\Models\PostComment;
 use App\Services\StripeService;
-use Kreait\Firebase\Factory;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class Reports
@@ -55,14 +54,7 @@ class Reports
         $reported_entity = $report->reportable;
 
         if ($reported_entity instanceof User) {
-            $factory = app(Factory::class);
-            $firebase = $factory->withServiceAccount(
-                base_path()
-                .DIRECTORY_SEPARATOR
-                .config('firebase.projects.app.credentials')
-            );
-
-            $firestore = $firebase->createFirestore()->database();
+            $firestore = app('firebase')->createFirestore()->database();
             $user_snap = $firestore->collection('users')
                 ->document($reported_entity->uid)
                 ->snapshot();

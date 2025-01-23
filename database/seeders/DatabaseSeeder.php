@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Kreait\Firebase\Factory;
 
 class DatabaseSeeder extends Seeder
 {
@@ -111,13 +110,7 @@ class DatabaseSeeder extends Seeder
 
     protected function clear_firestore()
     {
-        $factory = app(Factory::class);
-        $firebase = $factory->withServiceAccount(
-            base_path()
-            .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
-        );
-        $db = $firebase->createFirestore()->database();
+        $db = app('firebase')->createFirestore()->database();
 
         $db->runTransaction(function ($trx) use ($db) {
             $users = $db->collection('users')->listDocuments();

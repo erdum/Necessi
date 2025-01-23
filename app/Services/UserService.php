@@ -23,32 +23,24 @@ use Google\Cloud\Firestore\Filter;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
-use Kreait\Firebase\Factory;
 use App\Services\NotificationData;
 
 class UserService
 {
     protected $post_service;
-
     protected $notification_service;
-
     protected $stripe_service;
-
     protected $firestore;
 
-    public function __construct() {
-        $this->post_service = app(PostService::class);
-        $this->notification_service = app(FirebaseNotificationService::class);
-        $this->stripe_service = app(StripeService::class);
-
-        $factory = app(Factory::class);
-        $firebase = $factory->withServiceAccount(
-            base_path()
-            .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
-        );
-
-        $this->firestore = $firebase->createFirestore()->database();
+    public function __construct(
+        PostService $post_service,
+        FirebaseNotificationService $notification_service,
+        StripeService $stripe_service
+    ) {
+        $this->post_service = $post_service;
+        $this->notification_service = $notification_service;
+        $this->stripe_service = $stripe_service;
+        $this->firestore = app('firebase')->createFirestore()->database();
     }
 
     private function is_connected(User $current_user, User $target_user)

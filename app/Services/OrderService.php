@@ -25,7 +25,7 @@ class OrderService
     public function __construct(
         StripeService $stripe_service,
         PostService $post_service,
-        FirebaseNotificationService $notification_service,
+        FirebaseNotificationService $notification_service
     ) {
         $this->stripe_service = $stripe_service;
         $this->post_service = $post_service;

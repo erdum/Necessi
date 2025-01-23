@@ -7,28 +7,19 @@ use App\Models\User;
 use App\Services\OtpService;
 use Illuminate\Support\Facades\Hash;
 use Kreait\Firebase\Exception\Auth\FailedToVerifyToken;
-use Kreait\Firebase\Factory;
 use App\Jobs\SendEmails;
 
 class FirebaseAuthService
 {
     protected $auth;
-
     protected $user_service;
-
     protected $notification;
 
     public function __construct(
-        Factory $factory,
         UserService $user_service,
         FirebaseNotificationService $notification
     ) {
-        $firebase = $factory->withServiceAccount(
-            base_path()
-            .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
-        );
-        $this->auth = $firebase->createAuth();
+        $this->auth = app('firebase')->createAuth();
         $this->user_service = $user_service;
         $this->notification = $notification;
     }

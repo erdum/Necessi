@@ -4,7 +4,6 @@ namespace App\Observers;
 
 use App\Models\PostLike;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Kreait\Firebase\Factory;
 
 class PostLikeObserver implements ShouldQueue
 {
@@ -13,13 +12,7 @@ class PostLikeObserver implements ShouldQueue
      */
     public function created(PostLike $postLike): void
     {
-        $factory = app(Factory::class);
-        $firebase = $factory->withServiceAccount(
-            base_path()
-            .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
-        );
-        $db = $firebase->createFirestore()->database();
+        $db = app('firebase')->createFirestore()->database();
 
         $ref = $db->collection('posts')
             ->document($postLike->post_id)->collection('likes')
@@ -39,13 +32,7 @@ class PostLikeObserver implements ShouldQueue
      */
     public function updated(PostLike $postLike): void
     {
-        $factory = app(Factory::class);
-        $firebase = $factory->withServiceAccount(
-            base_path()
-            .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
-        );
-        $db = $firebase->createFirestore()->database();
+        $db = app('firebase')->createFirestore()->database();
 
         $ref = $db->collection('posts')
             ->document($postLike->post_id)->collection('likes')
@@ -65,13 +52,7 @@ class PostLikeObserver implements ShouldQueue
      */
     public function deleted(PostLike $postLike): void
     {
-        $factory = app(Factory::class);
-        $firebase = $factory->withServiceAccount(
-            base_path()
-            .DIRECTORY_SEPARATOR
-            .config('firebase.projects.app.credentials')
-        );
-        $db = $firebase->createFirestore()->database();
+        $db = app('firebase')->createFirestore()->database();
 
         $ref = $db->collection('posts')
             ->document($postLike->post_id)->collection('likes')

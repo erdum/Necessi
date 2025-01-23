@@ -22,8 +22,10 @@ class PostService
 
     protected $stripe_service;
 
-    public function __construct() {
-        $this->notification_service = app(FirebaseNotificationService::class);
+    public function __construct(
+        FirebaseNotificationService $notification_service
+    ) {
+        $this->notification_service = $notification_service;
         $this->stripe_service = app(StripeService::class);
     }
 

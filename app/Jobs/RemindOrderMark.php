@@ -22,11 +22,8 @@ class RemindOrderMark implements ShouldQueue
      * @return void
      */
 
-	protected $notification_service;
-
-    public function handle()
+    public function handle(FirebaseNotificationService $notification_service)
     {
-    	$this->notification_service = app(FirebaseNotificationService::class);
         try {
             $borrower_pickups = PostBid::withWhereHas(
             	'post',
@@ -44,7 +41,7 @@ class RemindOrderMark implements ShouldQueue
 	            ->get();
 
 	        foreach ($borrower_pickups as $pickup) {
-	        	$this->notification_service->push_notification(
+	        	$notification_service->push_notification(
 	        		...NotificationData::PICKUP_DATE_REMINDER->get(
 	        			$pickup->post->user,
 	        			$pickup->user,
@@ -69,7 +66,7 @@ class RemindOrderMark implements ShouldQueue
 	            ->get();
 
 	        foreach ($provider_pickups as $pickup) {
-	        	$this->notification_service->push_notification(
+	        	$notification_service->push_notification(
 	        		...NotificationData::RETURN_DATE_REMINDER->get(
 	        			$pickup->user,
 	        			$pickup->post->user,
