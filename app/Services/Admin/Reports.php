@@ -5,6 +5,7 @@ namespace App\Services\Admin;
 use App\Models\Post;
 use App\Models\PostComment;
 use App\Models\Report;
+use App\Models\Review;
 use App\Models\User;
 use App\Services\StripeService;
 
@@ -67,6 +68,15 @@ class Reports
                 $reported_entity
             )['available'][0]['amount'] / 100;
 
+            $reviews = Review::whereHas(
+                'post',
+                function ($query) use ($reported_entity) {
+                    $query->user_id = $reported_entity->id;
+                }
+            )
+                ->with('user')
+                ->paginate(4);
+
             return [
                 'reporter' => [
                     'id' => $reporter->id,
@@ -85,6 +95,7 @@ class Reports
                     'email' => $reported_entity->email,
                     'is_online' => $user_firestore_data['is_online'] ?? false,
                     'wallet_balance' => $user_balance,
+                    'reviews' => $reviews,
                 ],
             ];
         } elseif ($reported_entity instanceof Post) {
