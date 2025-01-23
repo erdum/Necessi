@@ -212,11 +212,16 @@ class FirebaseAuthService
             $firebase_uid = $verified_id_token->claims()->get('sub');
             $email_verified_at = now();
 
-            $user = User::firstOrNew([
-                'email' => $verified_id_token->claims()->get('email'),
-            ]);
+            $user = User::firstOrNew(
+                ['email' => $verified_id_token->claims()->get('email')],
+                [
+                    'uid' => $firebase_uid,
+                    'first_name' => $verified_id_token->claims()->get('name') ?? 'Necessi User',
+                    'last_name' => $verified_id_token->claims()->get('family_name') ?? '',
+                ]
+            );
 
-            if ($user->uid) {
+            if ($firebase_uid != $user->uid) {
                 $firebase_user = $this->auth->getUserByEmail($user->email);
 
                 if ($firebase_user) {
@@ -226,11 +231,6 @@ class FirebaseAuthService
                         'uid' => $user->uid,
                     ]);
                 }
-            } else {
-                $user->first_name = $verified_id_token->claims()->get('name') ?? 'Necessi User';
-                $user->last_name = $verified_id_token->claims()->get('family_name') ?? '';
-                $user->uid = $firebase_uid;
-                $user->save();
             }
 
             if ($user->email_verified_at == null) {
