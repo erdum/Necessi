@@ -1310,16 +1310,12 @@ class UserService
         ))[0];
         $other_user = User::where('uid', $other_uid)->first();
 
-        $this->block_user(
+        return $this->report_user(
             $user,
             $other_user,
             $reason_type,
             $other_reason
         );
-
-        return [
-            'message' => 'User successfully reported',
-        ];
     }
 
     public function report_user(
