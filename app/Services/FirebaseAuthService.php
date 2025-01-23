@@ -208,22 +208,31 @@ class FirebaseAuthService
     public function social_auth(string $token)
     {
         try {
-            $verifiedIdToken = $this->auth->verifyIdToken($token);
-            $firebaseUid = $verifiedIdToken->claims()->get('sub');
+            $verified_id_token = $this->auth->verifyIdToken($token);
+            $firebase_uid = $verified_id_token->claims()->get('sub');
             $email_verified_at = now();
 
             $user = User::updateOrCreate(
-                ['uid' => $firebaseUid],
+                ['email' => $verified_id_token->claims()->get('email')],
                 [
-                    'email' => $verifiedIdToken->claims()->get('email'),
-                    'first_name' => $verifiedIdToken->claims()->get('name') ?? 'Necessi User',
-                    'last_name' => $verifiedIdToken->claims()->get('family_name') ?? '',
+                    'first_name' => $verified_id_token->claims()->get('name') ?? 'Necessi User',
+                    'last_name' => $verified_id_token->claims()->get('family_name') ?? '',
                 ]
             );
 
             if ($user->email_verified_at == null) {
                 $user->email_verified_at = now();
                 $user->save();
+            }
+
+            $firebase_user = $this->auth->getUserByEmail($user->email);
+
+            if ($firebase_user) {
+                $this->auth->deleteUser($firebase_uid);
+                $this->auth->createUser([
+                    'email' => $user->email,
+                    'uid' => $user->uid
+                ]);
             }
 
             if (! $user->preferences) {
