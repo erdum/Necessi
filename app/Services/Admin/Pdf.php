@@ -2,7 +2,7 @@
 
 namespace App\Services\Admin;
 
-use PdfReport;
+use Jimmyjs\ReportGenerator\Facades\PdfReportFacade as PdfReport;
 use App\Models\Report;
 use App\Models\OrderHistory;
 use Illuminate\Pagination\LengthAwarePaginator;
