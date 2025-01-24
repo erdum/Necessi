@@ -213,6 +213,20 @@ class AdminController extends Controller
         return $response;
     }
 
+    public function get_reports_pdf(Request $request)
+    {
+        $response = Admin\Pdf::reports();
+
+        return $response;
+    }
+
+    public function get_orders_pdf(Request $request)
+    {
+        $response = Admin\Pdf::orders();
+
+        return $response;
+    }
+
     public function logout(Request $request)
     {
         $response = Admin\Auth::logout($request->user());

@@ -155,6 +155,18 @@ Route::prefix('admin')->group(function () {
         );
     });
 
+    // Get reports pdf
+    Route::get(
+        '/reports-pdf',
+        [AdminController::class, 'get_reports_pdf']
+    )->name('reports-pdf');
+
+    // Get orders pdf
+    Route::get(
+        '/orders-pdf',
+        [AdminController::class, 'get_orders_pdf']
+    )->name('orders-pdf');
+
 });
 
 Route::middleware(['auth:sanctum', 'role:App\Models\User'])->group(function () {

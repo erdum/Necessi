@@ -44,7 +44,13 @@ class Reports
         // Admin panel doesn't have Report type Post Comment
         unset($items['postcomment']);
 
-        $reports->setCollection(collect($items));
+        $query_params = request()->query();
+        $pdf_url = route('reports-pdf') . '?' . http_build_query($query_params);
+
+        $reports->setCollection(collect([
+            ...$items,
+            'pdf_url' => $pdf_url
+        ]));
 
         return $reports;
     }

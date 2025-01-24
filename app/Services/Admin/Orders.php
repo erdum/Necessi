@@ -18,7 +18,6 @@ class Orders
             ->orderBy('created_at', 'desc')
             ->paginate();
 
-        $all_orders = [];
         $item_orders = [];
         $service_orders = [];
 
@@ -36,8 +35,6 @@ class Orders
                     'created_at' => $order->created_at->format('Y-m-d h:i'),
                 ];
 
-                $all_orders[] = $order_data;
-
                 if ($order->bid->post->type == 'item') {
                     $item_orders[] = $order_data;
                 } elseif ($order->bid->post->type == 'service') {
@@ -46,10 +43,13 @@ class Orders
             }
         );
 
+        $query_params = request()->query();
+        $pdf_url = route('orders-pdf') . '?' . http_build_query($query_params);
+
         $order_history->setCollection(collect([
-            'all_orders' => $all_orders,
             'item_orders' => $item_orders,
             'service_orders' => $service_orders,
+            'pdf_url' => $pdf_url,
         ]));
 
         return $order_history;
