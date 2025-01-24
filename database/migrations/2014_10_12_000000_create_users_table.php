@@ -31,6 +31,7 @@ return new class extends Migration
             $table->string('location')->nullable();
             $table->uuid('stripe_customer_id')->nullable()->unique();
             $table->uuid('stripe_account_id')->nullable()->unique();
+            $table->boolean('deactivated')->default(false);
             $table->rememberToken();
             $table->timestamps();
         });
