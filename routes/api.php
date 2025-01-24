@@ -99,7 +99,7 @@ Route::prefix('admin')->group(function () {
         );
 
         // Deactivate user
-        Route::post(
+        Route::get(
             '/deactivate-user/{user_id}',
             [AdminController::class, 'deactivate_user']
         );
@@ -185,13 +185,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post(
         '/user/payment-card',
         [UserController::class, 'add_payment_card']
-    );
+    )->middleware('deactivated');
 
     // Update user payment card
     Route::post(
         '/user/payment-card/{card_id}',
         [UserController::class, 'update_payment_card']
-    );
+    )->middleware('deactivated');
 
     // Delete user payment card
     Route::delete(
@@ -203,7 +203,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post(
         '/user/bank-details',
         [UserController::class, 'add_bank_details']
-    );
+    )->middleware('deactivated');
 
     // Update user bank account
     // Route::post(
@@ -227,7 +227,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post(
         '/user/funds/withdraw',
         [UserController::class, 'withdraw_funds']
-    );
+    )->middleware('deactivated');
 
     // Get user account funds
     Route::get(
@@ -299,13 +299,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post(
         '/user/posts/review',
         [PostController::class, 'place_post_review']
-    );
+    )->middleware('deactivated');
 
     // Create post
     Route::post(
         '/posts/create',
         [PostController::class, 'create_post']
-    );
+    )->middleware('deactivated');
 
     // Edit post
     Route::post(
@@ -323,7 +323,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post(
         '/posts/{post_id}/bid',
         [PostController::class, 'place_bid']
-    );
+    )->middleware('deactivated');
 
     // cancel user palced bid on a post
     Route::delete(
@@ -365,7 +365,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get(
         '/posts/bid/{bid_id}/accept',
         [PostController::class, 'accept_post_bid']
-    );
+    )->middleware('deactivated');
 
     // Decline bid on a post
     Route::get(
@@ -407,13 +407,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post(
         '/posts/{post_id}/like',
         [PostController::class, 'toggle_like']
-    )->withoutMiddleware(['throttle:api']);
+    )->withoutMiddleware(['throttle:api'])->middleware('deactivated');
 
     // Place comment on a post
     Route::post(
         '/posts/place/comment',
         [PostController::class, 'place_comment']
-    );
+    )->middleware('deactivated');
 
     // Search all posts
     Route::post(
@@ -473,7 +473,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post(
         '/user/send-connection-requests',
         [UserController::class, 'send_connection_requests']
-    );
+    )->middleware('deactivated');
 
     // Cancel connection request
     Route::post(
@@ -485,7 +485,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post(
         '/users/accept-connection-request',
         [UserController::class, 'accept_connection_request']
-    );
+    )->middleware('deactivated');
 
     // Decline connection request
     Route::post(
@@ -521,13 +521,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get(
         '/user/initiate-chat/{uid}',
         [UserController::class, 'initiate_chat']
-    );
+    )->middleware('deactivated');
 
     // Create chat
     Route::post(
         '/chat',
         [UserController::class, 'create_chat']
-    ); //------- We're creating chat upon connection request being accepted
+    )->middleware('deactivated');
 
     // Upload document to Firebase cloud storage
     Route::post(
@@ -539,7 +539,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post(
         '/chat/notification',
         [UserController::class, 'send_message_notificatfion']
-    );
+    )->middleware('deactivated');
 
     // Block user from chat
     Route::post(

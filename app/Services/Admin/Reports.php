@@ -8,6 +8,7 @@ use App\Models\Report;
 use App\Models\Review;
 use App\Models\User;
 use App\Services\StripeService;
+use App\Services\PostService;
 
 class Reports
 {
@@ -153,5 +154,19 @@ class Reports
         }
     }
 
-    public static function deactivate_user(User $user) {}
+    public static function deactivate_user(User $user) {
+        // Cancel all pending bids
+        $pending_bids = $user->bids()->with('post')->where('status', 'pending')
+            ->get();
+        $post_service = app(PostService::class);
+
+        $pending_bids->each(function ($bid) use ($user, $post_service) {
+            $post_service->cancel_placed_bid($user, $bid->post);
+        });
+
+        $user->deactivated = true;
+        $user->save();
+
+        return ['message' => 'User successfully deactivated.'];
+    }
 }
