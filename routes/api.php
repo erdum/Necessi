@@ -48,7 +48,9 @@ Route::prefix('admin')->group(function () {
         [AdminController::class, 'update_password']
     );
 
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware(
+        ['auth:sanctum', 'role:App\Models\Admin']
+    )->group(function () {
 
         // Get dashboard data
         Route::get(
@@ -149,7 +151,7 @@ Route::prefix('admin')->group(function () {
 
 });
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'role:App\Models\User'])->group(function () {
 
     // Get user profile
     Route::get(
