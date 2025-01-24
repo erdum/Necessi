@@ -106,6 +106,12 @@ Route::prefix('admin')->group(function () {
             [AdminController::class, 'deactivate_user']
         );
 
+        // Reactive user
+        Route::get(
+            '/reactive-user/{user_id}',
+            [AdminController::class, 'reactive_user']
+        );
+
         // Get withdrawal requests
         Route::get(
             '/withdrawals',

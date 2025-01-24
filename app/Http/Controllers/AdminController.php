@@ -154,6 +154,15 @@ class AdminController extends Controller
         return $response;
     }
 
+    public function reactive_user(int $user_id, Request $request)
+    {
+        $user = User::findOrFail($user_id);
+
+        $response = Admin\Reports::reactive_user($user);
+
+        return $response;
+    }
+
     public function get_withdrawals(Request $request)
     {
         $response = Admin\Withdrawals::get();

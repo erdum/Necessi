@@ -169,4 +169,11 @@ class Reports
 
         return ['message' => 'User successfully deactivated.'];
     }
+
+    public static function reactive_user(User $user) {
+        $user->deactivated = false;
+        $user->save();
+
+        return ['message' => 'User successfully reactivated.'];
+    }
 }
