@@ -2,10 +2,9 @@
 
 namespace App\Http\Middleware;
 
+use App\Exceptions;
 use Closure;
 use Illuminate\Http\Request;
-use App\Exceptions;
-use Symfony\Component\HttpFoundation\Response;
 
 class CheckUserRole
 {
@@ -18,7 +17,7 @@ class CheckUserRole
     {
         $user = $request->user();
 
-        if (!$user || !$user instanceof $role) {
+        if (! $user || ! $user instanceof $role) {
             throw new Exceptions\AccessForbidden;
         }
 
