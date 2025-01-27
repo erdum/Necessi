@@ -28,12 +28,16 @@ class PostService
     }
 
     public function calculateDistance(
-        float $lat1,
-        float $lon1,
-        float $lat2,
-        float $lon2
+        ?float $lat1,
+        ?float $lon1,
+        ?float $lat2,
+        ?float $lon2
     ) {
         $earthRadius = 3958.8;
+
+        if ($lat1 == null || $lon1 == null || $lat2 == null || $lon2 == null) {
+            throw new Exceptions\UserLocationNotFound;
+        }
 
         $lat1 = deg2rad($lat1);
         $lon1 = deg2rad($lon1);
