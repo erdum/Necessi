@@ -42,7 +42,7 @@ class Users
 
                     $all_users[] = $user_entry;
 
-                    if ($user_data['is_online'] === true) {
+                    if (($user_data['is_online'] ?? false) === true) {
                         $active_users[] = $user_entry;
                     } else {
                         $offline_users[] = $user_entry;
