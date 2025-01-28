@@ -12,6 +12,7 @@ use App\Models\PostImage;
 use App\Models\PostLike;
 use App\Models\Review;
 use App\Models\User;
+use App\Models\Admin;
 use Carbon\Carbon;
 
 class PostService
@@ -910,9 +911,9 @@ class PostService
         return $post;
     }
 
-    public function delete_post(User $user, Post $post)
+    public function delete_post(User|Admin $user, Post $post)
     {
-        if ($user->id != $post->user_id) {
+        if ($user->id != $post->user_id && !($user instanceof Admin)) {
             throw new Exceptions\PostOwnership;
         }
 

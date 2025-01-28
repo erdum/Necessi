@@ -337,7 +337,7 @@ Route::middleware(['auth:sanctum', 'role:App\Models\User'])->group(function () {
     Route::delete(
         '/posts/{post_id}',
         [PostController::class, 'delete_post']
-    );
+    )->withoutMiddleware('role:App\Models\User');
 
     // Place bid on a post
     Route::post(
