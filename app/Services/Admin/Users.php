@@ -116,6 +116,7 @@ class Users
                 'balance' => $balance,
                 'total_revenue' => $total_revenue_amount,
                 'spent_amount' => $user_spent,
+                'is_deactivate' => (bool) $user->deactivated
             ];
         }
 
