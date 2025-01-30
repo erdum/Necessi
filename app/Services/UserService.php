@@ -263,6 +263,9 @@ class UserService
                     ->toArray();
 
                 foreach ($chat_ids as $chat_id) {
+                    if(empty($chat_id)){
+                        continue;
+                    }
                     $ref = $firestore_copy->collection('chats')
                         ->document($chat_id);
                     $messages = $ref->collection('messages')->listDocuments();
