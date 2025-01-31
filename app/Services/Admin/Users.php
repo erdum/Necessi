@@ -6,6 +6,7 @@ use App\Models\OrderHistory;
 use App\Models\PostBid;
 use App\Models\User;
 use App\Services\StripeService;
+use Carbon\Carbon;
 
 class Users
 {
@@ -68,6 +69,7 @@ class Users
         $snapshot = $firebase_user->snapshot();
         $stripe_service = app(StripeService::class);
         $user_details = [];
+        $posts = [];
 
         $balance = $stripe_service->get_account_balance(
             $user
@@ -120,9 +122,46 @@ class Users
             ];
         }
 
+        if($user->posts){
+            foreach($user->posts as $post)
+            {
+                $posts[] = [
+                    'post_id' => $post->id,
+                    'type' => $post->type,
+                    'title' => $post->title,
+                    'description' => $post->description,
+                    'location' => $post->location,
+                    'lat' => $post->lat,
+                    'long' => $post->long,
+                    'city' => $post->city,
+                    'state' => $post->state,
+                    'budget' => $post->budget,
+                    'duration' => ($post->start_time && $post->end_time)
+                        ? Carbon::parse($post->start_time)->format('h:i A').' - '.Carbon::parse($post->end_time)->format('h:i A')
+                        : null,
+                    'date' => Carbon::parse($post->start_date)->format('d M').' - '.
+                            Carbon::parse($post->end_date)->format('d M y'),
+                    'start_date' => $post->start_date,
+                    'end_date' => $post->end_date,
+                    'start_time' => $post->start_time,
+                    'end_time' => $post->end_time,
+                    'delivery_requested' =>(bool) $post->delivery_requested,
+                    'created_at' => $post->created_at,
+                    'bids_count' => $post->bids->count(),
+                    'likes_count' => $post->likes->count(),
+                    'user' => [
+                        'user_id' => $post->user->id,
+                        'user_uid' => $post->user->uid,
+                        'user_name' => $post->user->full_name,
+                        'user_avatar' => $post->user->avatar,
+                    ],
+                ]; 
+            }
+        }
+
         return [
             'user' => $user_details,
-            'user_posts' => $user->posts,
+            'user_posts' => $posts,
             'user_reviews' => $user->reviews,
             'transaction_history' => $orders,
         ];
