@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Services\PostService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Carbon\Carbon;
 
 class PostController extends Controller
 {
@@ -32,8 +33,32 @@ class PostController extends Controller
                 'date_format:Y-m-d',
                 Rule::when($request->type === 'service', 'after_or_equal:start_date', 'after:start_date'),
             ],
-            'start_time' => 'nullable|date_format:H:i:s|required_if:type,service',
-            'end_time' => 'nullable|date_format:H:i:s|required_if:type,service',
+            'start_time' => [
+                'nullable',
+                'date_format:H:i:s',
+                'required_if:type,service',
+                function ($attribute, $value, $fail) {
+                    $c_time_1 = Carbon::now();
+                    $c_time_2 = Carbon::parse($value);
+
+                    if ($c_time_1->greaterThan($c_time_2)) {
+                        $fail('The ' . $attribute . ' must be equal to or after the current time.');
+                    }
+                },
+            ],
+            'end_time' => [
+                'nullable',
+                'date_format:H:i:s',
+                'required_if:type,service',
+                function ($attribute, $value, $fail) use ($request) {
+                    $c_time_1 = Carbon::parse($request->start_time);
+                    $c_time_2 = Carbon::parse($value);
+
+                    if ($c_time_1->greaterThanOrEqualTo($c_time_2)) {
+                        $fail('The ' . $attribute . ' must be after the start_time.');
+                    }
+                },
+            ],
             'request_delivery' => 'nullable',
             'avatar[]' => 'nullable|array',
             'avatar[].*' => 'file',
