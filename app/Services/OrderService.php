@@ -186,7 +186,7 @@ class OrderService
         }
 
         return [
-            'message' => 'Order marked as received successfully!',
+            'message' => 'Order marked as received successfully',
         ];
     }
 
@@ -198,7 +198,7 @@ class OrderService
         )->first();
 
         if (! $order || ! $order->bid) {
-            throw new Exceptions\BaseException('Order or bid not found!', 404);
+            throw new Exceptions\BaseException('Order or bid not found', 404);
         }
 
         $post = Post::with('user:id,uid,first_name,last_name,avatar')
@@ -207,7 +207,7 @@ class OrderService
 
         if (! $post) {
             throw new Exceptions\BaseException(
-                'Post or user not found!', 404
+                'Post or user not found', 404
             );
         }
 

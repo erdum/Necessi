@@ -121,7 +121,7 @@ enum NotificationData
                 'type' => NotificationType::BID,
                 'receiver_user' => $receiver_user,
                 'title' => $receiver_user->full_name,
-                'body' => " you have received a new bid on {$post?->title}. Accept or decline now!",
+                'body' => " you have received a new bid on {$post?->title}. Accept or decline now",
                 'image' => $sender_user->avatar ?? '',
                 'additional_data' => [
                     'description' => $sender_user->about,

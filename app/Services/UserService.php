@@ -108,7 +108,7 @@ class UserService
 
             if ($existing_request->status == 'pending') {
                 throw new Exceptions\BaseException(
-                    'Connection request already sent!', 400
+                    'Connection request already sent', 400
                 );
             }
 
@@ -661,7 +661,7 @@ class UserService
         }
 
         return [
-            'message' => 'Connection request sent successfully!',
+            'message' => 'Connection request sent successfully',
         ];
     }
 
