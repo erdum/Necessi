@@ -52,7 +52,7 @@ class FirebaseAuthService
                 'last_name' => $last_name,
                 'phone_number' => preg_replace('/^\+1/', '', $phone_number),
                 'password' => Hash::make($password),
-                'uid' => str()->random(28),
+                'uid' => $user->uid ?? str()->random(28),
             ]
         );
 
