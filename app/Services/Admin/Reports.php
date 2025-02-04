@@ -143,11 +143,18 @@ class Reports
                         'email' => $reported_entity->user->email,
                         'name' => $reported_entity->user->full_name,
                         'avatar' => $reported_entity->user->avatar,
+                        'is_deactivate' => (bool) $reported_entity->user->deactivated,
                     ],
                     'id' => $reported_entity->id,
+                    'post_type' => $reported_entity->type,
                     'title' => $reported_entity->title,
                     'description' => $reported_entity->description,
                     'budget' => $reported_entity->budget,
+                    'duration' => ($reported_entity->start_time && $reported_entity->end_time)
+                        ? Carbon::parse($reported_entity->start_time)->format('h:i A').' - '.Carbon::parse($reported_entity->end_time)->format('h:i A')
+                        : null,
+                    'date' => Carbon::parse($reported_entity->start_date)->format('d M').' - '.
+                              Carbon::parse($reported_entity->end_date)->format('d M y'),
                     'start_date' => $reported_entity->start_date,
                     'end_date' => $reported_entity->end_date,
                     'start_time' => $reported_entity?->start_time,
