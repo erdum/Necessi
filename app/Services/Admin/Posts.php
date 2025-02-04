@@ -3,6 +3,7 @@
 namespace App\Services\Admin;
 
 use App\Models\Post;
+use Carbon\Carbon;
 
 class Posts
 {
@@ -45,6 +46,11 @@ class Posts
                             'budget' => $post->budget,
                             'state' => $post->state,
                             'city' => $post->city,
+                            'duration' => ($post->start_time && $post->end_time)
+                                ? Carbon::parse($post->start_time)->format('h:i A').' - '.Carbon::parse($post->end_time)->format('h:i A')
+                                : null,
+                            'date' => Carbon::parse($post->start_date)->format('d M').' - '.
+                                    Carbon::parse($post->end_date)->format('d M y'),
                             'start_date' => $post->start_date,
                             'end_date' => $post->end_date,
                             'start_time' => $post->start_time,
@@ -71,6 +77,11 @@ class Posts
                             'budget' => $post->budget,
                             'state' => $post->state,
                             'city' => $post->city,
+                            'duration' => ($post->start_time && $post->end_time)
+                                ? Carbon::parse($post->start_time)->format('h:i A').' - '.Carbon::parse($post->end_time)->format('h:i A')
+                                : null,
+                            'date' => Carbon::parse($post->start_date)->format('d M').' - '.
+                                      Carbon::parse($post->end_date)->format('d M y'),
                             'start_date' => $post->start_date,
                             'end_date' => $post->end_date,
                             'start_time' => $post->start_time,
