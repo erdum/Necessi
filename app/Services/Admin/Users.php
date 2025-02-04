@@ -39,6 +39,7 @@ class Users
                         'email' => $user->email,
                         'user_avatar' => $user->avatar,
                         'is_online' => $user_data['is_online'] ?? false,
+                        'is_deactivate' => (bool) $user->deactivated,
                     ];
 
                     $all_users[] = $user_entry;
