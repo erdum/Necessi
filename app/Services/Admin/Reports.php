@@ -97,7 +97,6 @@ class Reports
                             'uid' => $review->user->uid,
                             'name' => $review->user->full_name,
                             'avatar' => $review->user->avatar,
-                            'is_deactivate' => (bool) $review->user->deactivated,
                         ],
                     ];
                 }
@@ -122,6 +121,7 @@ class Reports
                     'is_online' => $user_firestore_data['is_online'] ?? false,
                     'wallet_balance' => $user_balance,
                     'reviews' => $reviews,
+                    'is_deactivate' => (bool) $reported_entity->deactivated,
                 ],
             ];
         } elseif ($reported_entity instanceof Post) {
