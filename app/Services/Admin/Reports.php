@@ -97,6 +97,7 @@ class Reports
                             'uid' => $review->user->uid,
                             'name' => $review->user->full_name,
                             'avatar' => $review->user->avatar,
+                            'is_deactivate' => (bool) $review->user->deactivated,
                         ],
                     ];
                 }
