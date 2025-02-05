@@ -18,7 +18,7 @@ class Withdrawals
         )
             ->latest()
             ->with('user:id,uid,email,first_name,last_name,avatar')
-            ->paginate();
+            ->paginate(3);
 
         return $withdrawals;
     }
@@ -27,7 +27,7 @@ class Withdrawals
     {
         $history = $withdrawal->user->withdraws()
             ->whereNot('id', $withdrawal->id)
-            ->paginate();
+            ->paginate(3);
 
         $history->getCollection()->transform(function ($withdraw) {
             return [

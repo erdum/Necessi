@@ -9,7 +9,7 @@ class Notifications
 {
     public static function get()
     {
-        $notifications = Notification::whereNull('user_id')->paginate();
+        $notifications = Notification::whereNull('user_id')->paginate(3);
 
         return $notifications;
     }

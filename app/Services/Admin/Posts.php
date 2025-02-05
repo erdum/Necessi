@@ -27,7 +27,7 @@ class Posts
             ->with(['user:id,uid,first_name,last_name,avatar'])
             ->withCount('likes', 'bids')
             ->latest()
-            ->paginate();
+            ->paginate(3);
 
         $items = [];
         $services = [];

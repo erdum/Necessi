@@ -17,7 +17,7 @@ class Revenues
             })
             ->whereNotNull('transaction_id')
             ->orderBy('created_at', 'desc')
-            ->paginate();
+            ->paginate(3);
 
         $all = [];
         $received = [];
