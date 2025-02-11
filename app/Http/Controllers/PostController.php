@@ -27,10 +27,10 @@ class PostController extends Controller
             'location' => 'nullable|string',
             'budget' => 'required|gte:5|lte:1000',
             'type' => 'required|string|in:item,service',
-            'start_date' => 'required|date_format:Y-m-d|after_or_equal:today',
+            'start_date' => 'required|date_format:m-d-Y|after_or_equal:today',
             'end_date' => [
                 'required',
-                'date_format:Y-m-d',
+                'date_format:m-d-Y',
                 Rule::when($request->type === 'service', 'after_or_equal:start_date', 'after:start_date'),
             ],
             'start_time' => [
