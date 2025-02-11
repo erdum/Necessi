@@ -465,7 +465,7 @@ class PostService
 
     public function get_all_posts(?User $user)
     {
-        $posts = Post::where('end_date', '<', now())
+        $posts = Post::where('end_date', '>=', now())
             ->whereDoesntHave('bids')
             ->orWhereHas('bids', function ($query) {
                 $query->whereNot('status', 'accepted');
@@ -945,7 +945,7 @@ class PostService
                 }
             }
         )
-            ->where('end_date', '<', now())
+            ->where('end_date', '>=', now())
             ->whereDoesntHave('bids')
             ->orWhereHas('bids', function ($query) {
                 $query->whereNot('status', 'accepted');
