@@ -470,7 +470,7 @@ class PostService
                 ->whereDoesntHave('bids')
                 ->orWhereHas('bids', function ($query) {
                     $query->whereNot('status', 'accepted');
-                })
+                });
         })
             ->when($user, function ($query) use ($user) {
                 $query->whereDoesntHave(
@@ -950,7 +950,7 @@ class PostService
                     ->whereDoesntHave('bids')
                     ->orWhereHas('bids', function ($query) {
                         $query->whereNot('status', 'accepted');
-                    })
+                    });
             }
         )
             ->whereDoesntHave(
