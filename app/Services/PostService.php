@@ -465,7 +465,8 @@ class PostService
 
     public function get_all_posts(?User $user)
     {
-        $posts = Post::whereDoesntHave('bids')
+        $posts = Post::where('end_date', '<', now())
+            ->whereDoesntHave('bids')
             ->orWhereHas('bids', function ($query) {
                 $query->whereNot('status', 'accepted');
             })
@@ -476,12 +477,12 @@ class PostService
                         $query->where('blocked_id', $user->id);
                     }
                 )
-                    ->whereDoesntHave(
-                        'user.blocker_users',
-                        function ($query) use ($user) {
-                            $query->where('blocker_id', $user->id);
-                        }
-                    );
+                ->whereDoesntHave(
+                    'user.blocker_users',
+                    function ($query) use ($user) {
+                        $query->where('blocker_id', $user->id);
+                    }
+                );
             })
             ->orderBy('created_at', 'desc')
             ->with('user:id,first_name,last_name,avatar', 'bids.order')
@@ -944,6 +945,11 @@ class PostService
                 }
             }
         )
+            ->where('end_date', '<', now())
+            ->whereDoesntHave('bids')
+            ->orWhereHas('bids', function ($query) {
+                $query->whereNot('status', 'accepted');
+            })
             ->whereDoesntHave(
                 'user.blocked_users',
                 function ($query) use ($current_user) {
