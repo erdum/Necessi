@@ -178,6 +178,13 @@ class PostService
             );
         }
 
+        if ($post->end_date->isPast()) {
+            throw new Exceptions\BaseException(
+                'You can\'t place bid, post required date is in past.',
+                400
+            );
+        }
+
         $existing_bid = PostBid::where('user_id', $user->id)
             ->where('post_id', $post->id)->first();
 
