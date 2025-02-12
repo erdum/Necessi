@@ -70,11 +70,6 @@ class PostController extends Controller
                     }
                 },
             ],
-            'end_date' => [
-                'required',
-                'date_format:m-d-Y',
-                Rule::when($request->type === 'service', 'after_or_equal:start_date', 'after:start_date'),
-            ],
             'start_time' => [
                 'nullable',
                 'date_format:H:i:s',
