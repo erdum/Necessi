@@ -17,6 +17,11 @@ class PostController extends Controller
         Request $request,
         PostService $post_service
     ) {
+        // $request->merge([
+        //     'start_date' => Carbon::createFromFormat('m-d-Y', $request->start_date)->format('Y-m-d'),
+        //     'end_date' => Carbon::createFromFormat('m-d-Y', $request->end_date)->format('Y-m-d'),
+        // ]);
+
         $request->validate([
             'title' => 'required|string',
             'description' => 'required|string|max:1000',
@@ -27,48 +32,11 @@ class PostController extends Controller
             'location' => 'nullable|string',
             'budget' => 'required|gte:5|lte:1000',
             'type' => 'required|string|in:item,service',
-            'start_date' => [
-                'required',
-                'date_format:m-d-Y',
-                function ($attribute, $value, $fail) use ($request) {
-                    try {
-                        $start_date = Carbon::createFromFormat(
-                            'm-d-Y',
-                            $value
-                        );
-
-                        if ($start_date->lessThan(Carbon::today())) {
-                            $fail('The ' . $attribute . ' must be after or equal to the today date.');
-                        }
-                    } catch (\Exception $e) {
-                        $fail('Invalid date format.');
-                    }
-                },
-            ],
+            'start_date' => 'required|date_format:m-d-Y|after_or_equal:today',
             'end_date' => [
                 'required',
                 'date_format:m-d-Y',
-                function ($attribute, $value, $fail) use ($request) {
-                    try {
-                        $start_date = Carbon::createFromFormat(
-                            'm-d-Y',
-                            $request->start_date
-                        );
-                        $end_date = Carbon::createFromFormat('m-d-Y', $value);
-
-                        if ($request->type === 'service') {
-                            if ($end_date->lessThan($start_date)) {
-                                $fail('The ' . $attribute . ' must be after or equal to the start date.');
-                            }
-                        } else {
-                            if ($end_date->lessThanOrEqualTo($start_date)) {
-                                $fail('The ' . $attribute . ' must be after to the start date.');
-                            }
-                        }
-                    } catch (\Exception $e) {
-                        $fail('Invalid date format.');
-                    }
-                },
+                Rule::when($request->type === 'service', 'after_or_equal:start_date', 'after:start_date'),
             ],
             'start_time' => [
                 'nullable',
@@ -101,6 +69,9 @@ class PostController extends Controller
             'avatar[].*' => 'file',
             'use_account_address' => 'nullable|in:true,false',
         ]);
+
+        $request->start_date = Carbon::createFromFormat('m-d-Y', $request->start_date)->format('Y-m-d');
+        $request->end_date = Carbon::createFromFormat('m-d-Y', $request->end_date)->format('Y-m-d');
 
         $user = $request->user();
 
