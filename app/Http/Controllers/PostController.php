@@ -27,7 +27,49 @@ class PostController extends Controller
             'location' => 'nullable|string',
             'budget' => 'required|gte:5|lte:1000',
             'type' => 'required|string|in:item,service',
-            'start_date' => 'required|date_format:m-d-Y|after_or_equal:today',
+            'start_date' => [
+                'required',
+                'date_format:m-d-Y',
+                function ($attribute, $value, $fail) use ($request) {
+                    try {
+                        $start_date = Carbon::createFromFormat(
+                            'm-d-Y',
+                            $value
+                        );
+
+                        if ($start_date->lessThan(Carbon::today())) {
+                            $fail('The ' . $attribute . ' must be after or equal to the today date.');
+                        }
+                    } catch (\Exception $e) {
+                        $fail('Invalid date format.');
+                    }
+                },
+            ],
+            'end_date' => [
+                'required',
+                'date_format:m-d-Y',
+                function ($attribute, $value, $fail) use ($request) {
+                    try {
+                        $start_date = Carbon::createFromFormat(
+                            'm-d-Y',
+                            $request->start_date
+                        );
+                        $end_date = Carbon::createFromFormat('m-d-Y', $value);
+
+                        if ($request->type === 'service') {
+                            if ($end_date->lessThan($start_date)) {
+                                $fail('The ' . $attribute . ' must be after or equal to the start date.');
+                            }
+                        } else {
+                            if ($end_date->lessThanOrEqualTo($start_date)) {
+                                $fail('The ' . $attribute . ' must be after to the start date.');
+                            }
+                        }
+                    } catch (\Exception $e) {
+                        $fail('Invalid date format.');
+                    }
+                },
+            ],
             'end_date' => [
                 'required',
                 'date_format:m-d-Y',
