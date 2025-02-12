@@ -193,6 +193,14 @@ class PostService
             $existing_bid->status = 'pending';
             $existing_bid->save();
 
+            $this->notification_service->push_notification(
+                ...NotificationData::BID_RECEIVED->get(
+                    $post->user,
+                    $user,
+                    $post
+                )
+            );
+
             return [
                 'message' => 'Your bid has been updated successfully',
             ];
