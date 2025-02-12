@@ -188,18 +188,14 @@ class PostService
         $existing_bid = PostBid::where('user_id', $user->id)
             ->where('post_id', $post->id)->first();
 
+        $this->notification_service->push_notification(
+            ...NotificationData::BID_RECEIVED->get($post->user, $user, $post)
+        );
+
         if ($existing_bid) {
             $existing_bid->amount = $amount;
             $existing_bid->status = 'pending';
             $existing_bid->save();
-
-            $this->notification_service->push_notification(
-                ...NotificationData::BID_RECEIVED->get(
-                    $post->user,
-                    $user,
-                    $post
-                )
-            );
 
             return [
                 'message' => 'Your bid has been updated successfully',
@@ -212,10 +208,6 @@ class PostService
         $post_bid->amount = $amount;
         $post_bid->status = 'pending';
         $post_bid->save();
-
-        $this->notification_service->push_notification(
-            ...NotificationData::BID_RECEIVED->get($post->user, $user, $post)
-        );
 
         return [
             'message' => 'Your bid has been placed successfully',
