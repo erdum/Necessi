@@ -32,7 +32,7 @@ class RemindOrderPayment implements ShouldQueue
                     ...NotificationData::ORDER_PAYMENT_REMINDER->get(
                         $reminder->post->user,
                         $reminder->user,
-                        $reminder->post
+                        $reminder
                     )
                 );
             }

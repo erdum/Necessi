@@ -8,6 +8,7 @@ use App\Jobs\SendNotification;
 use App\Models\ConnectionRequest;
 use App\Models\Notification as NotificationModel;
 use App\Models\Post;
+use App\Models\PostBid;
 use App\Models\User;
 use App\Models\UserNotificationDevice;
 
@@ -43,7 +44,7 @@ enum NotificationData
     public function get(
         User $receiver_user,
         User $sender_user,
-        Post|ConnectionRequest|null $post
+        Post|PostBid|ConnectionRequest|null $post
     ): array {
         return match ($this) {
             self::PICKUP_DATE_REMINDER => [
@@ -83,7 +84,8 @@ enum NotificationData
                 'additional_data' => [
                     'description' => $sender_user->about,
                     'sender_id' => $sender_user->id,
-                    'post_id' => $post?->id,
+                    'post_id' => $post?->post?->id,
+                    'bid_id' => $post->id,
                     'notification_type' => 'payment_due',
                 ],
             ],
