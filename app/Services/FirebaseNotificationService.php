@@ -56,7 +56,7 @@ enum NotificationData
                     'description' => $sender_user->about,
                     'sender_id' => $sender_user->id,
                     'post_id' => $post?->id,
-                    'notification_type' => 'bid_canceled',
+                    'notification_type' => 'order_return_transaction',
                 ],
             ],
 
@@ -70,7 +70,7 @@ enum NotificationData
                     'description' => $sender_user->about,
                     'sender_id' => $sender_user->id,
                     'post_id' => $post?->id,
-                    'notification_type' => 'bid_canceled',
+                    'notification_type' => 'order_return_transaction',
                 ],
             ],
 
@@ -84,7 +84,7 @@ enum NotificationData
                     'description' => $sender_user->about,
                     'sender_id' => $sender_user->id,
                     'post_id' => $post?->id,
-                    'notification_type' => 'post_details',
+                    'notification_type' => 'payment_due',
                 ],
             ],
 
