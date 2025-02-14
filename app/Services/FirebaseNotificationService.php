@@ -51,7 +51,7 @@ enum NotificationData
                 'type' => NotificationType::TRANSACTION,
                 'receiver_user' => $receiver_user,
                 'title' => $receiver_user->full_name,
-                'body' => 'Your order pickup date as arrived, please mark it if you have received the item',
+                'body' => 'Your order pickup date has arrived, please confirm if you have received your item',
                 'image' => $sender_user->avatar ?? '',
                 'additional_data' => [
                     'description' => $sender_user->about,
@@ -65,7 +65,7 @@ enum NotificationData
                 'type' => NotificationType::TRANSACTION,
                 'receiver_user' => $receiver_user,
                 'title' => $receiver_user->full_name,
-                'body' => 'Your order return date as arrived, please mark it if you have received the item',
+                'body' => 'Your return date has arrived, please confirm if you have received your item',
                 'image' => $sender_user->avatar ?? '',
                 'additional_data' => [
                     'description' => $sender_user->about,
