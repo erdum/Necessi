@@ -16,39 +16,29 @@ class Users
 
         $all_users = [];
         $active_users = [];
-        $offline_users = [];
+        $deactive_users = [];
 
         $users->getCollection()->each(
             function ($user) use (
                 &$all_users,
                 &$active_users,
-                &$offline_users
+                &$deactive_users
             ) {
-                $firestore = app('firebase')->createFirestore()->database();
-                $user_ref = $firestore->collection('users')
-                    ->document($user->uid);
-                $user_snapshot = $user_ref->snapshot();
+                $user_entry = [
+                    'user_id' => $user->id,
+                    'user_uid' => $user->uid,
+                    'user_name' => $user->full_name ?? 'Unknown',
+                    'email' => $user->email,
+                    'user_avatar' => $user->avatar,
+                    'is_deactivate' => (bool) $user->deactivated,
+                ];
 
-                if ($user_snapshot->exists()) {
-                    $user_data = $user_snapshot->data();
+                $all_users[] = $user_entry;
 
-                    $user_entry = [
-                        'user_id' => $user->id,
-                        'user_uid' => $user->uid,
-                        'user_name' => $user->full_name ?? 'Unknown',
-                        'email' => $user->email,
-                        'user_avatar' => $user->avatar,
-                        'is_online' => $user_data['is_online'] ?? false,
-                        'is_deactivate' => (bool) $user->deactivated,
-                    ];
-
-                    $all_users[] = $user_entry;
-
-                    if (($user_data['is_online'] ?? false) === true) {
-                        $active_users[] = $user_entry;
-                    } else {
-                        $offline_users[] = $user_entry;
-                    }
+                if ($user->deactivated) {
+                    $deactive_users[] = $user_entry;
+                } else {
+                    $active_users[] = $user_entry;
                 }
             }
         );
@@ -56,7 +46,7 @@ class Users
         $users->setCollection(collect([
             'all_users' => $all_users,
             'active_users' => $active_users,
-            'offline_users' => $offline_users,
+            'deactive_users' => $deactive_users,
         ]));
 
         return $users;
