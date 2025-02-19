@@ -17,7 +17,7 @@ class Reports
     {
         $reports = Report::with(
             ['reporter:id,first_name,last_name,avatar', 'reportable']
-        )->paginate(3);
+        )->paginate();
 
         $items = [];
 

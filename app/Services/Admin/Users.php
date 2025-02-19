@@ -12,7 +12,7 @@ class Users
 {
     public static function get_users()
     {
-        $users = User::paginate(3);
+        $users = User::paginate();
 
         $all_users = [];
         $active_users = [];
