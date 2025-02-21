@@ -1,0 +1,20 @@
+{
+  "AWSEBDockerrunVersion": "1",
+  "Image": {
+    "Name": "erdum/laravel:latest",
+    "Update": "true"
+  },
+  "Ports": [
+    {
+      "ContainerPort": "8000",
+      "HostPort": "8080"
+    }
+  ],
+  "Volumes": [
+    {
+      "ContainerDirectory": "/var/www",
+      "HostDirectory": "/var/app/current"
+    }
+  ],
+  "Logging": "/var/log/nginx"
+}
